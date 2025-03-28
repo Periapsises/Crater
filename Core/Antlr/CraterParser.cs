@@ -195,7 +195,7 @@ public partial class CraterParser : Parser {
 			State = 20;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
-			while (_la==LOCAL) {
+			while (_la==LOCAL || _la==IDENTIFIER) {
 				{
 				{
 				State = 17;
@@ -269,12 +269,12 @@ public partial class CraterParser : Parser {
 	}
 
 	public partial class VariableDeclarationContext : ParserRuleContext {
-		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode LOCAL() { return GetToken(CraterParser.LOCAL, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode IDENTIFIER() { return GetToken(CraterParser.IDENTIFIER, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode COLON() { return GetToken(CraterParser.COLON, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public TypeNameContext typeName() {
 			return GetRuleContext<TypeNameContext>(0);
 		}
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode LOCAL() { return GetToken(CraterParser.LOCAL, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode ASSIGN() { return GetToken(CraterParser.ASSIGN, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public ExpressionContext expression() {
 			return GetRuleContext<ExpressionContext>(0);
@@ -310,22 +310,30 @@ public partial class CraterParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 25;
-			Match(LOCAL);
 			State = 26;
-			Match(IDENTIFIER);
-			State = 27;
-			Match(COLON);
+			ErrorHandler.Sync(this);
+			_la = TokenStream.LA(1);
+			if (_la==LOCAL) {
+				{
+				State = 25;
+				Match(LOCAL);
+				}
+			}
+
 			State = 28;
+			Match(IDENTIFIER);
+			State = 29;
+			Match(COLON);
+			State = 30;
 			typeName();
-			State = 31;
+			State = 33;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			if (_la==ASSIGN) {
 				{
-				State = 29;
+				State = 31;
 				Match(ASSIGN);
-				State = 30;
+				State = 32;
 				expression();
 				}
 			}
@@ -377,7 +385,7 @@ public partial class CraterParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 33;
+			State = 35;
 			_la = TokenStream.LA(1);
 			if ( !(_la==FUNCTION || _la==IDENTIFIER) ) {
 			ErrorHandler.RecoverInline(this);
@@ -433,7 +441,7 @@ public partial class CraterParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 35;
+			State = 37;
 			literal();
 			}
 		}
@@ -484,7 +492,7 @@ public partial class CraterParser : Parser {
 		EnterRule(_localctx, 12, RULE_literal);
 		int _la;
 		try {
-			State = 40;
+			State = 42;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
 			case NUMBER:
@@ -492,7 +500,7 @@ public partial class CraterParser : Parser {
 			case EXPONENTIAL:
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 37;
+				State = 39;
 				_localctx.number = TokenStream.LT(1);
 				_la = TokenStream.LA(1);
 				if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 14680064L) != 0)) ) {
@@ -507,14 +515,14 @@ public partial class CraterParser : Parser {
 			case STRING:
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 38;
+				State = 40;
 				Match(STRING);
 				}
 				break;
 			case BOOLEAN:
 				EnterOuterAlt(_localctx, 3);
 				{
-				State = 39;
+				State = 41;
 				Match(BOOLEAN);
 				}
 				break;
@@ -534,18 +542,19 @@ public partial class CraterParser : Parser {
 	}
 
 	private static int[] _serializedATN = {
-		4,1,52,43,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,1,0,
-		1,0,1,0,1,1,5,1,19,8,1,10,1,12,1,22,9,1,1,2,1,2,1,3,1,3,1,3,1,3,1,3,1,
-		3,3,3,32,8,3,1,4,1,4,1,5,1,5,1,6,1,6,1,6,3,6,41,8,6,1,6,0,0,7,0,2,4,6,
-		8,10,12,0,2,2,0,1,1,26,26,1,0,21,23,39,0,14,1,0,0,0,2,20,1,0,0,0,4,23,
-		1,0,0,0,6,25,1,0,0,0,8,33,1,0,0,0,10,35,1,0,0,0,12,40,1,0,0,0,14,15,3,
-		2,1,0,15,16,5,0,0,1,16,1,1,0,0,0,17,19,3,4,2,0,18,17,1,0,0,0,19,22,1,0,
-		0,0,20,18,1,0,0,0,20,21,1,0,0,0,21,3,1,0,0,0,22,20,1,0,0,0,23,24,3,6,3,
-		0,24,5,1,0,0,0,25,26,5,2,0,0,26,27,5,26,0,0,27,28,5,48,0,0,28,31,3,8,4,
-		0,29,30,5,27,0,0,30,32,3,10,5,0,31,29,1,0,0,0,31,32,1,0,0,0,32,7,1,0,0,
-		0,33,34,7,0,0,0,34,9,1,0,0,0,35,36,3,12,6,0,36,11,1,0,0,0,37,41,7,1,0,
-		0,38,41,5,24,0,0,39,41,5,25,0,0,40,37,1,0,0,0,40,38,1,0,0,0,40,39,1,0,
-		0,0,41,13,1,0,0,0,3,20,31,40
+		4,1,52,45,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,1,0,
+		1,0,1,0,1,1,5,1,19,8,1,10,1,12,1,22,9,1,1,2,1,2,1,3,3,3,27,8,3,1,3,1,3,
+		1,3,1,3,1,3,3,3,34,8,3,1,4,1,4,1,5,1,5,1,6,1,6,1,6,3,6,43,8,6,1,6,0,0,
+		7,0,2,4,6,8,10,12,0,2,2,0,1,1,26,26,1,0,21,23,42,0,14,1,0,0,0,2,20,1,0,
+		0,0,4,23,1,0,0,0,6,26,1,0,0,0,8,35,1,0,0,0,10,37,1,0,0,0,12,42,1,0,0,0,
+		14,15,3,2,1,0,15,16,5,0,0,1,16,1,1,0,0,0,17,19,3,4,2,0,18,17,1,0,0,0,19,
+		22,1,0,0,0,20,18,1,0,0,0,20,21,1,0,0,0,21,3,1,0,0,0,22,20,1,0,0,0,23,24,
+		3,6,3,0,24,5,1,0,0,0,25,27,5,2,0,0,26,25,1,0,0,0,26,27,1,0,0,0,27,28,1,
+		0,0,0,28,29,5,26,0,0,29,30,5,48,0,0,30,33,3,8,4,0,31,32,5,27,0,0,32,34,
+		3,10,5,0,33,31,1,0,0,0,33,34,1,0,0,0,34,7,1,0,0,0,35,36,7,0,0,0,36,9,1,
+		0,0,0,37,38,3,12,6,0,38,11,1,0,0,0,39,43,7,1,0,0,40,43,5,24,0,0,41,43,
+		5,25,0,0,42,39,1,0,0,0,42,40,1,0,0,0,42,41,1,0,0,0,43,13,1,0,0,0,4,20,
+		26,33,42
 	};
 
 	public static readonly ATN _ATN =
