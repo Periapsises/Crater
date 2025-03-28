@@ -8,7 +8,8 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
 {
     public override object? VisitProgram(CraterParser.ProgramContext context)
     {
-        return Visit(context.block());
+        var block = (Block)Visit(context.block())!;
+        return new Module(block);
     }
 
     public override object? VisitBlock(CraterParser.BlockContext context)
@@ -20,7 +21,7 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
             statements.Add((Statement)Visit(statement)!);
         }
         
-        return statements;
+        return new Block(statements);
     }
 
     public override object? VisitVariableDeclaration(CraterParser.VariableDeclarationContext context)
