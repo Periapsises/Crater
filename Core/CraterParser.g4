@@ -17,7 +17,10 @@ variableDeclaration: LOCAL? IDENTIFIER COLON typeName (ASSIGN expression)?;
 
 typeName: FUNCTION | IDENTIFIER;
 
-expression: literal;
+expression:
+    LPAREN expression RPAREN    # ParenthesizedExpression
+    | literal                   # LiteralExpression
+;
 
 literal:
     number = (NUMBER | HEXADECIMAL | EXPONENTIAL)

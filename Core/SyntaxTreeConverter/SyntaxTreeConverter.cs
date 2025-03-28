@@ -49,6 +49,12 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         return new DataTypeReference(context.IDENTIFIER().GetText()!);
     }
 
+    public override object? VisitParenthesizedExpression(CraterParser.ParenthesizedExpressionContext context)
+    {
+        var expression = (Expression)Visit(context.expression())!;
+        return new ParenthesizedExpression(expression);
+    }
+    
     public override object? VisitLiteral(CraterParser.LiteralContext context)
     {
         if (context.number != null)

@@ -82,15 +82,29 @@ public interface ICraterParserListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitTypeName([NotNull] CraterParser.TypeNameContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="CraterParser.expression"/>.
+	/// Enter a parse tree produced by the <c>ParenthesizedExpression</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterExpression([NotNull] CraterParser.ExpressionContext context);
+	void EnterParenthesizedExpression([NotNull] CraterParser.ParenthesizedExpressionContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="CraterParser.expression"/>.
+	/// Exit a parse tree produced by the <c>ParenthesizedExpression</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitExpression([NotNull] CraterParser.ExpressionContext context);
+	void ExitParenthesizedExpression([NotNull] CraterParser.ParenthesizedExpressionContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>LiteralExpression</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterLiteralExpression([NotNull] CraterParser.LiteralExpressionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>LiteralExpression</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitLiteralExpression([NotNull] CraterParser.LiteralExpressionContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="CraterParser.literal"/>.
 	/// </summary>
