@@ -1,7 +1,13 @@
-﻿namespace Core.SemanticAnalyzer;
+﻿using Core.SyntaxTreeConverter;
+
+namespace Core.SemanticAnalyzer;
 
 public class SemanticAnalyzer
 {
+    public void AnalyzeModule(Module module)
+    {
+    }
+    
     public PossibleSymbols AnalyzeAndOperation(PossibleSymbols leftSymbols, PossibleSymbols rightSymbols)
     {
         var leftCanBeTruthy = false;
