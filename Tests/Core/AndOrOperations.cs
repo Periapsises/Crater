@@ -1,7 +1,7 @@
 ﻿using Core.SemanticAnalyzer;
 using FluentAssertions;
 
-namespace Tests;
+namespace Tests.Core;
 
 public class AndOperations
 {
