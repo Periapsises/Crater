@@ -2,5 +2,5 @@
 
 public class BooleanType : DataType
 {
-    
+    public override string GetName() => "bool";
 }

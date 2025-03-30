@@ -2,5 +2,5 @@
 
 public class CustomType : DataType
 {
-    
+    public override string GetName() => "class";
 }

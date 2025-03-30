@@ -11,6 +11,8 @@ public abstract class DataType
     public static readonly DataType StringType = new StringType();
     public static readonly DataType BooleanType = new BooleanType();
 
+    public abstract string GetName();
+    
     public virtual void Assign(Symbol self, Symbol assignment)
     {
         if (assignment.DataType != this)
