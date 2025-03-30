@@ -59,20 +59,15 @@ public class SemanticAnalyzer
         
         var dataType = dataTypeSymbol.Value.GetDataType();
         
-        if (variableDeclaration.Initializer == null)
+        var defaultSymbol = new Symbol(Value.NullValue, dataType, variableDeclaration.Nullable);
+
+        if (variableDeclaration.Initializer != null)
         {
-            var symbol = new Symbol(Value.NullValue, dataType, variableDeclaration.Nullable);
-            scope.Declare(variableDeclaration.Identifier, symbol);
+            var assignedSymbol = AnalyzeExpression(variableDeclaration.Initializer);
+            defaultSymbol.Assign(assignedSymbol);
         }
-        else
-        {
-            var symbol = AnalyzeExpression(variableDeclaration.Initializer);
-            
-            // TODO: Run the assign method for types to check for an invalid type or a cast
-            DebugMessage.Write("TODO: Run the assign method for types to check for an invalid type or a cast");
-            
-            scope.Declare(variableDeclaration.Identifier, symbol);
-        }
+
+        scope.Declare(variableDeclaration.Identifier, defaultSymbol);
     }
 
     public Symbol AnalyzeExpression(Expression expression)

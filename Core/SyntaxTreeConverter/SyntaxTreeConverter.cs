@@ -68,6 +68,6 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         if (context.BOOLEAN() != null)
             return new BooleanLiteral(context.BOOLEAN().GetText()!);
         
-        throw new NotImplementedException();
+        throw new NotImplementedException($"Unknown literal type: {context.NUMBER().GetText()}");
     }
 }

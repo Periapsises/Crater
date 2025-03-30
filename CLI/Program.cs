@@ -6,7 +6,7 @@ class Program
     {
         var testInput = """
                         local myVariableDeclaration: number = 4
-                        local myVariableDeclaration: number = 5
+                        local myInvalidDeclaration: number = true
                         """;
         
         var transpiler = new Transpiler.Transpiler(testInput);
