@@ -1,4 +1,5 @@
 ﻿using Core.SemanticAnalyzer;
+using Core.SemanticAnalyzer.DataTypes;
 using FluentAssertions;
 
 namespace Tests.Core;
@@ -8,7 +9,7 @@ public class AndOperations
     [Fact] // a and x -> { x }
     public void ContainsOnlyTheRightSymbolIfLeftIsTruthy()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a = new Symbol(new Value(ValueKind.Unknown, null), type, false);
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
@@ -24,7 +25,7 @@ public class AndOperations
     [Fact] // true and x -> { x }
     public void ContainsOnlyFalseIfTheLeftSymbolIsTrue()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a = new Symbol(Value.TrueValue, DataType.BooleanType, false);
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
@@ -40,7 +41,7 @@ public class AndOperations
     [Fact] // false and x -> { false }
     public void ContainsOnlyFalseIfTheLeftSymbolIsFalse()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a = new Symbol(Value.FalseValue, DataType.BooleanType, false);
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
@@ -56,7 +57,7 @@ public class AndOperations
     [Fact] // nil and x -> { nil, x }
     public void ContainsOnlyNilIfTheLeftSymbolIsNull()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a = new Symbol(Value.NullValue, type, false);
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
@@ -72,7 +73,7 @@ public class AndOperations
     [Fact] // bool and x -> { false, x }
     public void ContainsFalseAndRightSymbolIfLeftIsUnknownBoolean()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a = new Symbol(new Value(ValueKind.Unknown, null), DataType.BooleanType, false);
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
@@ -89,7 +90,7 @@ public class AndOperations
     [Fact] // a? and x -> { nil, x }
     public void ContainsNilAndRightSymbolIfLeftIsUnknownNullable()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a = new Symbol(new Value(ValueKind.Unknown, null), type, true);
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
@@ -105,7 +106,7 @@ public class AndOperations
     [Fact] // bool? and x -> { false, nil, x }
     public void ContainsBothFalseAndNilIfLeftIsANullableUnknownBoolean()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a = new Symbol(new Value(ValueKind.Unknown, null), DataType.BooleanType, true);
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
@@ -124,7 +125,7 @@ public class AndOperations
     [Fact] // nil? and x -> { nil }
     public void ContainsNilIfLeftIsANullableAndAKnownNull()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a = new Symbol(Value.NullValue, type, true);
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
@@ -142,7 +143,7 @@ public class OrOperations
     [Fact] // a or x -> { a }
     public void ContainsOnlyTheLeftSymbolIfItIsTruthy()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a = new Symbol(new Value(ValueKind.Unknown, null), type, false);
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
@@ -158,7 +159,7 @@ public class OrOperations
     [Fact] // false or x -> { x }
     public void ContainsOnlyTheRightSymbolIfTheLeftSymbolIsFalsy()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a = new Symbol(Value.FalseValue, DataType.BooleanType, false);
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
@@ -174,7 +175,7 @@ public class OrOperations
     [Fact] // nil or x -> { x }
     public void ContainsOnlyTheRightSymbolIfTheLeftSymbolIsNull()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a = new Symbol(Value.NullValue, type, false);
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
@@ -190,7 +191,7 @@ public class OrOperations
     [Fact] // a? or x -> { a!, x }
     public void ContainsBothSymbolsIfTheLeftSymbolIsNullable()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a = new Symbol(new Value(ValueKind.Unknown, null), type, true);
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
@@ -206,7 +207,7 @@ public class OrOperations
     [Fact] // bool? or x -> { true, x }
     public void ContainsTrueAndTheRightSymbolIfTheRightIsANullableBoolean()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a = new Symbol(new Value(ValueKind.Unknown, null), DataType.BooleanType, true);
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
@@ -228,7 +229,7 @@ public class AndOrOperations
     [Fact] // a and b or c -> { b }
     public void ContainsOnlyTheLeftMostSymbolIfItIsTruthy()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a = new Symbol(new Value(ValueKind.Unknown, null), type, false);
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
@@ -246,7 +247,7 @@ public class AndOrOperations
     [Fact] // bool and b or c -> { b, c }
     public void FiltersTheASymbolIfItIsAnUnknownBoolean()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a = new Symbol(new Value(ValueKind.Unknown, null), DataType.BooleanType, false);
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
@@ -265,7 +266,7 @@ public class AndOrOperations
     [Fact] // a? and b or c -> { b, c }
     public void FiltersTheASymbolIfItIsNullable()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a = new Symbol(new Value(ValueKind.Unknown, null), type, true);
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
@@ -284,7 +285,7 @@ public class AndOrOperations
     [Fact] // bool? and b or c -> { b, c }
     public void FiltersTheASymbolIfItIsANullableBoolean()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a = new Symbol(new Value(ValueKind.Unknown, null), DataType.BooleanType, true);
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);

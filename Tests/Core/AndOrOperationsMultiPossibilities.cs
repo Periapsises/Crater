@@ -1,4 +1,5 @@
 ﻿using Core.SemanticAnalyzer;
+using Core.SemanticAnalyzer.DataTypes;
 using FluentAssertions;
 
 namespace Tests.Core;
@@ -8,7 +9,7 @@ public class AndOperationsMultiPossibilities
     [Fact] // { a1, a2 } and x -> { x }
     public void ContainsOnlyTheRightSymbolIfLeftAreAllTruthy()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a1 = new Symbol(new Value(ValueKind.Unknown, null), type, false);
         var a2 = new Symbol(new Value(ValueKind.Unknown, null), type, false);
@@ -25,7 +26,7 @@ public class AndOperationsMultiPossibilities
     [Fact] // { true, true } and x -> { x }
     public void ContainsOnlyFalseIfTheLeftSymbolsAreAllTrue()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a1 = new Symbol(Value.TrueValue, DataType.BooleanType, false);
         var a2 = new Symbol(Value.TrueValue, DataType.BooleanType, false);
@@ -42,7 +43,7 @@ public class AndOperationsMultiPossibilities
     [Fact] // { false, false } and x -> { false, false }
     public void ContainsOnlyFalseIfTheRightSymbolsAreFalse()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a1 = new Symbol(Value.FalseValue, DataType.BooleanType, false);
         var a2 = new Symbol(Value.FalseValue, DataType.BooleanType, false);
@@ -59,7 +60,7 @@ public class AndOperationsMultiPossibilities
     [Fact] // { bool, bool } and x -> { false, false, x }
     public void ContainsFalseAndRightSymbolsIfLeftAreAllUnknownBooleans()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a1 = new Symbol(new Value(ValueKind.Unknown, null), DataType.BooleanType, false);
         var a2 = new Symbol(new Value(ValueKind.Unknown, null), DataType.BooleanType, false);
@@ -79,7 +80,7 @@ public class AndOperationsMultiPossibilities
     [Fact] // { a1?, a2? } and x -> { nil, nil, x }
     public void ContainsNilAndRightSymbolIfLeftAreAllUnknownNullables()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a1 = new Symbol(new Value(ValueKind.Unknown, null), type, true);
         var a2 = new Symbol(new Value(ValueKind.Unknown, null), type, true);
@@ -97,7 +98,7 @@ public class AndOperationsMultiPossibilities
     [Fact] // { false, true } and x -> { false, x }
     public void ContainsFalseAndRightSymbolIfLeftCanBeTruthyOrFalsy()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a1 = new Symbol(Value.FalseValue, DataType.BooleanType, false);
         var a2 = new Symbol(Value.TrueValue, DataType.BooleanType, false);
@@ -114,7 +115,7 @@ public class AndOperationsMultiPossibilities
     [Fact] // { a1?, a2 } and x -> { nil, x }
     public void ContainsNilAndRightSymbolIfLeftCanBeTruthyOrNull()
     {
-        var type = new DataType();
+        var type = new CustomType();
 
         var a1 = new Symbol(new Value(ValueKind.Unknown, null), type, true);
         var a2 = new Symbol(new Value(ValueKind.Unknown, null), type, false);
@@ -131,7 +132,7 @@ public class AndOperationsMultiPossibilities
     [Fact] // { a1?, bool } and x -> { nil, false, x }
     public void ContainsTheFalsyFromLeftAndRightIfLeftCanAlsoBeTruthy()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a1 = new Symbol(new Value(ValueKind.Unknown, null), type, true);
         var a2 = new Symbol(new Value(ValueKind.Unknown, null), DataType.BooleanType, false);
@@ -151,7 +152,7 @@ public class AndOperationsMultiPossibilities
     [Fact] // bool and { b1, b2 } -> { true, b1, b2 }
     public void ContainsAllSymbolsFromRightOperandIfLeftCanBeTruthy()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a = new Symbol(new Value(ValueKind.Unknown, null), DataType.BooleanType, false);
         var b1 = new Symbol(new Value(ValueKind.Unknown, null), type, false);
@@ -170,7 +171,7 @@ public class AndOperationsMultiPossibilities
     [Fact] // { bool?, a2 } and b -> { false, nil, b }
     public void ContainsFalseAndNilFromNullableBooleanAndRightSymbolIfLeftCanBeTruthy()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a1 = new Symbol(new Value(ValueKind.Unknown, null), DataType.BooleanType, true);
         var a2 = new Symbol(new Value(ValueKind.Unknown, null), type, false);
@@ -193,7 +194,7 @@ public class OrOperationsMultiPossibilities
     [Fact] // { a1, a2 } or b -> { a1, a2 }
     public void ContainsOnlySymbolsFromLeftIfTheyAreAllTruthy()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a1 = new Symbol(new Value(ValueKind.Unknown, null), type, false);
         var a2 = new Symbol(new Value(ValueKind.Unknown, null), type, false);
@@ -210,7 +211,7 @@ public class OrOperationsMultiPossibilities
     [Fact] // { true, true } or b -> { true, true }
     public void ContainsOnlySymbolsFromLeftIfTheyAreAllTrue()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a1 = new Symbol(Value.TrueValue, DataType.BooleanType, false);
         var a2 = new Symbol(Value.TrueValue, DataType.BooleanType, false);
@@ -227,7 +228,7 @@ public class OrOperationsMultiPossibilities
     [Fact] // { false, false } or b -> { b }
     public void ContainsOnlySymbolsFromRightIfAllLeftSymbolsAreFalse()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a1 = new Symbol(Value.FalseValue, DataType.BooleanType, false);
         var a2 = new Symbol(Value.FalseValue, DataType.BooleanType, false);
@@ -243,7 +244,7 @@ public class OrOperationsMultiPossibilities
     [Fact] // { bool, bool } or b -> { true, true, b }
     public void ContainsTrueAndBIfAllLeftSymbolsAreUnknownBooleans()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a1 = new Symbol(new Value(ValueKind.Unknown, null), DataType.BooleanType, false);
         var a2 = new Symbol(new Value(ValueKind.Unknown, null), DataType.BooleanType, false);
@@ -263,7 +264,7 @@ public class OrOperationsMultiPossibilities
     [Fact] // { a1?, a2? } or b -> { a1!, a2!, b }
     public void ContainsNonNullableVersionsOfLeftSymbolsAndTheRightSymbol()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a1 = new Symbol(new Value(ValueKind.Unknown, null), type, true);
         var a2 = new Symbol(new Value(ValueKind.Unknown, null), type, true);
@@ -281,7 +282,7 @@ public class OrOperationsMultiPossibilities
     [Fact] // { false, true } or b -> { true, b }
     public void ContainsLeftTrueSymbolsAndRightSymbolsIfLeftCanBeFalsy()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a1 = new Symbol(Value.FalseValue, DataType.BooleanType, false);
         var a2 = new Symbol(Value.TrueValue, DataType.BooleanType, false);
@@ -298,7 +299,7 @@ public class OrOperationsMultiPossibilities
     [Fact] // { a1?, a2 } or b -> { a1!, a2, b }
     public void ContainsLeftTruthySymbolsAndRightSymbolsIfLeftCanBeFalsy()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a1 = new Symbol(new Value(ValueKind.Unknown, null), type, true);
         var a2 = new Symbol(new Value(ValueKind.Unknown, null), type, false);
@@ -316,7 +317,7 @@ public class OrOperationsMultiPossibilities
     [Fact] // bool or { b1, b2 } -> { true, b1, b2 }
     public void ContainsAllRightSymbolsIfLeftSymbolCanBeFalsy()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a = new Symbol(new Value(ValueKind.Unknown, 0), DataType.BooleanType, false);
         var b1 = new Symbol(new Value(ValueKind.Unknown, 0), type, false);
@@ -336,7 +337,7 @@ public class OrOperationsMultiPossibilities
     [Fact] // { bool?, a2 } or b -> { true, a2, b }
     public void ContainsFalseAndNilFromNullableBooleanAndRightSymbolIfLeftCanBeTruthy()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a1 = new Symbol(new Value(ValueKind.Unknown, null), DataType.BooleanType, true);
         var a2 = new Symbol(new Value(ValueKind.Unknown, null), type, false);
@@ -359,7 +360,7 @@ public class AndOrOperationsMultiPossibilities
     [Fact] // { a1, a2 } and b or c -> { b }
     public void ContainsOnlyBIfItAndLeftMostSymbolsAreAllTruthy()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a1 = new Symbol(new Value(ValueKind.Unknown, null), type, false);
         var a2 = new Symbol(new Value(ValueKind.Unknown, null), type, false);
@@ -377,7 +378,7 @@ public class AndOrOperationsMultiPossibilities
     [Fact] // a and { b1, b2 } or c -> { b1, b2 }
     public void ContainsAllBSymbolsIfLeftMostAndTheyAreAllTruthy()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a =  new Symbol(new Value(ValueKind.Unknown, null), type, false);
         var b1 =  new Symbol(new Value(ValueKind.Unknown, null), type, false);
@@ -396,7 +397,7 @@ public class AndOrOperationsMultiPossibilities
     [Fact] // { bool, bool } and b or c -> { b, c }
     public void ContainsOnlyBAndCIfAllConditionsAreUnknownBooleans()
     {
-        var type = new DataType();
+        var type = new CustomType();
         
         var a1 = new Symbol(new Value(ValueKind.Unknown, null), DataType.BooleanType, false);
         var a2 = new Symbol(new Value(ValueKind.Unknown, null), DataType.BooleanType, false);
