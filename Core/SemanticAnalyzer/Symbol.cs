@@ -10,10 +10,9 @@ public class Symbol(Value value, DataType dataType, bool nullable)
     {
         if (other.Nullable && !Nullable)
         {
-            // TODO: Check for a possibly null value and display a warning
-            throw new NotImplementedException();
+            DiagnosticsReporter.CurrentDiagnostics?.PushWarning("Assigning nullable to a non-nullable symbol");
         }
         
-        dataType.Assign(this, other);
+        DataType.Assign(this, other);
     }
 }

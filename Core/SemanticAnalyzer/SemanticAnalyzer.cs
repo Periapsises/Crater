@@ -7,11 +7,16 @@ namespace Core.SemanticAnalyzer;
 
 public class SemanticAnalyzer
 {
+    public readonly Diagnostics Diagnostics;
+    
     private readonly Scope _globalScope;
     private Scope _localScope;
 
     public SemanticAnalyzer()
     {
+        Diagnostics = new Diagnostics();
+        DiagnosticsReporter.CurrentDiagnostics = Diagnostics;
+        
         _globalScope = new Scope();
         _localScope = new Scope(_globalScope);
         
@@ -47,14 +52,14 @@ public class SemanticAnalyzer
         var dataTypeSymbol = _localScope.Find(variableDeclaration.DataTypeReference);
         if (dataTypeSymbol == null)
         {
-            // TODO: Display and handle errors like these
-            throw new Exception($"Type not found: {variableDeclaration.DataTypeReference.Name}");
+            Diagnostics.PushError($"Could not find type {variableDeclaration.DataTypeReference.FullString}");
+            return;
         }
 
         if (dataTypeSymbol.DataType != DataType.MetaType)
         {
-            // TODO: Display and handle errors like these
-            throw new Exception($"{variableDeclaration.DataTypeReference.Name} is not a valid type");
+            Diagnostics.PushError($"Name {variableDeclaration.DataTypeReference.FullString} is not a valid type");
+            return;
         }
         
         var dataType = dataTypeSymbol.Value.GetDataType();
@@ -136,16 +141,14 @@ public class SemanticAnalyzer
         // If an 'and' operation's left symbols are only "falsy" then they are the only symbols passed further.
         if (!leftCanBeTruthy)
         {
-            // TODO: Show a warning for an always "falsy" condition.
-            DebugMessage.Write("TODO: Show a warning for an always \"falsy\" condition.");
+            Diagnostics.PushInfo("Left side of 'and' expression is never true");
             return resultingSymbols;
         }
         
         // If an 'and' operation's left symbols are only "truthy" then only the right symbols are passed further.
         if (!leftCanBeFalsy)
         {
-            // TODO: Show a warning for an always "truthy" condition.
-            DebugMessage.Write("TODO: Show a warning for an always \"truthy\" condition.");
+            Diagnostics.PushInfo("Left side of 'and' expression is always true");
             return rightSymbols;
         }
 
@@ -198,8 +201,7 @@ public class SemanticAnalyzer
 
         if (!leftCanBeFalsy)
         {
-            // TODO: Show a warning for an always "truthy" condition.
-            DebugMessage.Write("TODO: Show a warning for an always \"truthy\" condition.");
+            Diagnostics.PushInfo("Left side of 'or' expression is always true");
             return resultingSymbols;
         }
 

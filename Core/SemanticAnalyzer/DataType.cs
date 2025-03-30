@@ -17,8 +17,8 @@ public abstract class DataType
     {
         if (assignment.DataType != this)
         {
-            // TODO: Handle wrong type errors
-            throw new NotSupportedException();
+            DiagnosticsReporter.CurrentDiagnostics?.PushError($"Cannot convert from type '{assignment.DataType.GetName()}' to type '{self.DataType.GetName()}'");
+            return;
         }
         
         self.Value = assignment.Value;

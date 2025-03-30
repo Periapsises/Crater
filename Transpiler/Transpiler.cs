@@ -12,7 +12,7 @@ public class Transpiler(string input)
 {
     private readonly StringBuilder _builder = new();
     
-    public string Transpile()
+    public TranslationResult Transpile()
     {
         var inputStream = new AntlrInputStream(input);
         var craterLexer = new CraterLexer(inputStream);
@@ -27,7 +27,7 @@ public class Transpiler(string input)
         
         TranspileModule(module);
         
-        return _builder.ToString();
+        return new TranslationResult(_builder.ToString(), semanticAnalyzer.Diagnostics);
     }
 
     private void TranspileModule(Module module)
@@ -79,7 +79,7 @@ public class Transpiler(string input)
                 _builder.Append('"');
                 break;
             case BooleanLiteral booleanLiteral:
-                _builder.Append(booleanLiteral.Value);
+                _builder.Append(booleanLiteral.Value ? "true" : "false");
                 break;
             case ParenthesizedExpression parenthesizedExpression:
                 _builder.Append("( ");
@@ -90,4 +90,10 @@ public class Transpiler(string input)
                 throw new NotImplementedException($"Unsupported expression type {expression.GetType()}");
         }
     }
+}
+
+public class TranslationResult(string translatedCode, Diagnostics diagnostics)
+{
+    public readonly string TranslatedCode = translatedCode;
+    public readonly Diagnostics Diagnostics = diagnostics;
 }
