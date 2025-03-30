@@ -29,15 +29,16 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         var isLocal = context.LOCAL() != null;
         var identifier = context.IDENTIFIER().GetText()!;
         var dataTypeReference = (DataTypeReference)Visit(context.typeName())!;
+        var isNullable = context.QMARK() != null;
 
         if (context.expression() is null)
         {
-            return new VariableDeclaration(isLocal, identifier, dataTypeReference);
+            return new VariableDeclaration(isLocal, identifier, dataTypeReference, isNullable);
         }
         
         var initializer = (Expression)Visit(context.expression())!;
         
-        return new VariableDeclaration(isLocal, identifier, dataTypeReference, initializer);
+        return new VariableDeclaration(isLocal, identifier, dataTypeReference, isNullable, initializer);
     }
 
     public override object? VisitTypeName(CraterParser.TypeNameContext context)

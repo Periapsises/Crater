@@ -13,7 +13,7 @@ block: statement*;
 
 statement: variableDeclaration;
 
-variableDeclaration: LOCAL? IDENTIFIER COLON typeName (ASSIGN expression)?;
+variableDeclaration: LOCAL? IDENTIFIER COLON typeName QMARK? (ASSIGN expression)?;
 
 typeName: FUNCTION | IDENTIFIER;
 
