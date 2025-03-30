@@ -6,6 +6,7 @@ public enum ValueKind
     Number,
     String,
     Null,
+    DataType,
     Unknown
 }
 
@@ -39,5 +40,13 @@ public class Value(ValueKind kind, object? value)
             throw new InvalidOperationException();
         
         return (string)value!;
+    }
+
+    public DataType GetDataType()
+    {
+        if (Kind != ValueKind.DataType)
+            throw new InvalidOperationException();
+        
+        return (DataType)value!;
     }
 }
