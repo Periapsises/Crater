@@ -16,9 +16,10 @@ public abstract class Diagnostic(Severity severity)
     public int Line { get; private set; }
     public int Column { get; private set; }
     public string Code { get; private set; } = string.Empty;
+    public int HighlightLength = 1;
     
     protected static readonly string Info = "\u001b[36m[Info] \u001b[0m";
-    protected static readonly string Warning = "\u001b[33m[Warning \u001b[0m";
+    protected static readonly string Warning = "\u001b[33m[Warning] \u001b[0m";
     protected static readonly string Error = "\u001b[31m[Error] \u001b[0m";
     
     public abstract string GetMessage();
@@ -35,7 +36,8 @@ public abstract class Diagnostic(Severity severity)
         if (Code == string.Empty) return "";
 
         var spacing = new string(' ', Column + Line.ToString().Length + 1);
-        return $"\u001b[90m{Line}\u001b[0m {Code}\n{spacing}\u001b[91m^\u001b[0m";
+        var highlight = new string('^',  HighlightLength);
+        return $"\u001b[90m{Line}\u001b[0m {Code}\n{spacing}\u001b[91m{highlight}\u001b[0m";
     }
     
     public Diagnostic WithContext(ParserRuleContext context) => WithContext(context.Start);
@@ -45,6 +47,7 @@ public abstract class Diagnostic(Severity severity)
     {
         Line = token.Line;
         Column = token.Column;
+        HighlightLength = token.Text.Length;
 
         var input = token.InputStream;
         if (input != null)
