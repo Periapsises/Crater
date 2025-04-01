@@ -4,7 +4,6 @@ using Core.SemanticAnalyzer.Diagnostics;
 using Core.SyntaxTreeConverter;
 using Core.SyntaxTreeConverter.Expressions;
 using Core.SyntaxTreeConverter.Statements;
-using Core.Utils;
 
 namespace Core.SemanticAnalyzer;
 
@@ -92,6 +91,12 @@ public class SemanticAnalyzer
         else if (!variableDeclaration.Nullable)
         {
             Reporter.Report(new UninitializedNonNullable(variableDeclaration.Identifier)
+                .WithContext(((CraterParser.VariableDeclarationContext)variableDeclaration.Context).IDENTIFIER()));
+        }
+
+        if (scope.HasVariable(variableDeclaration.Identifier))
+        {
+            Reporter.Report(new VariableShadowing(variableDeclaration.Identifier)
                 .WithContext(((CraterParser.VariableDeclarationContext)variableDeclaration.Context).IDENTIFIER()));
         }
         

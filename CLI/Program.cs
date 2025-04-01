@@ -9,7 +9,7 @@ class Program
                         local myInvalidDeclaration: number = true
                         local myInvalidType: someType
                         local myNonNullable: number
-                        
+                        local myVariableDeclaration: string?
                         """;
         
         Console.WriteLine("Translating input code:");

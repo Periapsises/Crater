@@ -1,5 +1,4 @@
 ﻿using Core.SyntaxTreeConverter;
-using Core.Utils;
 
 namespace Core.SemanticAnalyzer;
 
@@ -9,15 +8,14 @@ public class Scope(Scope? parent = null)
 
     public void Declare(string name, Symbol symbol)
     {
-        if (_symbols.ContainsKey(name))
-        {
-            // TODO: Actual warning for variable re-definition
-            DebugMessage.Write("TODO: Actual warning for variable re-definition");
-        }
-        
         _symbols[name] = symbol;
     }
 
+    public bool HasVariable(string name)
+    {
+        return _symbols.ContainsKey(name);
+    }
+    
     private Symbol? Get(string name)
     {
         if (_symbols.TryGetValue(name, out var symbol))
