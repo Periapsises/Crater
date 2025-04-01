@@ -33,7 +33,7 @@ class Program
             Console.ForegroundColor = ConsoleColor.Red;
             Console.Write("[Error] ");
             Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine(diagnostic.Message);
+            Console.WriteLine(diagnostic.GetDiagnostic());
         }
 
         foreach (var diagnostic in output.Diagnostics.Warnings)
@@ -41,7 +41,7 @@ class Program
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.Write("[Warn] ");
             Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine(diagnostic.Message);
+            Console.WriteLine(diagnostic.GetDiagnostic());
         }
         
         foreach (var diagnostic in output.Diagnostics.Infos)
@@ -49,7 +49,7 @@ class Program
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.Write("[Info] ");
             Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine(diagnostic.Message);
+            Console.WriteLine(diagnostic.GetDiagnostic());
         }
         
         var numErrors = output.Diagnostics.Errors.Count;
