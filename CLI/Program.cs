@@ -7,6 +7,8 @@ class Program
         var testInput = """
                         local myVariableDeclaration: number = 4
                         local myInvalidDeclaration: number = true
+                        local myInvalidType: someType
+                        local myNonNullable: number
                         
                         """;
         

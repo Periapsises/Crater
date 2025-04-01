@@ -55,13 +55,15 @@ public class SemanticAnalyzer
         var dataTypeSymbol = _localScope.Find(variableDeclaration.DataTypeReference);
         if (dataTypeSymbol == null)
         {
-            //Reporter.Report($"Could not find type {variableDeclaration.DataTypeReference.FullString}");
+            Reporter.Report(new TypeNotFound(variableDeclaration.DataTypeReference)
+                .WithContext(((CraterParser.VariableDeclarationContext)variableDeclaration.Context).typeName()));
             return;
         }
 
         if (dataTypeSymbol.DataType != DataType.MetaType)
         {
-            //Diagnostics.PushError($"Name {variableDeclaration.DataTypeReference.FullString} is not a valid type");
+            Reporter.Report(new InvalidType(variableDeclaration.DataTypeReference)
+                .WithContext(((CraterParser.VariableDeclarationContext)variableDeclaration.Context).typeName()));
             return;
         }
         
@@ -78,8 +80,8 @@ public class SemanticAnalyzer
                 Reporter.Report(new TypeMismatch(assignedSymbol.DataType, defaultSymbol.DataType)
                     .WithContext(((CraterParser.VariableDeclarationContext)variableDeclaration.Context).ASSIGN()));
             }
-            
-            if (assignedSymbol.Nullable && !defaultSymbol.Nullable)
+
+            if (assignedSymbol.Nullable && !variableDeclaration.Nullable)
             {
                 Reporter.Report(new PossibleNullAssignment(variableDeclaration.Identifier)
                     .WithContext(((CraterParser.VariableDeclarationContext)variableDeclaration.Context).ASSIGN()));
@@ -87,7 +89,12 @@ public class SemanticAnalyzer
             
             defaultSymbol.Assign(assignedSymbol);
         }
-
+        else if (!variableDeclaration.Nullable)
+        {
+            Reporter.Report(new UninitializedNonNullable(variableDeclaration.Identifier)
+                .WithContext(((CraterParser.VariableDeclarationContext)variableDeclaration.Context).IDENTIFIER()));
+        }
+        
         scope.Declare(variableDeclaration.Identifier, defaultSymbol);
     }
 
