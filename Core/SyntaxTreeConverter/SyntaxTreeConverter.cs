@@ -33,12 +33,12 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
 
         if (context.expression() is null)
         {
-            return new VariableDeclaration(isLocal, identifier, dataTypeReference, isNullable);
+            return new VariableDeclaration(isLocal, identifier, dataTypeReference, isNullable, null, context);
         }
         
         var initializer = (Expression)Visit(context.expression())!;
         
-        return new VariableDeclaration(isLocal, identifier, dataTypeReference, isNullable, initializer);
+        return new VariableDeclaration(isLocal, identifier, dataTypeReference, isNullable, initializer, context);
     }
 
     public override object? VisitTypeName(CraterParser.TypeNameContext context)
@@ -54,20 +54,20 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
     public override object? VisitParenthesizedExpression(CraterParser.ParenthesizedExpressionContext context)
     {
         var expression = (Expression)Visit(context.expression())!;
-        return new ParenthesizedExpression(expression);
+        return new ParenthesizedExpression(expression, context);
     }
     
     public override object? VisitLiteral(CraterParser.LiteralContext context)
     {
         if (context.number != null)
-            return new NumberLiteral(context.number.Text);
+            return new NumberLiteral(context.number.Text, context);
         
         if (context.STRING() != null)
-            return new StringLiteral(context.STRING().GetText()!);
+            return new StringLiteral(context.STRING().GetText()!, context);
         
         if (context.BOOLEAN() != null)
-            return new BooleanLiteral(context.BOOLEAN().GetText()!);
+            return new BooleanLiteral(context.BOOLEAN().GetText()!, context);
         
-        throw new NotImplementedException($"Unknown literal type: {context.NUMBER().GetText()}");
+        throw new NotImplementedException($"Unknown literal type: {context}");
     }
 }
