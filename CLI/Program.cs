@@ -28,33 +28,18 @@ class Program
         var transpiler = new Transpiler.Transpiler(testInput);
         var output = transpiler.Transpile();
 
-        foreach (var diagnostic in output.Diagnostics.Errors)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("[Error] ");
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine(diagnostic.GetDiagnostic());
-        }
+        foreach (var diagnostic in output.Reporter.ErrorDiagnostics)
+            Console.WriteLine(diagnostic.GetMessage());
 
-        foreach (var diagnostic in output.Diagnostics.Warnings)
-        {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write("[Warn] ");
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine(diagnostic.GetDiagnostic());
-        }
+        foreach (var diagnostic in output.Reporter.WarningDiagnostics)
+            Console.WriteLine(diagnostic.GetMessage());
         
-        foreach (var diagnostic in output.Diagnostics.Infos)
-        {
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write("[Info] ");
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine(diagnostic.GetDiagnostic());
-        }
+        foreach (var diagnostic in output.Reporter.InfoDiagnostics)
+            Console.WriteLine(diagnostic.GetMessage());
         
-        var numErrors = output.Diagnostics.Errors.Count;
-        var numWarnings = output.Diagnostics.Warnings.Count;
-        var numInfos = output.Diagnostics.Infos.Count;
+        var numErrors = output.Reporter.ErrorDiagnostics.Count;
+        var numWarnings = output.Reporter.WarningDiagnostics.Count;
+        var numInfos = output.Reporter.InfoDiagnostics.Count;
 
         var errorString = "error" + (numErrors == 1 ? "" : "s");
         var warningString = "warning" + (numWarnings == 1 ? "" : "s");

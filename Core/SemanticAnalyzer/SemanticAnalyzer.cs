@@ -1,5 +1,6 @@
 ﻿using Antlr4.Runtime;
 using Core.Antlr;
+using Core.SemanticAnalyzer.Diagnostics;
 using Core.SyntaxTreeConverter;
 using Core.SyntaxTreeConverter.Expressions;
 using Core.SyntaxTreeConverter.Statements;
@@ -9,15 +10,15 @@ namespace Core.SemanticAnalyzer;
 
 public class SemanticAnalyzer
 {
-    public readonly Diagnostics Diagnostics;
+    public readonly DiagnosticReporter Reporter;
     
     private readonly Scope _globalScope;
     private Scope _localScope;
 
     public SemanticAnalyzer()
     {
-        Diagnostics = new Diagnostics();
-        DiagnosticsReporter.CurrentDiagnostics = Diagnostics;
+        DiagnosticReporter.CurrentReporter = new DiagnosticReporter();
+        Reporter = DiagnosticReporter.CurrentReporter;
         
         _globalScope = new Scope();
         _localScope = new Scope(_globalScope);
@@ -54,13 +55,13 @@ public class SemanticAnalyzer
         var dataTypeSymbol = _localScope.Find(variableDeclaration.DataTypeReference);
         if (dataTypeSymbol == null)
         {
-            Diagnostics.PushError($"Could not find type {variableDeclaration.DataTypeReference.FullString}");
+            //Reporter.Report($"Could not find type {variableDeclaration.DataTypeReference.FullString}");
             return;
         }
 
         if (dataTypeSymbol.DataType != DataType.MetaType)
         {
-            Diagnostics.PushError($"Name {variableDeclaration.DataTypeReference.FullString} is not a valid type");
+            //Diagnostics.PushError($"Name {variableDeclaration.DataTypeReference.FullString} is not a valid type");
             return;
         }
         
@@ -74,14 +75,14 @@ public class SemanticAnalyzer
 
             if (!assignedSymbol.DataType.IsCompatible(defaultSymbol.DataType))
             {
-                Diagnostics.PushError($"Type mismatch: Cannot assign '{assignedSymbol.DataType.GetName()}' to '{defaultSymbol.DataType.GetName()}'")
-                    .WithLocation(((CraterParser.VariableDeclarationContext)variableDeclaration.Context).ASSIGN());
+                Reporter.Report(new TypeMismatch(assignedSymbol.DataType, defaultSymbol.DataType)
+                    .WithContext(((CraterParser.VariableDeclarationContext)variableDeclaration.Context).ASSIGN()));
             }
             
             if (assignedSymbol.Nullable && !defaultSymbol.Nullable)
             {
-                Diagnostics.PushWarning($"Assigning potentially 'nil' value to non-nullable '{variableDeclaration.Identifier}'")
-                    .WithLocation(((CraterParser.VariableDeclarationContext)variableDeclaration.Context).ASSIGN());
+                Reporter.Report(new PossibleNullAssignment(variableDeclaration.Identifier)
+                    .WithContext(((CraterParser.VariableDeclarationContext)variableDeclaration.Context).ASSIGN()));
             }
             
             defaultSymbol.Assign(assignedSymbol);
@@ -156,14 +157,14 @@ public class SemanticAnalyzer
         // If an 'and' operation's left symbols are only "falsy" then they are the only symbols passed further.
         if (!leftCanBeTruthy)
         {
-            Diagnostics.PushInfo("Left side of 'and' expression is never true");
+            //Diagnostics.PushInfo("Left side of 'and' expression is never true");
             return resultingSymbols;
         }
         
         // If an 'and' operation's left symbols are only "truthy" then only the right symbols are passed further.
         if (!leftCanBeFalsy)
         {
-            Diagnostics.PushInfo("Left side of 'and' expression is always true");
+            //Diagnostics.PushInfo("Left side of 'and' expression is always true");
             return rightSymbols;
         }
 
@@ -216,7 +217,7 @@ public class SemanticAnalyzer
 
         if (!leftCanBeFalsy)
         {
-            Diagnostics.PushInfo("Left side of 'or' expression is always true");
+            //Diagnostics.PushInfo("Left side of 'or' expression is always true");
             return resultingSymbols;
         }
 

@@ -27,7 +27,7 @@ public class Transpiler(string input)
         
         TranspileModule(module);
         
-        return new TranslationResult(_builder.ToString(), semanticAnalyzer.Diagnostics);
+        return new TranslationResult(_builder.ToString(), semanticAnalyzer.Reporter);
     }
 
     private void TranspileModule(Module module)
@@ -92,8 +92,8 @@ public class Transpiler(string input)
     }
 }
 
-public class TranslationResult(string translatedCode, Diagnostics diagnostics)
+public class TranslationResult(string translatedCode, DiagnosticReporter reporter)
 {
     public readonly string TranslatedCode = translatedCode;
-    public readonly Diagnostics Diagnostics = diagnostics;
+    public readonly DiagnosticReporter Reporter = reporter;
 }
