@@ -1,4 +1,6 @@
-﻿using Core.SyntaxTreeConverter;
+﻿using Antlr4.Runtime;
+using Core.Antlr;
+using Core.SyntaxTreeConverter;
 using Core.SyntaxTreeConverter.Expressions;
 using Core.SyntaxTreeConverter.Statements;
 using Core.Utils;
@@ -69,6 +71,19 @@ public class SemanticAnalyzer
         if (variableDeclaration.Initializer != null)
         {
             var assignedSymbol = AnalyzeExpression(variableDeclaration.Initializer);
+
+            if (!assignedSymbol.DataType.IsCompatible(defaultSymbol.DataType))
+            {
+                Diagnostics.PushError($"Type mismatch: Cannot assign '{assignedSymbol.DataType.GetName()}' to '{defaultSymbol.DataType.GetName()}'")
+                    .WithLocation(((CraterParser.VariableDeclarationContext)variableDeclaration.Context).ASSIGN());
+            }
+            
+            if (assignedSymbol.Nullable && !defaultSymbol.Nullable)
+            {
+                Diagnostics.PushWarning($"Assigning potentially 'nil' value to non-nullable '{variableDeclaration.Identifier}'")
+                    .WithLocation(((CraterParser.VariableDeclarationContext)variableDeclaration.Context).ASSIGN());
+            }
+            
             defaultSymbol.Assign(assignedSymbol);
         }
 

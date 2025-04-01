@@ -13,14 +13,8 @@ public abstract class DataType
 
     public abstract string GetName();
     
-    public virtual void Assign(Symbol self, Symbol assignment)
+    public virtual bool IsCompatible(DataType target)
     {
-        if (assignment.DataType != this)
-        {
-            DiagnosticsReporter.CurrentDiagnostics?.PushError($"Cannot convert from type '{assignment.DataType.GetName()}' to type '{self.DataType.GetName()}'");
-            return;
-        }
-        
-        self.Value = assignment.Value;
+        return target == this;
     }
 }

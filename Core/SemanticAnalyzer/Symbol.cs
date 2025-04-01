@@ -6,13 +6,10 @@ public class Symbol(Value value, DataType dataType, bool nullable)
     public DataType DataType = dataType;
     public bool Nullable = nullable;
 
-    public void Assign(Symbol other)
+    public void Assign(Symbol symbol)
     {
-        if (other.Nullable && !Nullable)
-        {
-            DiagnosticsReporter.CurrentDiagnostics?.PushWarning("Assigning nullable to a non-nullable symbol");
-        }
-        
-        DataType.Assign(this, other);
+        Value = symbol.Value;
+        DataType = symbol.DataType;
+        Nullable = symbol.Nullable;
     }
 }
