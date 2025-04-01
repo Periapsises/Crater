@@ -18,12 +18,7 @@ class Program
         var sourceLines = testInput.Split(Environment.NewLine);
 
         for (var i = 0; i < sourceLines.Length; i++)
-        {
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.Write(i + 1);
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine(" " + sourceLines[i]);
-        }
+            Console.WriteLine($"\u001b[90m{i + 1}\u001b[0m {sourceLines[i]}");
         
         Console.WriteLine();
         
@@ -58,11 +53,6 @@ class Program
         var lines = output.TranslatedCode.Split('\n');
         
         for (var i = 0; i < lines.Length; i++)
-        {
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.Write(i + 1);
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine(" " + lines[i]);
-        }
+            Console.WriteLine($"\u001b[90m{i + 1}\u001b[0m {lines[i]}");
     }
 }
