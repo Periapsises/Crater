@@ -111,6 +111,20 @@ public partial class CraterParserBaseListener : ICraterParserListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitParenthesizedExpression([NotNull] CraterParser.ParenthesizedExpressionContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by the <c>OrOperation</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterOrOperation([NotNull] CraterParser.OrOperationContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by the <c>OrOperation</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitOrOperation([NotNull] CraterParser.OrOperationContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by the <c>LiteralExpression</c>
 	/// labeled alternative in <see cref="CraterParser.expression"/>.
 	/// <para>The default implementation does nothing.</para>
@@ -124,6 +138,20 @@ public partial class CraterParserBaseListener : ICraterParserListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitLiteralExpression([NotNull] CraterParser.LiteralExpressionContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by the <c>AndOperation</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterAndOperation([NotNull] CraterParser.AndOperationContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by the <c>AndOperation</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitAndOperation([NotNull] CraterParser.AndOperationContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="CraterParser.literal"/>.
 	/// <para>The default implementation does nothing.</para>

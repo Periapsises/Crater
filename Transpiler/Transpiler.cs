@@ -1,10 +1,12 @@
-﻿using System.Text;
+﻿using System.Linq.Expressions;
+using System.Text;
 using Antlr4.Runtime;
 using Core.Antlr;
 using Core.SemanticAnalyzer;
 using Core.SyntaxTreeConverter;
 using Core.SyntaxTreeConverter.Expressions;
 using Core.SyntaxTreeConverter.Statements;
+using Expression = Core.SyntaxTreeConverter.Expression;
 
 namespace Transpiler;
 
@@ -85,6 +87,11 @@ public class Transpiler(string input)
                 _builder.Append("( ");
                 TranspileExpression(parenthesizedExpression.Expression);
                 _builder.Append(" )");
+                break;
+            case BinaryOperation binaryOperation:
+                TranspileExpression(binaryOperation.Left);
+                _builder.Append($" {binaryOperation.Operator} ");
+                TranspileExpression(binaryOperation.Right);
                 break;
             default:
                 throw new NotImplementedException($"Unsupported expression type {expression.GetType()}");

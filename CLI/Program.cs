@@ -8,8 +8,10 @@ class Program
                         local myVariableDeclaration: number = 4
                         local myInvalidDeclaration: number = true
                         local myInvalidType: someType
-                        local myNonNullable: number
+                        local myNonNullable: bool
                         local myVariableDeclaration: string?
+                        local myTernaryResult: string = true and "Hi" or "Hello"
+                        local myAlwaysFalseOr: string = false and "A" or "B"
                         """;
         
         Console.WriteLine("Translating input code:");
@@ -45,7 +47,6 @@ class Program
         var u = "\u001b[4m";
         var r = "\u001b[0m";
         
-        Console.ForegroundColor = ConsoleColor.Gray;
         Console.WriteLine();
         Console.WriteLine($"Transpilation finished with {u}{numErrors}{r} {errorString}, {u}{numWarnings}{r} {warningString} and {u}{numInfos}{r} {infosString}.");
         Console.WriteLine();

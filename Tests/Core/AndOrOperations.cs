@@ -1,11 +1,18 @@
-﻿using Core.SemanticAnalyzer;
+﻿using Antlr4.Runtime;
+using Core.Antlr;
+using Core.SemanticAnalyzer;
 using Core.SemanticAnalyzer.DataTypes;
+using Core.SyntaxTreeConverter;
+using Core.SyntaxTreeConverter.Expressions;
 using FluentAssertions;
 
 namespace Tests.Core;
 
 public class AndOperations
 {
+    private static readonly CraterParser.AndOperationContext _empty = new(new CraterParser.ExpressionContext());
+    private static readonly BinaryOperation _placeholder = new(new Expression(_empty), new Expression(_empty), "and", _empty);
+    
     [Fact] // a and x -> { x }
     public void ContainsOnlyTheRightSymbolIfLeftIsTruthy()
     {
@@ -15,7 +22,7 @@ public class AndOperations
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
         
         var semanticAnalyzer = new SemanticAnalyzer();
-        var possibleSymbols = semanticAnalyzer.AnalyzeAndOperation([a], [b]);
+        var possibleSymbols = semanticAnalyzer.AnalyzeAndOperation([a], [b], _placeholder);
 
         possibleSymbols.Should()
             .ContainSingle("because an 'and' operation in which the left symbol is truthy contains only the left symbol");
@@ -31,7 +38,7 @@ public class AndOperations
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
         
         var semanticAnalyzer = new SemanticAnalyzer();
-        var possibleSymbols = semanticAnalyzer.AnalyzeAndOperation([a], [b]);
+        var possibleSymbols = semanticAnalyzer.AnalyzeAndOperation([a], [b], _placeholder);
         
         possibleSymbols.Should()
             .ContainSingle("because an 'and' operation in which the left symbol is true contains only the right symbol");
@@ -47,7 +54,7 @@ public class AndOperations
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
         
         var semanticAnalyzer = new SemanticAnalyzer();
-        var possibleSymbols = semanticAnalyzer.AnalyzeAndOperation([a], [b]);
+        var possibleSymbols = semanticAnalyzer.AnalyzeAndOperation([a], [b], _placeholder);
         
         possibleSymbols.Should()
             .ContainSingle("because an 'and' operation in which the left symbol is falsy contains only that symbol");
@@ -63,7 +70,7 @@ public class AndOperations
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
         
         var semanticAnalyzer = new SemanticAnalyzer();
-        var possibleSymbols = semanticAnalyzer.AnalyzeAndOperation([a], [b]);
+        var possibleSymbols = semanticAnalyzer.AnalyzeAndOperation([a], [b], _placeholder);
         
         possibleSymbols.Should()
             .ContainSingle("because an 'and' operation in which the left symbol is null contains only that symbol");
@@ -79,7 +86,7 @@ public class AndOperations
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
         
         var semanticAnalyzer = new SemanticAnalyzer();
-        var possibleSymbols = semanticAnalyzer.AnalyzeAndOperation([a], [b]);
+        var possibleSymbols = semanticAnalyzer.AnalyzeAndOperation([a], [b], _placeholder);
 
         possibleSymbols.Should().HaveCount(2, "because left and right symbols should be present if the left is an unknown boolean");
         possibleSymbols[0].Value.Kind.Should().Be(ValueKind.Boolean, "because left was an unknown boolean");
@@ -96,7 +103,7 @@ public class AndOperations
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
         
         var semanticAnalyzer = new SemanticAnalyzer();
-        var possibleSymbols = semanticAnalyzer.AnalyzeAndOperation([a], [b]);
+        var possibleSymbols = semanticAnalyzer.AnalyzeAndOperation([a], [b], _placeholder);
         
         possibleSymbols.Should().HaveCount(2, "because left and right symbols should be present if the left is an unknown nullable");
         possibleSymbols[0].Value.Kind.Should().Be(ValueKind.Null, "because only a falsy value can be passed from the left symbol");
@@ -112,7 +119,7 @@ public class AndOperations
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
         
         var semanticAnalyzer = new SemanticAnalyzer();
-        var possibleSymbols = semanticAnalyzer.AnalyzeAndOperation([a], [b]);
+        var possibleSymbols = semanticAnalyzer.AnalyzeAndOperation([a], [b], _placeholder);
 
         possibleSymbols.Should()
             .HaveCount(3, "because we expect both false and nil from the left side, as well as the right side");
@@ -131,7 +138,7 @@ public class AndOperations
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
         
         var semanticAnalyzer = new SemanticAnalyzer();
-        var possibleSymbols = semanticAnalyzer.AnalyzeAndOperation([a], [b]);
+        var possibleSymbols = semanticAnalyzer.AnalyzeAndOperation([a], [b], _placeholder);
 
         possibleSymbols.Should().ContainSingle("because we expect only nil from a known nullable");
         possibleSymbols.Should().Contain(a, "because it is a known null");
@@ -140,6 +147,9 @@ public class AndOperations
 
 public class OrOperations
 {
+    private static readonly ParserRuleContext _empty = ParserRuleContext.EmptyContext;
+    private static readonly BinaryOperation _placeholder = new(new Expression(_empty), new Expression(_empty), "or", _empty);
+    
     [Fact] // a or x -> { a }
     public void ContainsOnlyTheLeftSymbolIfItIsTruthy()
     {
@@ -149,7 +159,7 @@ public class OrOperations
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
         
         var semanticAnalyzer = new SemanticAnalyzer();
-        var possibleSymbols = semanticAnalyzer.AnalyzeOrOperation([a], [b]);
+        var possibleSymbols = semanticAnalyzer.AnalyzeOrOperation([a], [b], _placeholder);
 
         possibleSymbols.Should()
             .ContainSingle("because an 'or' operation in which the left symbol is truthy contains only that symbol");
@@ -165,7 +175,7 @@ public class OrOperations
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
         
         var semanticAnalyzer = new SemanticAnalyzer();
-        var possibleSymbols = semanticAnalyzer.AnalyzeOrOperation([a], [b]);
+        var possibleSymbols = semanticAnalyzer.AnalyzeOrOperation([a], [b], _placeholder);
         
         possibleSymbols.Should()
             .ContainSingle("because an 'or' operation in which the left symbol is false contains only the right symbol");
@@ -181,7 +191,7 @@ public class OrOperations
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
         
         var semanticAnalyzer = new SemanticAnalyzer();
-        var possibleSymbols = semanticAnalyzer.AnalyzeOrOperation([a], [b]);
+        var possibleSymbols = semanticAnalyzer.AnalyzeOrOperation([a], [b], _placeholder);
         
         possibleSymbols.Should()
             .ContainSingle("because an 'or' operation in which the left symbol is nil contains only the right symbol");
@@ -197,7 +207,7 @@ public class OrOperations
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
         
         var semanticAnalyzer = new SemanticAnalyzer();
-        var possibleSymbols = semanticAnalyzer.AnalyzeOrOperation([a], [b]);
+        var possibleSymbols = semanticAnalyzer.AnalyzeOrOperation([a], [b], _placeholder);
         
         possibleSymbols.Should().HaveCount(2, "because left and right symbols should be present if the left is an unknown nullable");
         possibleSymbols[0].Nullable.Should().BeFalse("because null will not be passed by an 'or' operation");
@@ -213,7 +223,7 @@ public class OrOperations
         var b = new Symbol(new Value(ValueKind.Unknown, null), type, false);
         
         var semanticAnalyzer = new SemanticAnalyzer();
-        var possibleSymbols = semanticAnalyzer.AnalyzeOrOperation([a], [b]);
+        var possibleSymbols = semanticAnalyzer.AnalyzeOrOperation([a], [b], _placeholder);
 
         possibleSymbols.Should()
             .HaveCount(2, "because we expect true from the left symbol, as well as the right symbol");
@@ -226,6 +236,10 @@ public class OrOperations
 // And or operations need special attention because of Lua's ternary operation "_ and _ or _".
 public class AndOrOperations
 {
+    private static readonly ParserRuleContext _empty = ParserRuleContext.EmptyContext;
+    private static readonly BinaryOperation _andPlaceholder = new(new Expression(_empty), new Expression(_empty), "and", _empty);
+    private static readonly BinaryOperation _orPlaceholder = new(new Expression(_empty), new Expression(_empty), "or", _empty);
+    
     [Fact] // a and b or c -> { b }
     public void ContainsOnlyTheLeftMostSymbolIfItIsTruthy()
     {
@@ -236,8 +250,8 @@ public class AndOrOperations
         var c = new Symbol(new Value(ValueKind.Unknown, null), type, false);
         
         var semanticAnalyzer = new SemanticAnalyzer();
-        var possibleSymbolsFromAnd = semanticAnalyzer.AnalyzeAndOperation([a], [b]);
-        var possibleSymbolsFromOr = semanticAnalyzer.AnalyzeOrOperation(possibleSymbolsFromAnd, [c]);
+        var possibleSymbolsFromAnd = semanticAnalyzer.AnalyzeAndOperation([a], [b], _andPlaceholder);
+        var possibleSymbolsFromOr = semanticAnalyzer.AnalyzeOrOperation(possibleSymbolsFromAnd, [c], _orPlaceholder);
 
         possibleSymbolsFromOr.Should()
             .ContainSingle("because an 'or' operation in which the left symbol is truthy contains only that symbol");
@@ -254,8 +268,8 @@ public class AndOrOperations
         var c = new Symbol(new Value(ValueKind.Unknown, null), type, false);
         
         var semanticAnalyzer = new SemanticAnalyzer();
-        var possibleSymbolsFromAnd = semanticAnalyzer.AnalyzeAndOperation([a], [b]);
-        var possibleSymbolsFromOr = semanticAnalyzer.AnalyzeOrOperation(possibleSymbolsFromAnd, [c]);
+        var possibleSymbolsFromAnd = semanticAnalyzer.AnalyzeAndOperation([a], [b], _andPlaceholder);
+        var possibleSymbolsFromOr = semanticAnalyzer.AnalyzeOrOperation(possibleSymbolsFromAnd, [c], _orPlaceholder);
 
         possibleSymbolsFromOr.Should().HaveCount(2, "because only b and c are expected in the result");
         possibleSymbolsFromOr.Should().NotContain(a, "because an unknown bool should be filtered out in an 'and or' operation");
@@ -273,8 +287,8 @@ public class AndOrOperations
         var c = new Symbol(new Value(ValueKind.Unknown, null), type, false);
         
         var semanticAnalyzer = new SemanticAnalyzer();
-        var possibleSymbolsFromAnd = semanticAnalyzer.AnalyzeAndOperation([a], [b]);
-        var possibleSymbolsFromOr = semanticAnalyzer.AnalyzeOrOperation(possibleSymbolsFromAnd, [c]);
+        var possibleSymbolsFromAnd = semanticAnalyzer.AnalyzeAndOperation([a], [b], _andPlaceholder);
+        var possibleSymbolsFromOr = semanticAnalyzer.AnalyzeOrOperation(possibleSymbolsFromAnd, [c], _orPlaceholder);
 
         possibleSymbolsFromOr.Should().HaveCount(2, "because only b and c are expected in the result");
         possibleSymbolsFromOr.Should().NotContain(a, "because an unknown bool should be filtered out in an 'and or' operation");
@@ -292,8 +306,8 @@ public class AndOrOperations
         var c = new Symbol(new Value(ValueKind.Unknown, null), type, false);
         
         var semanticAnalyzer = new SemanticAnalyzer();
-        var possibleSymbolsFromAnd = semanticAnalyzer.AnalyzeAndOperation([a], [b]);
-        var possibleSymbolsFromOr = semanticAnalyzer.AnalyzeOrOperation(possibleSymbolsFromAnd, [c]);
+        var possibleSymbolsFromAnd = semanticAnalyzer.AnalyzeAndOperation([a], [b], _andPlaceholder);
+        var possibleSymbolsFromOr = semanticAnalyzer.AnalyzeOrOperation(possibleSymbolsFromAnd, [c], _orPlaceholder);
         
         possibleSymbolsFromOr.Should().HaveCount(2, "because only b and c are expected in the result");
         possibleSymbolsFromOr.Should().NotContain(a, "because an unknown bool should be filtered out in an 'and or' operation");

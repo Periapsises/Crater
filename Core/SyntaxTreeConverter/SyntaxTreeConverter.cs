@@ -56,6 +56,22 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         var expression = (Expression)Visit(context.expression())!;
         return new ParenthesizedExpression(expression, context);
     }
+
+    public override object? VisitAndOperation(CraterParser.AndOperationContext context)
+    {
+        var left = (Expression)Visit(context.expression()[0])!;
+        var right = (Expression)Visit(context.expression()[1])!;
+
+        return new BinaryOperation(left, right, "and", context);
+    }
+    
+    public override object? VisitOrOperation(CraterParser.OrOperationContext context)
+    {
+        var left = (Expression)Visit(context.expression()[0])!;
+        var right = (Expression)Visit(context.expression()[1])!;
+
+        return new BinaryOperation(left, right, "or", context);
+    }
     
     public override object? VisitLiteral(CraterParser.LiteralContext context)
     {

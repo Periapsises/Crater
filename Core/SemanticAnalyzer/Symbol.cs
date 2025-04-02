@@ -12,4 +12,6 @@ public class Symbol(Value value, DataType dataType, bool nullable)
         DataType = symbol.DataType;
         Nullable = symbol.Nullable;
     }
+
+    public static implicit operator PossibleSymbols(Symbol symbol) => [symbol];
 }

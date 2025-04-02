@@ -70,12 +70,26 @@ public interface ICraterParserVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitParenthesizedExpression([NotNull] CraterParser.ParenthesizedExpressionContext context);
 	/// <summary>
+	/// Visit a parse tree produced by the <c>OrOperation</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitOrOperation([NotNull] CraterParser.OrOperationContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>LiteralExpression</c>
 	/// labeled alternative in <see cref="CraterParser.expression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitLiteralExpression([NotNull] CraterParser.LiteralExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>AndOperation</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAndOperation([NotNull] CraterParser.AndOperationContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="CraterParser.literal"/>.
 	/// </summary>

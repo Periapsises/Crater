@@ -19,6 +19,8 @@ typeName: FUNCTION | IDENTIFIER;
 
 expression:
     LPAREN expression RPAREN    # ParenthesizedExpression
+    | expression AND expression # AndOperation
+    | expression OR expression  # OrOperation
     | literal                   # LiteralExpression
 ;
 

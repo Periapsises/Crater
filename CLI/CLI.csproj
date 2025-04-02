@@ -5,6 +5,12 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <Configurations>Debug;Release;Testing</Configurations>
+        <Platforms>AnyCPU</Platforms>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Testing' ">
+      <DebugSymbols>true</DebugSymbols>
     </PropertyGroup>
 
     <ItemGroup>

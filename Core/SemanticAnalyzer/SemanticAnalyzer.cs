@@ -4,6 +4,7 @@ using Core.SemanticAnalyzer.Diagnostics;
 using Core.SyntaxTreeConverter;
 using Core.SyntaxTreeConverter.Expressions;
 using Core.SyntaxTreeConverter.Statements;
+using Expression = Core.SyntaxTreeConverter.Expression;
 
 namespace Core.SemanticAnalyzer;
 
@@ -72,21 +73,10 @@ public class SemanticAnalyzer
 
         if (variableDeclaration.Initializer != null)
         {
-            var assignedSymbol = AnalyzeExpression(variableDeclaration.Initializer);
+            var assignedSymbols = AnalyzeExpression(variableDeclaration.Initializer);
 
-            if (!assignedSymbol.DataType.IsCompatible(defaultSymbol.DataType))
-            {
-                Reporter.Report(new TypeMismatch(assignedSymbol.DataType, defaultSymbol.DataType)
-                    .WithContext(((CraterParser.VariableDeclarationContext)variableDeclaration.Context).ASSIGN()));
-            }
-
-            if (assignedSymbol.Nullable && !variableDeclaration.Nullable)
-            {
-                Reporter.Report(new PossibleNullAssignment(variableDeclaration.Identifier)
-                    .WithContext(((CraterParser.VariableDeclarationContext)variableDeclaration.Context).ASSIGN()));
-            }
-            
-            defaultSymbol.Assign(assignedSymbol);
+            var context = ((CraterParser.VariableDeclarationContext)variableDeclaration.Context).ASSIGN().Symbol;
+            defaultSymbol.Assign(ResolveSymbols(assignedSymbols, defaultSymbol, variableDeclaration.Identifier, context));
         }
         else if (!variableDeclaration.Nullable)
         {
@@ -103,7 +93,7 @@ public class SemanticAnalyzer
         scope.Declare(variableDeclaration.Identifier, defaultSymbol);
     }
 
-    public Symbol AnalyzeExpression(Expression expression)
+    public PossibleSymbols AnalyzeExpression(Expression expression)
     {
         switch (expression)
         {
@@ -115,12 +105,30 @@ public class SemanticAnalyzer
                 return new Symbol(new Value(ValueKind.Boolean, booleanLiteral.Value), DataType.BooleanType, false);
             case ParenthesizedExpression parenthesizedExpression:
                 return AnalyzeExpression(parenthesizedExpression.Expression);
+            case BinaryOperation binaryOperation:
+                return AnalyzeBinaryOperation(binaryOperation);
             default:
                 throw new NotImplementedException($"Unknown expression type {expression.GetType()}");
         }
     }
+
+    public PossibleSymbols AnalyzeBinaryOperation(BinaryOperation binaryOperation)
+    {
+        var left = AnalyzeExpression(binaryOperation.Left);
+        var right = AnalyzeExpression(binaryOperation.Right);
+        
+        switch (binaryOperation.Operator)
+        {
+            case "and":
+                return AnalyzeAndOperation(left, right, binaryOperation);
+            case "or":
+                return AnalyzeOrOperation(left, right, binaryOperation);
+            default:
+                throw new NotImplementedException($"Unknown binary operator {binaryOperation.Operator}");
+        }
+    }
     
-    public PossibleSymbols AnalyzeAndOperation(PossibleSymbols leftSymbols, PossibleSymbols rightSymbols)
+    public PossibleSymbols AnalyzeAndOperation(PossibleSymbols leftSymbols, PossibleSymbols rightSymbols, BinaryOperation binaryOperation)
     {
         var leftCanBeTruthy = false;
         var leftCanBeFalsy = false;
@@ -169,14 +177,18 @@ public class SemanticAnalyzer
         // If an 'and' operation's left symbols are only "falsy" then they are the only symbols passed further.
         if (!leftCanBeTruthy)
         {
-            //Diagnostics.PushInfo("Left side of 'and' expression is never true");
+#if !TESTING
+            Reporter.Report(new AndAlwaysFalse().WithContext(((CraterParser.AndOperationContext)binaryOperation.Context).expression()[0]));
+#endif
             return resultingSymbols;
         }
         
         // If an 'and' operation's left symbols are only "truthy" then only the right symbols are passed further.
         if (!leftCanBeFalsy)
         {
-            //Diagnostics.PushInfo("Left side of 'and' expression is always true");
+#if !TESTING
+            Reporter.Report(new AndAlwaysTrue().WithContext(((CraterParser.AndOperationContext)binaryOperation.Context).expression()[0]));
+#endif
             return rightSymbols;
         }
 
@@ -185,8 +197,9 @@ public class SemanticAnalyzer
         return resultingSymbols;
     }
 
-    public PossibleSymbols AnalyzeOrOperation( PossibleSymbols leftSymbols, PossibleSymbols rightSymbols )
+    public PossibleSymbols AnalyzeOrOperation(PossibleSymbols leftSymbols, PossibleSymbols rightSymbols, BinaryOperation binaryOperation)
     {
+        var leftCanBeTruthy = false;
         var leftCanBeFalsy = false;
 
         var resultingSymbols = new PossibleSymbols();
@@ -196,6 +209,7 @@ public class SemanticAnalyzer
             if (symbol.Value.Kind == ValueKind.Boolean)
             {
                 var isTruthy = symbol.Value.GetBoolean();
+                leftCanBeTruthy |= isTruthy;
                 leftCanBeFalsy |= !isTruthy;
                 
                 if (isTruthy)
@@ -211,12 +225,14 @@ public class SemanticAnalyzer
                 // This means if we have a non-nil boolean, we can determine it will be added only if it is `true`.
                 if (symbol.DataType == DataType.BooleanType)
                 {
+                    leftCanBeTruthy = true;
                     leftCanBeFalsy = true;
                     resultingSymbols.Add(new Symbol(Value.TrueValue, symbol.DataType, false));
                 }
                 // If the symbol is nullable, add a non-nullable version because 'or' will filter out `nil` from the left operand.
                 else if (symbol.Nullable)
                 {
+                    leftCanBeTruthy = true;
                     leftCanBeFalsy = true;
                     resultingSymbols.Add(new Symbol(symbol.Value, symbol.DataType, false));
                 }
@@ -227,14 +243,62 @@ public class SemanticAnalyzer
             }
         }
 
+        if (!leftCanBeTruthy)
+        {
+#if !TESTING
+            Reporter.Report(new OrAlwaysFalse().WithContext(((CraterParser.OrOperationContext)binaryOperation.Context).expression()[0]));
+#endif
+        }
+        
         if (!leftCanBeFalsy)
         {
-            //Diagnostics.PushInfo("Left side of 'or' expression is always true");
+#if !TESTING
+            Reporter.Report(new OrAlwaysTrue().WithContext(((CraterParser.OrOperationContext)binaryOperation.Context).expression()[0]));
+#endif
             return resultingSymbols;
         }
 
         resultingSymbols.AddRange(rightSymbols);
         
         return resultingSymbols;
+    }
+
+    private Symbol ResolveSymbols(PossibleSymbols possibleSymbols, Symbol target, string variable, IToken context)
+    {
+        var resultingSymbols = new PossibleSymbols();
+        
+        var hasErroredForType = new HashSet<DataType>();
+        var hasErroredForNullable = false;
+        
+        foreach (var symbol in possibleSymbols)
+        {
+            var hasError = false;
+            if (!hasErroredForType.Contains(symbol.DataType) && !symbol.DataType.IsCompatible(target.DataType))
+            {
+#if !TESTING
+                Reporter.Report(new TypeMismatch(symbol.DataType, target.DataType).WithContext(context));
+#endif
+                hasErroredForType.Add(symbol.DataType);
+                hasError = true;
+            }
+
+            if (!hasErroredForNullable && symbol.Nullable && !target.Nullable)
+            {
+#if !TESTING
+                Reporter.Report(new PossibleNullAssignment(variable));
+#endif
+                hasErroredForNullable = true;
+                hasError = true;
+            }
+            
+            if (!hasError)
+                resultingSymbols.Add(symbol);
+        }
+        
+        // TODO: There's a lot more to be done to ensure the compiler keeps enough information such as checking for same values
+        if (resultingSymbols.Count == 1)
+            return resultingSymbols.Single();
+        
+        return new Symbol(new Value(ValueKind.Unknown, null), target.DataType, target.Nullable);
     }
 }
