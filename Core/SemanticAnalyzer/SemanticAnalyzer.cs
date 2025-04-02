@@ -52,17 +52,17 @@ public class SemanticAnalyzer
     {
         var scope = variableDeclaration.Local ? _localScope : _globalScope;
         
-        var dataTypeSymbol = _localScope.Find(variableDeclaration.DataTypeReference);
+        var dataTypeSymbol = _localScope.Find(variableDeclaration.VariableReference);
         if (dataTypeSymbol == null)
         {
-            Reporter.Report(new TypeNotFound(variableDeclaration.DataTypeReference)
+            Reporter.Report(new TypeNotFound(variableDeclaration.VariableReference)
                 .WithContext(((CraterParser.VariableDeclarationContext)variableDeclaration.Context).typeName()));
             return;
         }
 
         if (dataTypeSymbol.DataType != DataType.MetaType)
         {
-            Reporter.Report(new InvalidType(variableDeclaration.DataTypeReference)
+            Reporter.Report(new InvalidType(variableDeclaration.VariableReference)
                 .WithContext(((CraterParser.VariableDeclarationContext)variableDeclaration.Context).typeName()));
             return;
         }
@@ -107,6 +107,8 @@ public class SemanticAnalyzer
                 return AnalyzeExpression(parenthesizedExpression.Expression);
             case BinaryOperation binaryOperation:
                 return AnalyzeBinaryOperation(binaryOperation);
+            case VariableReference variableReference:
+                return AnalyzeVariableReference(variableReference);
             default:
                 throw new NotImplementedException($"Unknown expression type {expression.GetType()}");
         }
@@ -263,6 +265,18 @@ public class SemanticAnalyzer
         return resultingSymbols;
     }
 
+    public Symbol AnalyzeVariableReference(VariableReference variableReference)
+    {
+        var symbol = _localScope.Find(variableReference);
+        if (symbol == null)
+        {
+            Reporter.Report(new VariableNotFound(variableReference).WithContext(((CraterParser.VariableReferenceContext)variableReference.Context).IDENTIFIER()));
+            return new Symbol(new Value(ValueKind.Unknown, null), DataType.InvalidType, false);
+        }
+        
+        return symbol;
+    }
+    
     private Symbol ResolveSymbols(PossibleSymbols possibleSymbols, Symbol target, string variable, IToken context)
     {
         var resultingSymbols = new PossibleSymbols();

@@ -93,6 +93,9 @@ public class Transpiler(string input)
                 _builder.Append($" {binaryOperation.Operator} ");
                 TranspileExpression(binaryOperation.Right);
                 break;
+            case VariableReference variableReference:
+                _builder.Append(variableReference.Name);
+                break;
             default:
                 throw new NotImplementedException($"Unsupported expression type {expression.GetType()}");
         }

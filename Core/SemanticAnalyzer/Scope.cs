@@ -27,7 +27,7 @@ public class Scope(Scope? parent = null)
         return null;
     }
 
-    public Symbol? Find(DataTypeReference searchReference)
+    public Symbol? Find(VariableReference searchReference)
     {
         return Get(searchReference.Name);
     }

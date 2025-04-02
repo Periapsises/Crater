@@ -12,6 +12,7 @@ class Program
                         local myVariableDeclaration: string?
                         local myTernaryResult: string = true and "Hi" or "Hello"
                         local myAlwaysFalseOr: string = false and "A" or "B"
+                        local myNonExistantVar: string = unknownVariable
                         """;
         
         Console.WriteLine("Translating input code:");

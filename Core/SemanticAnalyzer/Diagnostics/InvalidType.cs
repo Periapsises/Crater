@@ -2,7 +2,7 @@
 
 namespace Core.SemanticAnalyzer.Diagnostics;
 
-public class InvalidType(DataTypeReference reference): Diagnostic(Severity.Error)
+public class InvalidType(VariableReference reference): Diagnostic(Severity.Error)
 {
     public override string GetMessage()
     {

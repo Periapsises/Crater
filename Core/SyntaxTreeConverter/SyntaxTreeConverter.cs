@@ -28,7 +28,7 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
     {
         var isLocal = context.LOCAL() != null;
         var identifier = context.IDENTIFIER().GetText()!;
-        var dataTypeReference = (DataTypeReference)Visit(context.typeName())!;
+        var dataTypeReference = (VariableReference)Visit(context.typeName())!;
         var isNullable = context.QMARK() != null;
 
         if (context.expression() is null)
@@ -45,10 +45,10 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
     {
         if (context.FUNCTION() != null)
         {
-            return new DataTypeReference("function");
+            return new VariableReference("function", null, context);
         }
         
-        return new DataTypeReference(context.IDENTIFIER().GetText()!);
+        return new VariableReference(context.IDENTIFIER().GetText()!, null, context);
     }
 
     public override object? VisitParenthesizedExpression(CraterParser.ParenthesizedExpressionContext context)
@@ -71,6 +71,11 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         var right = (Expression)Visit(context.expression()[1])!;
 
         return new BinaryOperation(left, right, "or", context);
+    }
+
+    public override object? VisitVariableReference(CraterParser.VariableReferenceContext context)
+    {
+        return new VariableReference(context.IDENTIFIER().GetText()!, null, context);
     }
     
     public override object? VisitLiteral(CraterParser.LiteralContext context)

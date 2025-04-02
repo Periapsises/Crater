@@ -480,6 +480,26 @@ public partial class CraterParser : Parser {
 			else return visitor.VisitChildren(this);
 		}
 	}
+	public partial class VariableReferenceContext : ExpressionContext {
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode IDENTIFIER() { return GetToken(CraterParser.IDENTIFIER, 0); }
+		public VariableReferenceContext(ExpressionContext context) { CopyFrom(context); }
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override void EnterRule(IParseTreeListener listener) {
+			ICraterParserListener typedListener = listener as ICraterParserListener;
+			if (typedListener != null) typedListener.EnterVariableReference(this);
+		}
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override void ExitRule(IParseTreeListener listener) {
+			ICraterParserListener typedListener = listener as ICraterParserListener;
+			if (typedListener != null) typedListener.ExitVariableReference(this);
+		}
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			ICraterParserVisitor<TResult> typedVisitor = visitor as ICraterParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitVariableReference(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
 	public partial class LiteralExpressionContext : ExpressionContext {
 		[System.Diagnostics.DebuggerNonUserCode] public LiteralContext literal() {
 			return GetRuleContext<LiteralContext>(0);
@@ -545,7 +565,7 @@ public partial class CraterParser : Parser {
 			int _alt;
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 46;
+			State = 47;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
 			case LPAREN:
@@ -562,6 +582,15 @@ public partial class CraterParser : Parser {
 				Match(RPAREN);
 				}
 				break;
+			case IDENTIFIER:
+				{
+				_localctx = new VariableReferenceContext(_localctx);
+				Context = _localctx;
+				_prevctx = _localctx;
+				State = 45;
+				Match(IDENTIFIER);
+				}
+				break;
 			case NUMBER:
 			case HEXADECIMAL:
 			case EXPONENTIAL:
@@ -571,7 +600,7 @@ public partial class CraterParser : Parser {
 				_localctx = new LiteralExpressionContext(_localctx);
 				Context = _localctx;
 				_prevctx = _localctx;
-				State = 45;
+				State = 46;
 				literal();
 				}
 				break;
@@ -579,7 +608,7 @@ public partial class CraterParser : Parser {
 				throw new NoViableAltException(this);
 			}
 			Context.Stop = TokenStream.LT(-1);
-			State = 56;
+			State = 57;
 			ErrorHandler.Sync(this);
 			_alt = Interpreter.AdaptivePredict(TokenStream,6,Context);
 			while ( _alt!=2 && _alt!=global::Antlr4.Runtime.Atn.ATN.INVALID_ALT_NUMBER ) {
@@ -588,37 +617,37 @@ public partial class CraterParser : Parser {
 						TriggerExitRuleEvent();
 					_prevctx = _localctx;
 					{
-					State = 54;
+					State = 55;
 					ErrorHandler.Sync(this);
 					switch ( Interpreter.AdaptivePredict(TokenStream,5,Context) ) {
 					case 1:
 						{
 						_localctx = new AndOperationContext(new ExpressionContext(_parentctx, _parentState));
 						PushNewRecursionContext(_localctx, _startState, RULE_expression);
-						State = 48;
-						if (!(Precpred(Context, 3))) throw new FailedPredicateException(this, "Precpred(Context, 3)");
 						State = 49;
-						Match(AND);
+						if (!(Precpred(Context, 4))) throw new FailedPredicateException(this, "Precpred(Context, 4)");
 						State = 50;
-						expression(4);
+						Match(AND);
+						State = 51;
+						expression(5);
 						}
 						break;
 					case 2:
 						{
 						_localctx = new OrOperationContext(new ExpressionContext(_parentctx, _parentState));
 						PushNewRecursionContext(_localctx, _startState, RULE_expression);
-						State = 51;
-						if (!(Precpred(Context, 2))) throw new FailedPredicateException(this, "Precpred(Context, 2)");
 						State = 52;
-						Match(OR);
+						if (!(Precpred(Context, 3))) throw new FailedPredicateException(this, "Precpred(Context, 3)");
 						State = 53;
-						expression(3);
+						Match(OR);
+						State = 54;
+						expression(4);
 						}
 						break;
 					}
 					} 
 				}
-				State = 58;
+				State = 59;
 				ErrorHandler.Sync(this);
 				_alt = Interpreter.AdaptivePredict(TokenStream,6,Context);
 			}
@@ -671,7 +700,7 @@ public partial class CraterParser : Parser {
 		EnterRule(_localctx, 12, RULE_literal);
 		int _la;
 		try {
-			State = 62;
+			State = 63;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
 			case NUMBER:
@@ -679,7 +708,7 @@ public partial class CraterParser : Parser {
 			case EXPONENTIAL:
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 59;
+				State = 60;
 				_localctx.number = TokenStream.LT(1);
 				_la = TokenStream.LA(1);
 				if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 14680064L) != 0)) ) {
@@ -694,14 +723,14 @@ public partial class CraterParser : Parser {
 			case STRING:
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 60;
+				State = 61;
 				Match(STRING);
 				}
 				break;
 			case BOOLEAN:
 				EnterOuterAlt(_localctx, 3);
 				{
-				State = 61;
+				State = 62;
 				Match(BOOLEAN);
 				}
 				break;
@@ -728,32 +757,33 @@ public partial class CraterParser : Parser {
 	}
 	private bool expression_sempred(ExpressionContext _localctx, int predIndex) {
 		switch (predIndex) {
-		case 0: return Precpred(Context, 3);
-		case 1: return Precpred(Context, 2);
+		case 0: return Precpred(Context, 4);
+		case 1: return Precpred(Context, 3);
 		}
 		return true;
 	}
 
 	private static int[] _serializedATN = {
-		4,1,52,65,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,1,0,
+		4,1,52,66,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,1,0,
 		1,0,1,0,1,1,5,1,19,8,1,10,1,12,1,22,9,1,1,2,1,2,1,3,3,3,27,8,3,1,3,1,3,
 		1,3,1,3,3,3,33,8,3,1,3,1,3,3,3,37,8,3,1,4,1,4,1,5,1,5,1,5,1,5,1,5,1,5,
-		3,5,47,8,5,1,5,1,5,1,5,1,5,1,5,1,5,5,5,55,8,5,10,5,12,5,58,9,5,1,6,1,6,
-		1,6,3,6,63,8,6,1,6,0,1,10,7,0,2,4,6,8,10,12,0,2,2,0,1,1,26,26,1,0,21,23,
-		66,0,14,1,0,0,0,2,20,1,0,0,0,4,23,1,0,0,0,6,26,1,0,0,0,8,38,1,0,0,0,10,
-		46,1,0,0,0,12,62,1,0,0,0,14,15,3,2,1,0,15,16,5,0,0,1,16,1,1,0,0,0,17,19,
-		3,4,2,0,18,17,1,0,0,0,19,22,1,0,0,0,20,18,1,0,0,0,20,21,1,0,0,0,21,3,1,
-		0,0,0,22,20,1,0,0,0,23,24,3,6,3,0,24,5,1,0,0,0,25,27,5,2,0,0,26,25,1,0,
-		0,0,26,27,1,0,0,0,27,28,1,0,0,0,28,29,5,26,0,0,29,30,5,48,0,0,30,32,3,
-		8,4,0,31,33,5,40,0,0,32,31,1,0,0,0,32,33,1,0,0,0,33,36,1,0,0,0,34,35,5,
-		27,0,0,35,37,3,10,5,0,36,34,1,0,0,0,36,37,1,0,0,0,37,7,1,0,0,0,38,39,7,
-		0,0,0,39,9,1,0,0,0,40,41,6,5,-1,0,41,42,5,42,0,0,42,43,3,10,5,0,43,44,
-		5,43,0,0,44,47,1,0,0,0,45,47,3,12,6,0,46,40,1,0,0,0,46,45,1,0,0,0,47,56,
-		1,0,0,0,48,49,10,3,0,0,49,50,5,6,0,0,50,55,3,10,5,4,51,52,10,2,0,0,52,
-		53,5,7,0,0,53,55,3,10,5,3,54,48,1,0,0,0,54,51,1,0,0,0,55,58,1,0,0,0,56,
-		54,1,0,0,0,56,57,1,0,0,0,57,11,1,0,0,0,58,56,1,0,0,0,59,63,7,1,0,0,60,
-		63,5,24,0,0,61,63,5,25,0,0,62,59,1,0,0,0,62,60,1,0,0,0,62,61,1,0,0,0,63,
-		13,1,0,0,0,8,20,26,32,36,46,54,56,62
+		1,5,3,5,48,8,5,1,5,1,5,1,5,1,5,1,5,1,5,5,5,56,8,5,10,5,12,5,59,9,5,1,6,
+		1,6,1,6,3,6,64,8,6,1,6,0,1,10,7,0,2,4,6,8,10,12,0,2,2,0,1,1,26,26,1,0,
+		21,23,68,0,14,1,0,0,0,2,20,1,0,0,0,4,23,1,0,0,0,6,26,1,0,0,0,8,38,1,0,
+		0,0,10,47,1,0,0,0,12,63,1,0,0,0,14,15,3,2,1,0,15,16,5,0,0,1,16,1,1,0,0,
+		0,17,19,3,4,2,0,18,17,1,0,0,0,19,22,1,0,0,0,20,18,1,0,0,0,20,21,1,0,0,
+		0,21,3,1,0,0,0,22,20,1,0,0,0,23,24,3,6,3,0,24,5,1,0,0,0,25,27,5,2,0,0,
+		26,25,1,0,0,0,26,27,1,0,0,0,27,28,1,0,0,0,28,29,5,26,0,0,29,30,5,48,0,
+		0,30,32,3,8,4,0,31,33,5,40,0,0,32,31,1,0,0,0,32,33,1,0,0,0,33,36,1,0,0,
+		0,34,35,5,27,0,0,35,37,3,10,5,0,36,34,1,0,0,0,36,37,1,0,0,0,37,7,1,0,0,
+		0,38,39,7,0,0,0,39,9,1,0,0,0,40,41,6,5,-1,0,41,42,5,42,0,0,42,43,3,10,
+		5,0,43,44,5,43,0,0,44,48,1,0,0,0,45,48,5,26,0,0,46,48,3,12,6,0,47,40,1,
+		0,0,0,47,45,1,0,0,0,47,46,1,0,0,0,48,57,1,0,0,0,49,50,10,4,0,0,50,51,5,
+		6,0,0,51,56,3,10,5,5,52,53,10,3,0,0,53,54,5,7,0,0,54,56,3,10,5,4,55,49,
+		1,0,0,0,55,52,1,0,0,0,56,59,1,0,0,0,57,55,1,0,0,0,57,58,1,0,0,0,58,11,
+		1,0,0,0,59,57,1,0,0,0,60,64,7,1,0,0,61,64,5,24,0,0,62,64,5,25,0,0,63,60,
+		1,0,0,0,63,61,1,0,0,0,63,62,1,0,0,0,64,13,1,0,0,0,8,20,26,32,36,47,55,
+		57,63
 	};
 
 	public static readonly ATN _ATN =
