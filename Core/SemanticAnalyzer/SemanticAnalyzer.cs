@@ -1,10 +1,12 @@
 ﻿using Antlr4.Runtime;
 using Core.Antlr;
+using Core.SemanticAnalyzer.DataTypes;
 using Core.SemanticAnalyzer.Diagnostics;
 using Core.SyntaxTreeConverter;
 using Core.SyntaxTreeConverter.Expressions;
 using Core.SyntaxTreeConverter.Statements;
 using Expression = Core.SyntaxTreeConverter.Expression;
+using InvalidType = Core.SemanticAnalyzer.Diagnostics.InvalidType;
 
 namespace Core.SemanticAnalyzer;
 
@@ -41,6 +43,9 @@ public class SemanticAnalyzer
             {
                 case VariableDeclaration variableDeclaration:
                     AnalyzeVariableDeclaration(variableDeclaration);
+                    break;
+                case FunctionDeclaration functionDeclaration:
+                    AnalyzeFunctionDeclaration(functionDeclaration);
                     break;
                 default:
                     throw new NotImplementedException($"Unknown statement type {statement.GetType()}");
@@ -93,6 +98,72 @@ public class SemanticAnalyzer
         scope.Declare(variableDeclaration.Identifier, defaultSymbol);
     }
 
+    public void AnalyzeFunctionDeclaration(FunctionDeclaration functionDeclaration)
+    {
+        var scope = functionDeclaration.Local ? _localScope : _globalScope;
+        
+        var returnTypeSymbol = _localScope.Find(functionDeclaration.ReturnTypeReference);
+        if (returnTypeSymbol == null)
+        {
+            Reporter.Report(new TypeNotFound(functionDeclaration.ReturnTypeReference)
+                .WithContext(((CraterParser.FunctionDeclarationContext)functionDeclaration.Context).typeName()));
+            returnTypeSymbol = Symbol.InvalidDataType;
+        }
+
+        if (returnTypeSymbol.DataType != DataType.MetaType)
+        {
+            Reporter.Report(new InvalidType(functionDeclaration.ReturnTypeReference)
+                .WithContext(((CraterParser.FunctionDeclarationContext)functionDeclaration.Context).typeName()));
+        }
+        
+        var returnType =  returnTypeSymbol.Value.GetDataType();
+
+        List<DataType> parameters = [];
+
+        foreach (var parameter in functionDeclaration.Parameters)
+        {
+            var parameterTypeSymbol = _localScope.Find(parameter.DataTypeReference);
+            if (parameterTypeSymbol == null)
+            {
+                Reporter.Report(new TypeNotFound(parameter.DataTypeReference)
+                    .WithContext(((CraterParser.FunctionParameterContext)parameter.Context).typeName()));
+                parameterTypeSymbol = Symbol.InvalidDataType;
+            }
+
+            if (parameterTypeSymbol.DataType != DataType.MetaType)
+            {
+                Reporter.Report(new InvalidType(parameter.DataTypeReference)
+                    .WithContext(((CraterParser.FunctionParameterContext)parameter.Context).typeName()));
+            }
+            
+            parameters.Add(parameterTypeSymbol.Value.GetDataType());
+        }
+
+        if (scope.HasVariable(functionDeclaration.Identifier))
+        {
+            Reporter.Report(new VariableShadowing(functionDeclaration.Identifier)
+                .WithContext(((CraterParser.FunctionDeclarationContext)functionDeclaration.Context).IDENTIFIER()));
+        }
+
+        var functionType = new FunctionType(parameters, [returnType]);
+        var functionSymbol = new Symbol(new Value(ValueKind.Function, null), functionType, false);
+        
+        scope.Declare(functionDeclaration.Identifier, functionSymbol);
+
+        var functionScope = new Scope(_localScope);
+
+        for (var i = 0; i < functionDeclaration.Parameters.Count; i++)
+        {
+            var parameterSymbol = new Symbol(new Value(ValueKind.Unknown, null), parameters[i], functionDeclaration.Parameters[i].Nullable);
+            functionScope.Declare(functionDeclaration.Parameters[i].Name, parameterSymbol);
+        }
+        
+        var previousScope = _localScope;
+        _localScope = functionScope;
+        AnalyzeBlock(functionDeclaration.Block);
+        _localScope = previousScope;
+    }
+    
     public PossibleSymbols AnalyzeExpression(Expression expression)
     {
         switch (expression)
@@ -179,18 +250,14 @@ public class SemanticAnalyzer
         // If an 'and' operation's left symbols are only "falsy" then they are the only symbols passed further.
         if (!leftCanBeTruthy)
         {
-#if !TESTING
             Reporter.Report(new AndAlwaysFalse().WithContext(((CraterParser.AndOperationContext)binaryOperation.Context).expression()[0]));
-#endif
             return resultingSymbols;
         }
         
         // If an 'and' operation's left symbols are only "truthy" then only the right symbols are passed further.
         if (!leftCanBeFalsy)
         {
-#if !TESTING
             Reporter.Report(new AndAlwaysTrue().WithContext(((CraterParser.AndOperationContext)binaryOperation.Context).expression()[0]));
-#endif
             return rightSymbols;
         }
 
@@ -223,18 +290,18 @@ public class SemanticAnalyzer
             }
             else
             {
+                leftCanBeTruthy = true;
+                
                 // If the symbol is an unknown boolean, an or operation causes only "truthy" values to pass further.
                 // This means if we have a non-nil boolean, we can determine it will be added only if it is `true`.
                 if (symbol.DataType == DataType.BooleanType)
                 {
-                    leftCanBeTruthy = true;
                     leftCanBeFalsy = true;
                     resultingSymbols.Add(new Symbol(Value.TrueValue, symbol.DataType, false));
                 }
                 // If the symbol is nullable, add a non-nullable version because 'or' will filter out `nil` from the left operand.
                 else if (symbol.Nullable)
                 {
-                    leftCanBeTruthy = true;
                     leftCanBeFalsy = true;
                     resultingSymbols.Add(new Symbol(symbol.Value, symbol.DataType, false));
                 }
@@ -247,16 +314,12 @@ public class SemanticAnalyzer
 
         if (!leftCanBeTruthy)
         {
-#if !TESTING
             Reporter.Report(new OrAlwaysFalse().WithContext(((CraterParser.OrOperationContext)binaryOperation.Context).expression()[0]));
-#endif
         }
         
         if (!leftCanBeFalsy)
         {
-#if !TESTING
             Reporter.Report(new OrAlwaysTrue().WithContext(((CraterParser.OrOperationContext)binaryOperation.Context).expression()[0]));
-#endif
             return resultingSymbols;
         }
 
@@ -281,7 +344,8 @@ public class SemanticAnalyzer
     {
         var resultingSymbols = new PossibleSymbols();
         
-        var hasErroredForType = new HashSet<DataType>();
+        var hasErroredForType = new HashSet<DataType> { DataType.InvalidType };
+
         var hasErroredForNullable = false;
         
         foreach (var symbol in possibleSymbols)
@@ -289,18 +353,14 @@ public class SemanticAnalyzer
             var hasError = false;
             if (!hasErroredForType.Contains(symbol.DataType) && !symbol.DataType.IsCompatible(target.DataType))
             {
-#if !TESTING
                 Reporter.Report(new TypeMismatch(symbol.DataType, target.DataType).WithContext(context));
-#endif
                 hasErroredForType.Add(symbol.DataType);
                 hasError = true;
             }
 
             if (!hasErroredForNullable && symbol.Nullable && !target.Nullable)
             {
-#if !TESTING
                 Reporter.Report(new PossibleNullAssignment(variable));
-#endif
                 hasErroredForNullable = true;
                 hasError = true;
             }

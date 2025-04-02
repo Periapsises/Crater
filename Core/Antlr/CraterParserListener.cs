@@ -72,6 +72,36 @@ public interface ICraterParserListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitVariableDeclaration([NotNull] CraterParser.VariableDeclarationContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CraterParser.functionDeclaration"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterFunctionDeclaration([NotNull] CraterParser.FunctionDeclarationContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CraterParser.functionDeclaration"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitFunctionDeclaration([NotNull] CraterParser.FunctionDeclarationContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CraterParser.functionParameters"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterFunctionParameters([NotNull] CraterParser.FunctionParametersContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CraterParser.functionParameters"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitFunctionParameters([NotNull] CraterParser.FunctionParametersContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CraterParser.functionParameter"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterFunctionParameter([NotNull] CraterParser.FunctionParameterContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CraterParser.functionParameter"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitFunctionParameter([NotNull] CraterParser.FunctionParameterContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CraterParser.typeName"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

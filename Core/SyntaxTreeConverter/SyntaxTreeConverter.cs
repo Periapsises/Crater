@@ -41,13 +41,39 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         return new VariableDeclaration(isLocal, identifier, dataTypeReference, isNullable, initializer, context);
     }
 
+    public override object? VisitFunctionDeclaration(CraterParser.FunctionDeclarationContext context)
+    {
+        var isLocal = context.LOCAL() != null;
+        var identifier = context.IDENTIFIER().GetText()!;
+        var arguments = (List<ParameterDeclartion>)Visit(context.functionParameters())!;
+        var returnDataTypeReference = (VariableReference)Visit(context.typeName())!;
+        var returnIsNullable = context.QMARK() != null;
+        var block = (Block)Visit(context.block())!;
+        
+        return new FunctionDeclaration(isLocal, identifier, arguments, returnDataTypeReference, returnIsNullable, block, context);
+    }
+
+    public override object? VisitFunctionParameters(CraterParser.FunctionParametersContext context)
+    {
+        List<ParameterDeclartion> arguments = [];
+        
+        foreach (var argumentContext in context.functionParameter())
+            arguments.Add((ParameterDeclartion)Visit(argumentContext)!);
+        
+        return arguments;
+    }
+
+    public override object? VisitFunctionParameter(CraterParser.FunctionParameterContext context)
+    {
+        var name = context.IDENTIFIER().GetText()!;
+        var dataTypeReference = (VariableReference)Visit(context.typeName())!;
+        var isNullable = context.QMARK() != null;
+        
+        return new ParameterDeclartion(name, dataTypeReference, isNullable, context);
+    }
+    
     public override object? VisitTypeName(CraterParser.TypeNameContext context)
     {
-        if (context.FUNCTION() != null)
-        {
-            return new VariableReference("function", null, context);
-        }
-        
         return new VariableReference(context.IDENTIFIER().GetText()!, null, context);
     }
 

@@ -13,7 +13,16 @@ class Program
                         local myTernaryResult: string = true and "Hi" or "Hello"
                         local myAlwaysFalseOr: string = false and "A" or "B"
                         local myNonExistantVar: string = unknownVariable
+                        
+                        local function myFunction(a: number, b: number): number
+                            local myFunctionLocal: number = a
+                            local myOtherLocal: string = b
+                        end
+                        
+                        local function myOtherFunction(arg: invalidType): string end
                         """;
+
+        var maxLineNumberSize = testInput.Split('\n').Length.ToString().Length;
         
         Console.WriteLine("Translating input code:");
         Console.WriteLine();
@@ -21,8 +30,11 @@ class Program
         var sourceLines = testInput.Split(Environment.NewLine);
 
         for (var i = 0; i < sourceLines.Length; i++)
-            Console.WriteLine($"\u001b[90m{i + 1}\u001b[0m {sourceLines[i]}");
-        
+        {
+            var lineNumber = i.ToString().PadLeft(maxLineNumberSize);
+            Console.WriteLine($"\u001b[90m{lineNumber}\u001b[0m {sourceLines[i]}");
+        }
+
         Console.WriteLine();
         
         var transpiler = new Transpiler.Transpiler(testInput);
@@ -52,9 +64,14 @@ class Program
         Console.WriteLine($"Transpilation finished with {u}{numErrors}{r} {errorString}, {u}{numWarnings}{r} {warningString} and {u}{numInfos}{r} {infosString}.");
         Console.WriteLine();
 
-        var lines = output.TranslatedCode.Split('\n');
+        maxLineNumberSize = output.TranslatedCode.Split('\n').Length.ToString().Length;
         
+        var lines = output.TranslatedCode.Split('\n');
+
         for (var i = 0; i < lines.Length; i++)
-            Console.WriteLine($"\u001b[90m{i + 1}\u001b[0m {lines[i]}");
+        {
+            var lineNumber = i.ToString().PadLeft(maxLineNumberSize);
+            Console.WriteLine($"\u001b[90m{lineNumber}\u001b[0m {lines[i]}");
+        }
     }
 }

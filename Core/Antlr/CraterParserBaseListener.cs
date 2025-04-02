@@ -85,6 +85,42 @@ public partial class CraterParserBaseListener : ICraterParserListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitVariableDeclaration([NotNull] CraterParser.VariableDeclarationContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CraterParser.functionDeclaration"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterFunctionDeclaration([NotNull] CraterParser.FunctionDeclarationContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CraterParser.functionDeclaration"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitFunctionDeclaration([NotNull] CraterParser.FunctionDeclarationContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CraterParser.functionParameters"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterFunctionParameters([NotNull] CraterParser.FunctionParametersContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CraterParser.functionParameters"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitFunctionParameters([NotNull] CraterParser.FunctionParametersContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CraterParser.functionParameter"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterFunctionParameter([NotNull] CraterParser.FunctionParameterContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CraterParser.functionParameter"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitFunctionParameter([NotNull] CraterParser.FunctionParameterContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CraterParser.typeName"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

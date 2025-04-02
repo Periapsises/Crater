@@ -6,13 +6,19 @@ public enum ValueKind
     Number,
     String,
     Null,
+    Function,
     DataType,
-    Unknown
+    Unknown,
+    Invalid,
 }
 
 public class Value(ValueKind kind, object? value)
 {
+    public static readonly Value InvalidValue = new(ValueKind.Invalid, null);
+    public static readonly Value InvalidType = new(ValueKind.DataType, DataType.InvalidType);
+    
     public static readonly Value NullValue = new(ValueKind.Null, null);
+    
     public static readonly Value FalseValue = new(ValueKind.Boolean, false);
     public static readonly Value TrueValue = new(ValueKind.Boolean, true);
     

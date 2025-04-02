@@ -11,6 +11,8 @@ public abstract class DataType
     // To prevent throwing more errors for unknown variables
     public static readonly DataType InvalidType = new InvalidType();
     
+    public static readonly DataType VoidType = new VoidType();
+    
     public static readonly DataType NumberType = new NumberType();
     public static readonly DataType StringType = new StringType();
     public static readonly DataType BooleanType = new BooleanType();

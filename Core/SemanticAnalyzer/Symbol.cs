@@ -2,6 +2,9 @@
 
 public class Symbol(Value value, DataType dataType, bool nullable)
 {
+    public static readonly Symbol InvalidSymbol = new(Value.InvalidValue, DataType.InvalidType, false);
+    public static readonly Symbol InvalidDataType = new(Value.InvalidType, DataType.MetaType, false);
+    
     public Value Value = value;
     public DataType DataType = dataType;
     public bool Nullable = nullable;

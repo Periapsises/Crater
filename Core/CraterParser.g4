@@ -11,11 +11,20 @@ program: block EOF;
 
 block: statement*;
 
-statement: variableDeclaration;
+statement:
+    variableDeclaration
+    | functionDeclaration
+;
 
 variableDeclaration: LOCAL? IDENTIFIER COLON typeName QMARK? (ASSIGN expression)?;
 
-typeName: FUNCTION | IDENTIFIER;
+functionDeclaration: LOCAL? FUNCTION IDENTIFIER LPAREN functionParameters RPAREN COLON typeName QMARK? block END;
+
+functionParameters: functionParameter (COMMA functionParameter)*;
+
+functionParameter: IDENTIFIER COLON typeName QMARK?;
+
+typeName: IDENTIFIER;
 
 expression:
     LPAREN expression RPAREN    # ParenthesizedExpression

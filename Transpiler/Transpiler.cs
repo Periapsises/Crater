@@ -12,6 +12,7 @@ namespace Transpiler;
 
 public class Transpiler(string input)
 {
+    private int _spacing = 0;
     private readonly StringBuilder _builder = new();
     
     public TranslationResult Transpile()
@@ -46,6 +47,9 @@ public class Transpiler(string input)
                 case VariableDeclaration variableDeclaration:
                     TranspileVariableDeclaration(variableDeclaration);
                     break;
+                case FunctionDeclaration functionDeclaration:
+                    TranspileFunctionDeclaration(functionDeclaration);
+                    break;
                 default:
                     throw new NotImplementedException($"Unsupported statement type {statement.GetType()}");
             }
@@ -54,18 +58,39 @@ public class Transpiler(string input)
 
     private void TranspileVariableDeclaration(VariableDeclaration variableDeclaration)
     {
+        AppendSpacing();
+        
         if (variableDeclaration.Local)
-            _builder.Append("local ");
+            Append("local ");
 
-        _builder.Append(variableDeclaration.Identifier);
+        Append(variableDeclaration.Identifier);
 
         if (variableDeclaration.Initializer != null)
         {
-            _builder.Append(" = ");
+            Append(" = ");
             TranspileExpression(variableDeclaration.Initializer);
         }
         
-        _builder.Append('\n');
+        Append('\n');
+    }
+
+    private void TranspileFunctionDeclaration(FunctionDeclaration functionDeclaration)
+    {
+        AppendSpacing();
+        
+        if (functionDeclaration.Local)
+            Append("local ");
+
+        Append("function " + functionDeclaration.Identifier + "(");
+        Append(string.Join(", ", functionDeclaration.Parameters.Select(p => p.Name)));
+        Append(")\n");
+        
+        _spacing += 4;
+        TranspileBlock(functionDeclaration.Block);
+        _spacing -= 4;
+        
+        AppendSpacing();
+        Append("end\n");
     }
 
     private void TranspileExpression(Expression expression)
@@ -73,33 +98,37 @@ public class Transpiler(string input)
         switch (expression)
         {
             case NumberLiteral numberLiteral:
-                _builder.Append(numberLiteral.Value);
+                Append(numberLiteral.Value.ToString());
                 break;
             case StringLiteral stringLiteral:
-                _builder.Append('"');
-                _builder.Append(stringLiteral.Value);
-                _builder.Append('"');
+                Append('"');
+                Append(stringLiteral.Value);
+                Append('"');
                 break;
             case BooleanLiteral booleanLiteral:
-                _builder.Append(booleanLiteral.Value ? "true" : "false");
+                Append(booleanLiteral.Value ? "true" : "false");
                 break;
             case ParenthesizedExpression parenthesizedExpression:
-                _builder.Append("( ");
+                Append("( ");
                 TranspileExpression(parenthesizedExpression.Expression);
-                _builder.Append(" )");
+                Append(" )");
                 break;
             case BinaryOperation binaryOperation:
                 TranspileExpression(binaryOperation.Left);
-                _builder.Append($" {binaryOperation.Operator} ");
+                Append($" {binaryOperation.Operator} ");
                 TranspileExpression(binaryOperation.Right);
                 break;
             case VariableReference variableReference:
-                _builder.Append(variableReference.Name);
+                Append(variableReference.Name);
                 break;
             default:
                 throw new NotImplementedException($"Unsupported expression type {expression.GetType()}");
         }
     }
+
+    private void AppendSpacing() => _builder.Append(new string(' ', _spacing));
+    private void Append(string str) => _builder.Append(str);
+    private void Append(char ch) => _builder.Append(ch);
 }
 
 public class TranslationResult(string translatedCode, DiagnosticReporter reporter)

@@ -47,10 +47,11 @@ public partial class CraterParser : Parser {
 		DOT=50, COMMENT=51, WHITESPACE=52;
 	public const int
 		RULE_program = 0, RULE_block = 1, RULE_statement = 2, RULE_variableDeclaration = 3, 
-		RULE_typeName = 4, RULE_expression = 5, RULE_literal = 6;
+		RULE_functionDeclaration = 4, RULE_functionParameters = 5, RULE_functionParameter = 6, 
+		RULE_typeName = 7, RULE_expression = 8, RULE_literal = 9;
 	public static readonly string[] ruleNames = {
-		"program", "block", "statement", "variableDeclaration", "typeName", "expression", 
-		"literal"
+		"program", "block", "statement", "variableDeclaration", "functionDeclaration", 
+		"functionParameters", "functionParameter", "typeName", "expression", "literal"
 	};
 
 	private static readonly string[] _LiteralNames = {
@@ -137,9 +138,9 @@ public partial class CraterParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 14;
+			State = 20;
 			block();
-			State = 15;
+			State = 21;
 			Match(Eof);
 			}
 		}
@@ -192,17 +193,17 @@ public partial class CraterParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 20;
+			State = 26;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
-			while (_la==LOCAL || _la==IDENTIFIER) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 67108870L) != 0)) {
 				{
 				{
-				State = 17;
+				State = 23;
 				statement();
 				}
 				}
-				State = 22;
+				State = 28;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 			}
@@ -222,6 +223,9 @@ public partial class CraterParser : Parser {
 	public partial class StatementContext : ParserRuleContext {
 		[System.Diagnostics.DebuggerNonUserCode] public VariableDeclarationContext variableDeclaration() {
 			return GetRuleContext<VariableDeclarationContext>(0);
+		}
+		[System.Diagnostics.DebuggerNonUserCode] public FunctionDeclarationContext functionDeclaration() {
+			return GetRuleContext<FunctionDeclarationContext>(0);
 		}
 		public StatementContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
@@ -251,10 +255,23 @@ public partial class CraterParser : Parser {
 		StatementContext _localctx = new StatementContext(Context, State);
 		EnterRule(_localctx, 4, RULE_statement);
 		try {
-			EnterOuterAlt(_localctx, 1);
-			{
-			State = 23;
-			variableDeclaration();
+			State = 31;
+			ErrorHandler.Sync(this);
+			switch ( Interpreter.AdaptivePredict(TokenStream,1,Context) ) {
+			case 1:
+				EnterOuterAlt(_localctx, 1);
+				{
+				State = 29;
+				variableDeclaration();
+				}
+				break;
+			case 2:
+				EnterOuterAlt(_localctx, 2);
+				{
+				State = 30;
+				functionDeclaration();
+				}
+				break;
 			}
 		}
 		catch (RecognitionException re) {
@@ -311,40 +328,40 @@ public partial class CraterParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 26;
+			State = 34;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			if (_la==LOCAL) {
 				{
-				State = 25;
+				State = 33;
 				Match(LOCAL);
 				}
 			}
 
-			State = 28;
+			State = 36;
 			Match(IDENTIFIER);
-			State = 29;
+			State = 37;
 			Match(COLON);
-			State = 30;
+			State = 38;
 			typeName();
-			State = 32;
+			State = 40;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			if (_la==QMARK) {
 				{
-				State = 31;
+				State = 39;
 				Match(QMARK);
 				}
 			}
 
-			State = 36;
+			State = 44;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			if (_la==ASSIGN) {
 				{
-				State = 34;
+				State = 42;
 				Match(ASSIGN);
-				State = 35;
+				State = 43;
 				expression(0);
 				}
 			}
@@ -362,8 +379,247 @@ public partial class CraterParser : Parser {
 		return _localctx;
 	}
 
-	public partial class TypeNameContext : ParserRuleContext {
+	public partial class FunctionDeclarationContext : ParserRuleContext {
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode FUNCTION() { return GetToken(CraterParser.FUNCTION, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode IDENTIFIER() { return GetToken(CraterParser.IDENTIFIER, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode LPAREN() { return GetToken(CraterParser.LPAREN, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public FunctionParametersContext functionParameters() {
+			return GetRuleContext<FunctionParametersContext>(0);
+		}
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode RPAREN() { return GetToken(CraterParser.RPAREN, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode COLON() { return GetToken(CraterParser.COLON, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public TypeNameContext typeName() {
+			return GetRuleContext<TypeNameContext>(0);
+		}
+		[System.Diagnostics.DebuggerNonUserCode] public BlockContext block() {
+			return GetRuleContext<BlockContext>(0);
+		}
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode END() { return GetToken(CraterParser.END, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode LOCAL() { return GetToken(CraterParser.LOCAL, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode QMARK() { return GetToken(CraterParser.QMARK, 0); }
+		public FunctionDeclarationContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_functionDeclaration; } }
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override void EnterRule(IParseTreeListener listener) {
+			ICraterParserListener typedListener = listener as ICraterParserListener;
+			if (typedListener != null) typedListener.EnterFunctionDeclaration(this);
+		}
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override void ExitRule(IParseTreeListener listener) {
+			ICraterParserListener typedListener = listener as ICraterParserListener;
+			if (typedListener != null) typedListener.ExitFunctionDeclaration(this);
+		}
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			ICraterParserVisitor<TResult> typedVisitor = visitor as ICraterParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitFunctionDeclaration(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+
+	[RuleVersion(0)]
+	public FunctionDeclarationContext functionDeclaration() {
+		FunctionDeclarationContext _localctx = new FunctionDeclarationContext(Context, State);
+		EnterRule(_localctx, 8, RULE_functionDeclaration);
+		int _la;
+		try {
+			EnterOuterAlt(_localctx, 1);
+			{
+			State = 47;
+			ErrorHandler.Sync(this);
+			_la = TokenStream.LA(1);
+			if (_la==LOCAL) {
+				{
+				State = 46;
+				Match(LOCAL);
+				}
+			}
+
+			State = 49;
+			Match(FUNCTION);
+			State = 50;
+			Match(IDENTIFIER);
+			State = 51;
+			Match(LPAREN);
+			State = 52;
+			functionParameters();
+			State = 53;
+			Match(RPAREN);
+			State = 54;
+			Match(COLON);
+			State = 55;
+			typeName();
+			State = 57;
+			ErrorHandler.Sync(this);
+			_la = TokenStream.LA(1);
+			if (_la==QMARK) {
+				{
+				State = 56;
+				Match(QMARK);
+				}
+			}
+
+			State = 59;
+			block();
+			State = 60;
+			Match(END);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			ErrorHandler.ReportError(this, re);
+			ErrorHandler.Recover(this, re);
+		}
+		finally {
+			ExitRule();
+		}
+		return _localctx;
+	}
+
+	public partial class FunctionParametersContext : ParserRuleContext {
+		[System.Diagnostics.DebuggerNonUserCode] public FunctionParameterContext[] functionParameter() {
+			return GetRuleContexts<FunctionParameterContext>();
+		}
+		[System.Diagnostics.DebuggerNonUserCode] public FunctionParameterContext functionParameter(int i) {
+			return GetRuleContext<FunctionParameterContext>(i);
+		}
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode[] COMMA() { return GetTokens(CraterParser.COMMA); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode COMMA(int i) {
+			return GetToken(CraterParser.COMMA, i);
+		}
+		public FunctionParametersContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_functionParameters; } }
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override void EnterRule(IParseTreeListener listener) {
+			ICraterParserListener typedListener = listener as ICraterParserListener;
+			if (typedListener != null) typedListener.EnterFunctionParameters(this);
+		}
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override void ExitRule(IParseTreeListener listener) {
+			ICraterParserListener typedListener = listener as ICraterParserListener;
+			if (typedListener != null) typedListener.ExitFunctionParameters(this);
+		}
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			ICraterParserVisitor<TResult> typedVisitor = visitor as ICraterParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitFunctionParameters(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+
+	[RuleVersion(0)]
+	public FunctionParametersContext functionParameters() {
+		FunctionParametersContext _localctx = new FunctionParametersContext(Context, State);
+		EnterRule(_localctx, 10, RULE_functionParameters);
+		int _la;
+		try {
+			EnterOuterAlt(_localctx, 1);
+			{
+			State = 62;
+			functionParameter();
+			State = 67;
+			ErrorHandler.Sync(this);
+			_la = TokenStream.LA(1);
+			while (_la==COMMA) {
+				{
+				{
+				State = 63;
+				Match(COMMA);
+				State = 64;
+				functionParameter();
+				}
+				}
+				State = 69;
+				ErrorHandler.Sync(this);
+				_la = TokenStream.LA(1);
+			}
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			ErrorHandler.ReportError(this, re);
+			ErrorHandler.Recover(this, re);
+		}
+		finally {
+			ExitRule();
+		}
+		return _localctx;
+	}
+
+	public partial class FunctionParameterContext : ParserRuleContext {
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode IDENTIFIER() { return GetToken(CraterParser.IDENTIFIER, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode COLON() { return GetToken(CraterParser.COLON, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public TypeNameContext typeName() {
+			return GetRuleContext<TypeNameContext>(0);
+		}
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode QMARK() { return GetToken(CraterParser.QMARK, 0); }
+		public FunctionParameterContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_functionParameter; } }
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override void EnterRule(IParseTreeListener listener) {
+			ICraterParserListener typedListener = listener as ICraterParserListener;
+			if (typedListener != null) typedListener.EnterFunctionParameter(this);
+		}
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override void ExitRule(IParseTreeListener listener) {
+			ICraterParserListener typedListener = listener as ICraterParserListener;
+			if (typedListener != null) typedListener.ExitFunctionParameter(this);
+		}
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			ICraterParserVisitor<TResult> typedVisitor = visitor as ICraterParserVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitFunctionParameter(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+
+	[RuleVersion(0)]
+	public FunctionParameterContext functionParameter() {
+		FunctionParameterContext _localctx = new FunctionParameterContext(Context, State);
+		EnterRule(_localctx, 12, RULE_functionParameter);
+		int _la;
+		try {
+			EnterOuterAlt(_localctx, 1);
+			{
+			State = 70;
+			Match(IDENTIFIER);
+			State = 71;
+			Match(COLON);
+			State = 72;
+			typeName();
+			State = 74;
+			ErrorHandler.Sync(this);
+			_la = TokenStream.LA(1);
+			if (_la==QMARK) {
+				{
+				State = 73;
+				Match(QMARK);
+				}
+			}
+
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			ErrorHandler.ReportError(this, re);
+			ErrorHandler.Recover(this, re);
+		}
+		finally {
+			ExitRule();
+		}
+		return _localctx;
+	}
+
+	public partial class TypeNameContext : ParserRuleContext {
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode IDENTIFIER() { return GetToken(CraterParser.IDENTIFIER, 0); }
 		public TypeNameContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
@@ -391,20 +647,12 @@ public partial class CraterParser : Parser {
 	[RuleVersion(0)]
 	public TypeNameContext typeName() {
 		TypeNameContext _localctx = new TypeNameContext(Context, State);
-		EnterRule(_localctx, 8, RULE_typeName);
-		int _la;
+		EnterRule(_localctx, 14, RULE_typeName);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 38;
-			_la = TokenStream.LA(1);
-			if ( !(_la==FUNCTION || _la==IDENTIFIER) ) {
-			ErrorHandler.RecoverInline(this);
-			}
-			else {
-				ErrorHandler.ReportMatch(this);
-			    Consume();
-			}
+			State = 76;
+			Match(IDENTIFIER);
 			}
 		}
 		catch (RecognitionException re) {
@@ -559,13 +807,13 @@ public partial class CraterParser : Parser {
 		int _parentState = State;
 		ExpressionContext _localctx = new ExpressionContext(Context, _parentState);
 		ExpressionContext _prevctx = _localctx;
-		int _startState = 10;
-		EnterRecursionRule(_localctx, 10, RULE_expression, _p);
+		int _startState = 16;
+		EnterRecursionRule(_localctx, 16, RULE_expression, _p);
 		try {
 			int _alt;
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 47;
+			State = 85;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
 			case LPAREN:
@@ -574,11 +822,11 @@ public partial class CraterParser : Parser {
 				Context = _localctx;
 				_prevctx = _localctx;
 
-				State = 41;
+				State = 79;
 				Match(LPAREN);
-				State = 42;
+				State = 80;
 				expression(0);
-				State = 43;
+				State = 81;
 				Match(RPAREN);
 				}
 				break;
@@ -587,7 +835,7 @@ public partial class CraterParser : Parser {
 				_localctx = new VariableReferenceContext(_localctx);
 				Context = _localctx;
 				_prevctx = _localctx;
-				State = 45;
+				State = 83;
 				Match(IDENTIFIER);
 				}
 				break;
@@ -600,7 +848,7 @@ public partial class CraterParser : Parser {
 				_localctx = new LiteralExpressionContext(_localctx);
 				Context = _localctx;
 				_prevctx = _localctx;
-				State = 46;
+				State = 84;
 				literal();
 				}
 				break;
@@ -608,27 +856,27 @@ public partial class CraterParser : Parser {
 				throw new NoViableAltException(this);
 			}
 			Context.Stop = TokenStream.LT(-1);
-			State = 57;
+			State = 95;
 			ErrorHandler.Sync(this);
-			_alt = Interpreter.AdaptivePredict(TokenStream,6,Context);
+			_alt = Interpreter.AdaptivePredict(TokenStream,11,Context);
 			while ( _alt!=2 && _alt!=global::Antlr4.Runtime.Atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					if ( ParseListeners!=null )
 						TriggerExitRuleEvent();
 					_prevctx = _localctx;
 					{
-					State = 55;
+					State = 93;
 					ErrorHandler.Sync(this);
-					switch ( Interpreter.AdaptivePredict(TokenStream,5,Context) ) {
+					switch ( Interpreter.AdaptivePredict(TokenStream,10,Context) ) {
 					case 1:
 						{
 						_localctx = new AndOperationContext(new ExpressionContext(_parentctx, _parentState));
 						PushNewRecursionContext(_localctx, _startState, RULE_expression);
-						State = 49;
+						State = 87;
 						if (!(Precpred(Context, 4))) throw new FailedPredicateException(this, "Precpred(Context, 4)");
-						State = 50;
+						State = 88;
 						Match(AND);
-						State = 51;
+						State = 89;
 						expression(5);
 						}
 						break;
@@ -636,20 +884,20 @@ public partial class CraterParser : Parser {
 						{
 						_localctx = new OrOperationContext(new ExpressionContext(_parentctx, _parentState));
 						PushNewRecursionContext(_localctx, _startState, RULE_expression);
-						State = 52;
+						State = 90;
 						if (!(Precpred(Context, 3))) throw new FailedPredicateException(this, "Precpred(Context, 3)");
-						State = 53;
+						State = 91;
 						Match(OR);
-						State = 54;
+						State = 92;
 						expression(4);
 						}
 						break;
 					}
 					} 
 				}
-				State = 59;
+				State = 97;
 				ErrorHandler.Sync(this);
-				_alt = Interpreter.AdaptivePredict(TokenStream,6,Context);
+				_alt = Interpreter.AdaptivePredict(TokenStream,11,Context);
 			}
 			}
 		}
@@ -697,10 +945,10 @@ public partial class CraterParser : Parser {
 	[RuleVersion(0)]
 	public LiteralContext literal() {
 		LiteralContext _localctx = new LiteralContext(Context, State);
-		EnterRule(_localctx, 12, RULE_literal);
+		EnterRule(_localctx, 18, RULE_literal);
 		int _la;
 		try {
-			State = 63;
+			State = 101;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
 			case NUMBER:
@@ -708,7 +956,7 @@ public partial class CraterParser : Parser {
 			case EXPONENTIAL:
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 60;
+				State = 98;
 				_localctx.number = TokenStream.LT(1);
 				_la = TokenStream.LA(1);
 				if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 14680064L) != 0)) ) {
@@ -723,14 +971,14 @@ public partial class CraterParser : Parser {
 			case STRING:
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 61;
+				State = 99;
 				Match(STRING);
 				}
 				break;
 			case BOOLEAN:
 				EnterOuterAlt(_localctx, 3);
 				{
-				State = 62;
+				State = 100;
 				Match(BOOLEAN);
 				}
 				break;
@@ -751,7 +999,7 @@ public partial class CraterParser : Parser {
 
 	public override bool Sempred(RuleContext _localctx, int ruleIndex, int predIndex) {
 		switch (ruleIndex) {
-		case 5: return expression_sempred((ExpressionContext)_localctx, predIndex);
+		case 8: return expression_sempred((ExpressionContext)_localctx, predIndex);
 		}
 		return true;
 	}
@@ -764,26 +1012,36 @@ public partial class CraterParser : Parser {
 	}
 
 	private static int[] _serializedATN = {
-		4,1,52,66,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,1,0,
-		1,0,1,0,1,1,5,1,19,8,1,10,1,12,1,22,9,1,1,2,1,2,1,3,3,3,27,8,3,1,3,1,3,
-		1,3,1,3,3,3,33,8,3,1,3,1,3,3,3,37,8,3,1,4,1,4,1,5,1,5,1,5,1,5,1,5,1,5,
-		1,5,3,5,48,8,5,1,5,1,5,1,5,1,5,1,5,1,5,5,5,56,8,5,10,5,12,5,59,9,5,1,6,
-		1,6,1,6,3,6,64,8,6,1,6,0,1,10,7,0,2,4,6,8,10,12,0,2,2,0,1,1,26,26,1,0,
-		21,23,68,0,14,1,0,0,0,2,20,1,0,0,0,4,23,1,0,0,0,6,26,1,0,0,0,8,38,1,0,
-		0,0,10,47,1,0,0,0,12,63,1,0,0,0,14,15,3,2,1,0,15,16,5,0,0,1,16,1,1,0,0,
-		0,17,19,3,4,2,0,18,17,1,0,0,0,19,22,1,0,0,0,20,18,1,0,0,0,20,21,1,0,0,
-		0,21,3,1,0,0,0,22,20,1,0,0,0,23,24,3,6,3,0,24,5,1,0,0,0,25,27,5,2,0,0,
-		26,25,1,0,0,0,26,27,1,0,0,0,27,28,1,0,0,0,28,29,5,26,0,0,29,30,5,48,0,
-		0,30,32,3,8,4,0,31,33,5,40,0,0,32,31,1,0,0,0,32,33,1,0,0,0,33,36,1,0,0,
-		0,34,35,5,27,0,0,35,37,3,10,5,0,36,34,1,0,0,0,36,37,1,0,0,0,37,7,1,0,0,
-		0,38,39,7,0,0,0,39,9,1,0,0,0,40,41,6,5,-1,0,41,42,5,42,0,0,42,43,3,10,
-		5,0,43,44,5,43,0,0,44,48,1,0,0,0,45,48,5,26,0,0,46,48,3,12,6,0,47,40,1,
-		0,0,0,47,45,1,0,0,0,47,46,1,0,0,0,48,57,1,0,0,0,49,50,10,4,0,0,50,51,5,
-		6,0,0,51,56,3,10,5,5,52,53,10,3,0,0,53,54,5,7,0,0,54,56,3,10,5,4,55,49,
-		1,0,0,0,55,52,1,0,0,0,56,59,1,0,0,0,57,55,1,0,0,0,57,58,1,0,0,0,58,11,
-		1,0,0,0,59,57,1,0,0,0,60,64,7,1,0,0,61,64,5,24,0,0,62,64,5,25,0,0,63,60,
-		1,0,0,0,63,61,1,0,0,0,63,62,1,0,0,0,64,13,1,0,0,0,8,20,26,32,36,47,55,
-		57,63
+		4,1,52,104,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,
+		7,7,2,8,7,8,2,9,7,9,1,0,1,0,1,0,1,1,5,1,25,8,1,10,1,12,1,28,9,1,1,2,1,
+		2,3,2,32,8,2,1,3,3,3,35,8,3,1,3,1,3,1,3,1,3,3,3,41,8,3,1,3,1,3,3,3,45,
+		8,3,1,4,3,4,48,8,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,3,4,58,8,4,1,4,1,4,
+		1,4,1,5,1,5,1,5,5,5,66,8,5,10,5,12,5,69,9,5,1,6,1,6,1,6,1,6,3,6,75,8,6,
+		1,7,1,7,1,8,1,8,1,8,1,8,1,8,1,8,1,8,3,8,86,8,8,1,8,1,8,1,8,1,8,1,8,1,8,
+		5,8,94,8,8,10,8,12,8,97,9,8,1,9,1,9,1,9,3,9,102,8,9,1,9,0,1,16,10,0,2,
+		4,6,8,10,12,14,16,18,0,1,1,0,21,23,108,0,20,1,0,0,0,2,26,1,0,0,0,4,31,
+		1,0,0,0,6,34,1,0,0,0,8,47,1,0,0,0,10,62,1,0,0,0,12,70,1,0,0,0,14,76,1,
+		0,0,0,16,85,1,0,0,0,18,101,1,0,0,0,20,21,3,2,1,0,21,22,5,0,0,1,22,1,1,
+		0,0,0,23,25,3,4,2,0,24,23,1,0,0,0,25,28,1,0,0,0,26,24,1,0,0,0,26,27,1,
+		0,0,0,27,3,1,0,0,0,28,26,1,0,0,0,29,32,3,6,3,0,30,32,3,8,4,0,31,29,1,0,
+		0,0,31,30,1,0,0,0,32,5,1,0,0,0,33,35,5,2,0,0,34,33,1,0,0,0,34,35,1,0,0,
+		0,35,36,1,0,0,0,36,37,5,26,0,0,37,38,5,48,0,0,38,40,3,14,7,0,39,41,5,40,
+		0,0,40,39,1,0,0,0,40,41,1,0,0,0,41,44,1,0,0,0,42,43,5,27,0,0,43,45,3,16,
+		8,0,44,42,1,0,0,0,44,45,1,0,0,0,45,7,1,0,0,0,46,48,5,2,0,0,47,46,1,0,0,
+		0,47,48,1,0,0,0,48,49,1,0,0,0,49,50,5,1,0,0,50,51,5,26,0,0,51,52,5,42,
+		0,0,52,53,3,10,5,0,53,54,5,43,0,0,54,55,5,48,0,0,55,57,3,14,7,0,56,58,
+		5,40,0,0,57,56,1,0,0,0,57,58,1,0,0,0,58,59,1,0,0,0,59,60,3,2,1,0,60,61,
+		5,4,0,0,61,9,1,0,0,0,62,67,3,12,6,0,63,64,5,49,0,0,64,66,3,12,6,0,65,63,
+		1,0,0,0,66,69,1,0,0,0,67,65,1,0,0,0,67,68,1,0,0,0,68,11,1,0,0,0,69,67,
+		1,0,0,0,70,71,5,26,0,0,71,72,5,48,0,0,72,74,3,14,7,0,73,75,5,40,0,0,74,
+		73,1,0,0,0,74,75,1,0,0,0,75,13,1,0,0,0,76,77,5,26,0,0,77,15,1,0,0,0,78,
+		79,6,8,-1,0,79,80,5,42,0,0,80,81,3,16,8,0,81,82,5,43,0,0,82,86,1,0,0,0,
+		83,86,5,26,0,0,84,86,3,18,9,0,85,78,1,0,0,0,85,83,1,0,0,0,85,84,1,0,0,
+		0,86,95,1,0,0,0,87,88,10,4,0,0,88,89,5,6,0,0,89,94,3,16,8,5,90,91,10,3,
+		0,0,91,92,5,7,0,0,92,94,3,16,8,4,93,87,1,0,0,0,93,90,1,0,0,0,94,97,1,0,
+		0,0,95,93,1,0,0,0,95,96,1,0,0,0,96,17,1,0,0,0,97,95,1,0,0,0,98,102,7,0,
+		0,0,99,102,5,24,0,0,100,102,5,25,0,0,101,98,1,0,0,0,101,99,1,0,0,0,101,
+		100,1,0,0,0,102,19,1,0,0,0,13,26,31,34,40,44,47,57,67,74,85,93,95,101
 	};
 
 	public static readonly ATN _ATN =
