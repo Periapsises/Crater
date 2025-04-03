@@ -10,22 +10,25 @@ class Program
                         local myDefinedFloat: number = 1.5
                         local myAddition: number = 1 + 2
                         local mySubtraction: number = 2 - 1
-                        local myMultiplication: number = 1 * 2
-                        local myDivision: number = 1 / 2
-                        local myExponent: number = 1 ^ 2
-                        local myModulo: number = 1 % 2
-                        local myNegativeNumber: number = -1
-                        local myExponentialNumber: number = 1e2
-                        local myHexadecimalNumber: number = 0xff
-                        local myBinaryNumber: number = 0b01
+                        --local myMultiplication: number = 1 * 2
+                        --local myDivision: number = 1 / 2
+                        --local myExponent: number = 1 ^ 2
+                        --local myModulo: number = 1 % 2
+                        --local myNegativeNumber: number = -1
+                        --local myExponentialNumber: number = 1e2
+                        --local myHexadecimalNumber: number = 0xff
+                        --local myBinaryNumber: number = 0b01
                         
                         local myReferencedNumber: number = myDefinedNumber
                         local myVariableAddition: number = myDefinedNumber + 1
                         local myVariableSubtraction: number = myDefinedNumber - 1
-                        local myVariableMultiplication: number = myDefinedNumber * 2
-                        local myVariableDivision: number = myDefinedNumber / 2
-                        local myVariableExponent: number = myDefinedNumber ^ 2
-                        local myVariableModulo: number = myDefinedNumber % 2
+                        --local myVariableMultiplication: number = myDefinedNumber * 2
+                        --local myVariableDivision: number = myDefinedNumber / 2
+                        --local myVariableExponent: number = myDefinedNumber ^ 2
+                        --local myVariableModulo: number = myDefinedNumber % 2
+                        
+                        local invalidAddition: number = 1 + "a"
+                        local invalidSubtraction: number = 2 - "a"
                         """;
 
         var maxLineNumberSize = testInput.Split('\n').Length.ToString().Length;

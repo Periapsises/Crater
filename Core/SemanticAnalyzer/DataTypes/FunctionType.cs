@@ -1,4 +1,6 @@
-﻿namespace Core.SemanticAnalyzer.DataTypes;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Core.SemanticAnalyzer.DataTypes;
 
 public class FunctionType(List<DataType> argTypes, List<DataType> returnTypes) : MetaType
 {
@@ -10,6 +12,11 @@ public class FunctionType(List<DataType> argTypes, List<DataType> returnTypes) :
     public override string GetName()
     {
         return $"func({string.Join(", ", _argTypes.Select(x => x.GetName()))}): {_returnTypes.Select(x => x.GetName())}";
+    }
+    
+    public override bool TryOperation(Symbol left, Symbol right, string op, [NotNullWhen(true)] out Symbol? result)
+    {
+        throw new NotImplementedException();
     }
 
     public override bool IsCompatible(DataType other)

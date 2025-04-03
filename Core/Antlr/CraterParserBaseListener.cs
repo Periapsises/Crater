@@ -203,6 +203,20 @@ public partial class CraterParserBaseListener : ICraterParserListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitAndOperation([NotNull] CraterParser.AndOperationContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by the <c>AdditiveOperation</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterAdditiveOperation([NotNull] CraterParser.AdditiveOperationContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by the <c>AdditiveOperation</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitAdditiveOperation([NotNull] CraterParser.AdditiveOperationContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CraterParser.literal"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

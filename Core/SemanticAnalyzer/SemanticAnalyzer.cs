@@ -192,6 +192,10 @@ public class SemanticAnalyzer
         
         switch (binaryOperation.Operator)
         {
+            case "+":
+                return AnalyzeOperation(left, right, "__add", binaryOperation);
+            case "-":
+                return AnalyzeOperation(left, right, "__sub", binaryOperation);
             case "and":
                 return AnalyzeAndOperation(left, right, binaryOperation);
             case "or":
@@ -199,6 +203,33 @@ public class SemanticAnalyzer
             default:
                 throw new NotImplementedException($"Unknown binary operator {binaryOperation.Operator}");
         }
+    }
+
+    public PossibleSymbols AnalyzeOperation(PossibleSymbols left, PossibleSymbols right, string op, BinaryOperation binaryOperation)
+    {
+        var resultingSymbols = new PossibleSymbols();
+        var hasErroredForTypes = new HashSet<(DataType, DataType)>();
+        
+        foreach (var leftSymbol in left)
+        {
+            foreach (var rightSymbol in right)
+            {
+                if (leftSymbol.BinaryOperation(rightSymbol, op, out var symbol))
+                {
+                    resultingSymbols.Add(symbol);
+                    continue;
+                }
+                
+                if (hasErroredForTypes.Contains((leftSymbol.DataType, rightSymbol.DataType)))
+                    continue;
+                    
+                Reporter.Report(new InvalidBinaryOperator(leftSymbol.DataType, rightSymbol.DataType, binaryOperation.Operator)
+                    .WithContext(((CraterParser.AdditiveOperationContext)binaryOperation.Context).op));
+                hasErroredForTypes.Add((leftSymbol.DataType, rightSymbol.DataType));
+            }
+        }
+        
+        return resultingSymbols;
     }
     
     public PossibleSymbols AnalyzeAndOperation(PossibleSymbols leftSymbols, PossibleSymbols rightSymbols, BinaryOperation binaryOperation)

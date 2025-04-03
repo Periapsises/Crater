@@ -83,6 +83,14 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         return new ParenthesizedExpression(expression, context);
     }
 
+    public override object? VisitAdditiveOperation(CraterParser.AdditiveOperationContext context)
+    {
+        var left = (Expression)Visit(context.expression()[0])!;
+        var right = (Expression)Visit(context.expression()[1])!;
+
+        return new BinaryOperation(left, right, context.op.Text, context);
+    }
+    
     public override object? VisitAndOperation(CraterParser.AndOperationContext context)
     {
         var left = (Expression)Visit(context.expression()[0])!;

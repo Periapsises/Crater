@@ -1,4 +1,5 @@
-﻿using Core.SemanticAnalyzer.DataTypes;
+﻿using System.Diagnostics.CodeAnalysis;
+using Core.SemanticAnalyzer.DataTypes;
 using InvalidType = Core.SemanticAnalyzer.DataTypes.InvalidType;
 
 namespace Core.SemanticAnalyzer;
@@ -18,6 +19,8 @@ public abstract class DataType
     public static readonly DataType BooleanType = new BooleanType();
 
     public abstract string GetName();
+    
+    public abstract bool TryOperation(Symbol left, Symbol right, string op, [NotNullWhen(true)] out Symbol? result);
     
     public virtual bool IsCompatible(DataType target)
     {
