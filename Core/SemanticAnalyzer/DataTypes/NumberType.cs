@@ -17,6 +17,7 @@ public class NumberType : DataType
                 "__mul" => left.Value.GetNumber() * right.Value.GetNumber(),
                 "__div" => left.Value.GetNumber() / right.Value.GetNumber(),
                 "__mod" => left.Value.GetNumber() % right.Value.GetNumber(),
+                "__exp" => Math.Pow(left.Value.GetNumber(), right.Value.GetNumber()),
                 _ => throw new NotImplementedException($"Invalid operator {op}")
             };
             

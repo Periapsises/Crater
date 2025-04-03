@@ -175,6 +175,20 @@ public partial class CraterParserBaseListener : ICraterParserListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitVariableReference([NotNull] CraterParser.VariableReferenceContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by the <c>ExponentOperation</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterExponentOperation([NotNull] CraterParser.ExponentOperationContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by the <c>ExponentOperation</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitExponentOperation([NotNull] CraterParser.ExponentOperationContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by the <c>LiteralExpression</c>
 	/// labeled alternative in <see cref="CraterParser.expression"/>.
 	/// <para>The default implementation does nothing.</para>

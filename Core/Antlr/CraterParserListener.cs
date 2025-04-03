@@ -148,6 +148,18 @@ public interface ICraterParserListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitVariableReference([NotNull] CraterParser.VariableReferenceContext context);
 	/// <summary>
+	/// Enter a parse tree produced by the <c>ExponentOperation</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterExponentOperation([NotNull] CraterParser.ExponentOperationContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>ExponentOperation</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitExponentOperation([NotNull] CraterParser.ExponentOperationContext context);
+	/// <summary>
 	/// Enter a parse tree produced by the <c>LiteralExpression</c>
 	/// labeled alternative in <see cref="CraterParser.expression"/>.
 	/// </summary>

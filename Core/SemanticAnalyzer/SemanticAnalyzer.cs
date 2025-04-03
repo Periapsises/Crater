@@ -192,6 +192,8 @@ public class SemanticAnalyzer
         
         switch (binaryOperation.Operator)
         {
+            case "^":
+                return AnalyzeOperation(left, right, "^", "__exp", ((CraterParser.ExponentOperationContext)binaryOperation.Context).EXP().Symbol);
             case "*":
                 return AnalyzeOperation(left, right, "*", "__mul", ((CraterParser.MultiplicativeOperationContext)binaryOperation.Context).op);
             case "/":

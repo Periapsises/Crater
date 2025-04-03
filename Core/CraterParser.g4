@@ -28,6 +28,7 @@ typeName: IDENTIFIER;
 
 expression:
     LPAREN expression RPAREN                        # ParenthesizedExpression
+    | expression EXP expression                     # ExponentOperation
     | expression op=(MUL | DIV | MOD) expression    # MultiplicativeOperation
     | expression op=(PLUS | MINUS) expression       # AdditiveOperation
     | expression AND expression                     # AndOperation
