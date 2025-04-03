@@ -28,7 +28,7 @@ typeName: IDENTIFIER;
 
 expression:
     LPAREN expression RPAREN                        # ParenthesizedExpression
-    | expression op=(MUL | DIV) expression    # MultiplicativeOperation
+    | expression op=(MUL | DIV | MOD) expression    # MultiplicativeOperation
     | expression op=(PLUS | MINUS) expression       # AdditiveOperation
     | expression AND expression                     # AndOperation
     | expression OR expression                      # OrOperation

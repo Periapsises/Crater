@@ -780,6 +780,7 @@ public partial class CraterParser : Parser {
 		}
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode MUL() { return GetToken(CraterParser.MUL, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode DIV() { return GetToken(CraterParser.DIV, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode MOD() { return GetToken(CraterParser.MOD, 0); }
 		public MultiplicativeOperationContext(ExpressionContext context) { CopyFrom(context); }
 		[System.Diagnostics.DebuggerNonUserCode]
 		public override void EnterRule(IParseTreeListener listener) {
@@ -934,7 +935,7 @@ public partial class CraterParser : Parser {
 						State = 88;
 						((MultiplicativeOperationContext)_localctx).op = TokenStream.LT(1);
 						_la = TokenStream.LA(1);
-						if ( !(_la==MUL || _la==DIV) ) {
+						if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 481036337152L) != 0)) ) {
 							((MultiplicativeOperationContext)_localctx).op = ErrorHandler.RecoverInline(this);
 						}
 						else {
@@ -1118,7 +1119,7 @@ public partial class CraterParser : Parser {
 		1,4,1,5,1,5,1,5,5,5,66,8,5,10,5,12,5,69,9,5,1,6,1,6,1,6,1,6,3,6,75,8,6,
 		1,7,1,7,1,8,1,8,1,8,1,8,1,8,1,8,1,8,3,8,86,8,8,1,8,1,8,1,8,1,8,1,8,1,8,
 		1,8,1,8,1,8,1,8,1,8,1,8,5,8,100,8,8,10,8,12,8,103,9,8,1,9,1,9,1,9,3,9,
-		108,8,9,1,9,0,1,16,10,0,2,4,6,8,10,12,14,16,18,0,3,1,0,36,37,1,0,34,35,
+		108,8,9,1,9,0,1,16,10,0,2,4,6,8,10,12,14,16,18,0,3,1,0,36,38,1,0,34,35,
 		1,0,21,23,116,0,20,1,0,0,0,2,26,1,0,0,0,4,31,1,0,0,0,6,34,1,0,0,0,8,47,
 		1,0,0,0,10,62,1,0,0,0,12,70,1,0,0,0,14,76,1,0,0,0,16,85,1,0,0,0,18,107,
 		1,0,0,0,20,21,3,2,1,0,21,22,5,0,0,1,22,1,1,0,0,0,23,25,3,4,2,0,24,23,1,

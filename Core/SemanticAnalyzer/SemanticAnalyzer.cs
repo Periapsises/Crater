@@ -196,6 +196,8 @@ public class SemanticAnalyzer
                 return AnalyzeOperation(left, right, "*", "__mul", ((CraterParser.MultiplicativeOperationContext)binaryOperation.Context).op);
             case "/":
                 return AnalyzeOperation(left, right, "/", "__div", ((CraterParser.MultiplicativeOperationContext)binaryOperation.Context).op);
+            case "%":
+                return AnalyzeOperation(left, right, "%", "__mod", ((CraterParser.MultiplicativeOperationContext)binaryOperation.Context).op);
             case "+":
                 return AnalyzeOperation(left, right, "+", "__add", ((CraterParser.AdditiveOperationContext)binaryOperation.Context).op);
             case "-":

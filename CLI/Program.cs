@@ -13,7 +13,7 @@ class Program
                         local myMultiplication: number = 1 * 2
                         local myDivision: number = 1 / 2
                         --local myExponent: number = 1 ^ 2
-                        --local myModulo: number = 1 % 2
+                        local myModulo: number = 1 % 2
                         --local myNegativeNumber: number = -1
                         --local myExponentialNumber: number = 1e2
                         --local myHexadecimalNumber: number = 0xff
@@ -31,6 +31,7 @@ class Program
                         local invalidSubtraction: number = 2 - "a"
                         local invalidMultiplication: number = 1 * "a"
                         local invalidDivision: number = 1 / "a"
+                        local invalidModulo: number = 1 % "a"
                         """;
 
         var maxLineNumberSize = testInput.Split('\n').Length.ToString().Length;
