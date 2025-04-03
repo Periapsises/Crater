@@ -109,6 +109,13 @@ public interface ICraterParserVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitLiteralExpression([NotNull] CraterParser.LiteralExpressionContext context);
 	/// <summary>
+	/// Visit a parse tree produced by the <c>MultiplicativeOperation</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitMultiplicativeOperation([NotNull] CraterParser.MultiplicativeOperationContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>AndOperation</c>
 	/// labeled alternative in <see cref="CraterParser.expression"/>.
 	/// </summary>

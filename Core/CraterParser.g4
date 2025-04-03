@@ -27,12 +27,13 @@ functionParameter: IDENTIFIER COLON typeName QMARK?;
 typeName: IDENTIFIER;
 
 expression:
-    LPAREN expression RPAREN                    # ParenthesizedExpression
-    | expression op=(PLUS | MINUS) expression   # AdditiveOperation
-    | expression AND expression                 # AndOperation
-    | expression OR expression                  # OrOperation
-    | IDENTIFIER                                # VariableReference
-    | literal                                   # LiteralExpression
+    LPAREN expression RPAREN                        # ParenthesizedExpression
+    | expression op=(MUL | DIV) expression    # MultiplicativeOperation
+    | expression op=(PLUS | MINUS) expression       # AdditiveOperation
+    | expression AND expression                     # AndOperation
+    | expression OR expression                      # OrOperation
+    | IDENTIFIER                                    # VariableReference
+    | literal                                       # LiteralExpression
 ;
 
 literal:

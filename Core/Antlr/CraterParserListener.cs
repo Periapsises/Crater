@@ -160,6 +160,18 @@ public interface ICraterParserListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitLiteralExpression([NotNull] CraterParser.LiteralExpressionContext context);
 	/// <summary>
+	/// Enter a parse tree produced by the <c>MultiplicativeOperation</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterMultiplicativeOperation([NotNull] CraterParser.MultiplicativeOperationContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>MultiplicativeOperation</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitMultiplicativeOperation([NotNull] CraterParser.MultiplicativeOperationContext context);
+	/// <summary>
 	/// Enter a parse tree produced by the <c>AndOperation</c>
 	/// labeled alternative in <see cref="CraterParser.expression"/>.
 	/// </summary>

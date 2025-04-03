@@ -189,6 +189,20 @@ public partial class CraterParserBaseListener : ICraterParserListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitLiteralExpression([NotNull] CraterParser.LiteralExpressionContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by the <c>MultiplicativeOperation</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterMultiplicativeOperation([NotNull] CraterParser.MultiplicativeOperationContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by the <c>MultiplicativeOperation</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitMultiplicativeOperation([NotNull] CraterParser.MultiplicativeOperationContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by the <c>AndOperation</c>
 	/// labeled alternative in <see cref="CraterParser.expression"/>.
 	/// <para>The default implementation does nothing.</para>

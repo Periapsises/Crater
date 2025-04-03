@@ -1,10 +1,12 @@
-﻿namespace Core.SemanticAnalyzer.DataTypes;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Core.SemanticAnalyzer.DataTypes;
 
 public class NumberType : DataType
 {
     public override string GetName() => "number";
 
-    public override bool TryOperation(Symbol left, Symbol right, string op, out Symbol? result)
+    public override bool TryOperation(Symbol left, Symbol right, string op, [NotNullWhen(true)] out Symbol? result)
     {
         if (left.Value.Kind == ValueKind.Number && right.Value.Kind == ValueKind.Number)
         {
@@ -12,6 +14,8 @@ public class NumberType : DataType
             {
                 "__add" => left.Value.GetNumber() + right.Value.GetNumber(),
                 "__sub" => left.Value.GetNumber() - right.Value.GetNumber(),
+                "__mul" => left.Value.GetNumber() * right.Value.GetNumber(),
+                "__div" => left.Value.GetNumber() / right.Value.GetNumber(),
                 _ => throw new NotImplementedException($"Invalid operator {op}")
             };
             
