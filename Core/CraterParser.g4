@@ -38,7 +38,7 @@ expression:
 ;
 
 literal:
-    number = (NUMBER | HEXADECIMAL | EXPONENTIAL)
+    number = (NUMBER | HEXADECIMAL | EXPONENTIAL | BINARY)
     | STRING
     | BOOLEAN
 ;

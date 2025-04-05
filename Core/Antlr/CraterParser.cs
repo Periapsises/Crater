@@ -40,11 +40,11 @@ public partial class CraterParser : Parser {
 		FUNCTION=1, LOCAL=2, RETURN=3, END=4, NOT=5, AND=6, OR=7, IF=8, ELSEIF=9, 
 		ELSE=10, THEN=11, WHILE=12, FOR=13, DO=14, IN=15, REPEAT=16, UNTIL=17, 
 		CLASS=18, STATIC=19, NEW=20, NUMBER=21, HEXADECIMAL=22, EXPONENTIAL=23, 
-		STRING=24, BOOLEAN=25, IDENTIFIER=26, ASSIGN=27, LESS=28, LESS_EQUAL=29, 
-		GREATER=30, GREATER_EQUAL=31, EQUAL=32, NOT_EQUAL=33, PLUS=34, MINUS=35, 
-		MUL=36, DIV=37, MOD=38, EXP=39, QMARK=40, CONCAT=41, LPAREN=42, RPAREN=43, 
-		LBRACKET=44, RBRACKET=45, LSQRBRACKET=46, RSQRBRACKET=47, COLON=48, COMMA=49, 
-		DOT=50, COMMENT=51, WHITESPACE=52;
+		BINARY=24, STRING=25, BOOLEAN=26, IDENTIFIER=27, ASSIGN=28, LESS=29, LESS_EQUAL=30, 
+		GREATER=31, GREATER_EQUAL=32, EQUAL=33, NOT_EQUAL=34, PLUS=35, MINUS=36, 
+		MUL=37, DIV=38, MOD=39, EXP=40, QMARK=41, CONCAT=42, LPAREN=43, RPAREN=44, 
+		LBRACKET=45, RBRACKET=46, LSQRBRACKET=47, RSQRBRACKET=48, COLON=49, COMMA=50, 
+		DOT=51, COMMENT=52, WHITESPACE=53;
 	public const int
 		RULE_program = 0, RULE_block = 1, RULE_statement = 2, RULE_variableDeclaration = 3, 
 		RULE_functionDeclaration = 4, RULE_functionParameters = 5, RULE_functionParameter = 6, 
@@ -58,18 +58,18 @@ public partial class CraterParser : Parser {
 		null, "'function'", "'local'", "'return'", "'end'", "'not'", "'and'", 
 		"'or'", "'if'", "'elseif'", "'else'", "'then'", "'while'", "'for'", "'do'", 
 		"'in'", "'repeat'", "'until'", "'class'", "'static'", "'new'", null, null, 
-		null, null, null, null, "'='", "'<'", "'<='", "'>'", "'>='", "'=='", "'~='", 
-		"'+'", "'-'", "'*'", "'/'", "'%'", "'^'", "'?'", "'..'", "'('", "')'", 
-		"'{'", "'}'", "'['", "']'", "':'", "','", "'.'"
+		null, null, null, null, null, "'='", "'<'", "'<='", "'>'", "'>='", "'=='", 
+		"'~='", "'+'", "'-'", "'*'", "'/'", "'%'", "'^'", "'?'", "'..'", "'('", 
+		"')'", "'{'", "'}'", "'['", "']'", "':'", "','", "'.'"
 	};
 	private static readonly string[] _SymbolicNames = {
 		null, "FUNCTION", "LOCAL", "RETURN", "END", "NOT", "AND", "OR", "IF", 
 		"ELSEIF", "ELSE", "THEN", "WHILE", "FOR", "DO", "IN", "REPEAT", "UNTIL", 
-		"CLASS", "STATIC", "NEW", "NUMBER", "HEXADECIMAL", "EXPONENTIAL", "STRING", 
-		"BOOLEAN", "IDENTIFIER", "ASSIGN", "LESS", "LESS_EQUAL", "GREATER", "GREATER_EQUAL", 
-		"EQUAL", "NOT_EQUAL", "PLUS", "MINUS", "MUL", "DIV", "MOD", "EXP", "QMARK", 
-		"CONCAT", "LPAREN", "RPAREN", "LBRACKET", "RBRACKET", "LSQRBRACKET", "RSQRBRACKET", 
-		"COLON", "COMMA", "DOT", "COMMENT", "WHITESPACE"
+		"CLASS", "STATIC", "NEW", "NUMBER", "HEXADECIMAL", "EXPONENTIAL", "BINARY", 
+		"STRING", "BOOLEAN", "IDENTIFIER", "ASSIGN", "LESS", "LESS_EQUAL", "GREATER", 
+		"GREATER_EQUAL", "EQUAL", "NOT_EQUAL", "PLUS", "MINUS", "MUL", "DIV", 
+		"MOD", "EXP", "QMARK", "CONCAT", "LPAREN", "RPAREN", "LBRACKET", "RBRACKET", 
+		"LSQRBRACKET", "RSQRBRACKET", "COLON", "COMMA", "DOT", "COMMENT", "WHITESPACE"
 	};
 	public static readonly IVocabulary DefaultVocabulary = new Vocabulary(_LiteralNames, _SymbolicNames);
 
@@ -196,7 +196,7 @@ public partial class CraterParser : Parser {
 			State = 26;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 67108870L) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 134217734L) != 0)) {
 				{
 				{
 				State = 23;
@@ -926,6 +926,7 @@ public partial class CraterParser : Parser {
 			case NUMBER:
 			case HEXADECIMAL:
 			case EXPONENTIAL:
+			case BINARY:
 			case STRING:
 			case BOOLEAN:
 				{
@@ -973,7 +974,7 @@ public partial class CraterParser : Parser {
 						State = 91;
 						((MultiplicativeOperationContext)_localctx).op = TokenStream.LT(1);
 						_la = TokenStream.LA(1);
-						if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 481036337152L) != 0)) ) {
+						if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 962072674304L) != 0)) ) {
 							((MultiplicativeOperationContext)_localctx).op = ErrorHandler.RecoverInline(this);
 						}
 						else {
@@ -1053,6 +1054,7 @@ public partial class CraterParser : Parser {
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode NUMBER() { return GetToken(CraterParser.NUMBER, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode HEXADECIMAL() { return GetToken(CraterParser.HEXADECIMAL, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode EXPONENTIAL() { return GetToken(CraterParser.EXPONENTIAL, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode BINARY() { return GetToken(CraterParser.BINARY, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode STRING() { return GetToken(CraterParser.STRING, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode BOOLEAN() { return GetToken(CraterParser.BOOLEAN, 0); }
 		public LiteralContext(ParserRuleContext parent, int invokingState)
@@ -1090,12 +1092,13 @@ public partial class CraterParser : Parser {
 			case NUMBER:
 			case HEXADECIMAL:
 			case EXPONENTIAL:
+			case BINARY:
 				EnterOuterAlt(_localctx, 1);
 				{
 				State = 107;
 				_localctx.number = TokenStream.LT(1);
 				_la = TokenStream.LA(1);
-				if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 14680064L) != 0)) ) {
+				if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 31457280L) != 0)) ) {
 					_localctx.number = ErrorHandler.RecoverInline(this);
 				}
 				else {
@@ -1151,39 +1154,39 @@ public partial class CraterParser : Parser {
 	}
 
 	private static int[] _serializedATN = {
-		4,1,52,113,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,
+		4,1,53,113,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,
 		7,7,2,8,7,8,2,9,7,9,1,0,1,0,1,0,1,1,5,1,25,8,1,10,1,12,1,28,9,1,1,2,1,
 		2,3,2,32,8,2,1,3,3,3,35,8,3,1,3,1,3,1,3,1,3,3,3,41,8,3,1,3,1,3,3,3,45,
 		8,3,1,4,3,4,48,8,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,3,4,58,8,4,1,4,1,4,
 		1,4,1,5,1,5,1,5,5,5,66,8,5,10,5,12,5,69,9,5,1,6,1,6,1,6,1,6,3,6,75,8,6,
 		1,7,1,7,1,8,1,8,1,8,1,8,1,8,1,8,1,8,3,8,86,8,8,1,8,1,8,1,8,1,8,1,8,1,8,
 		1,8,1,8,1,8,1,8,1,8,1,8,1,8,1,8,1,8,5,8,103,8,8,10,8,12,8,106,9,8,1,9,
-		1,9,1,9,3,9,111,8,9,1,9,0,1,16,10,0,2,4,6,8,10,12,14,16,18,0,3,1,0,36,
-		38,1,0,34,35,1,0,21,23,120,0,20,1,0,0,0,2,26,1,0,0,0,4,31,1,0,0,0,6,34,
+		1,9,1,9,3,9,111,8,9,1,9,0,1,16,10,0,2,4,6,8,10,12,14,16,18,0,3,1,0,37,
+		39,1,0,35,36,1,0,21,24,120,0,20,1,0,0,0,2,26,1,0,0,0,4,31,1,0,0,0,6,34,
 		1,0,0,0,8,47,1,0,0,0,10,62,1,0,0,0,12,70,1,0,0,0,14,76,1,0,0,0,16,85,1,
 		0,0,0,18,110,1,0,0,0,20,21,3,2,1,0,21,22,5,0,0,1,22,1,1,0,0,0,23,25,3,
 		4,2,0,24,23,1,0,0,0,25,28,1,0,0,0,26,24,1,0,0,0,26,27,1,0,0,0,27,3,1,0,
 		0,0,28,26,1,0,0,0,29,32,3,6,3,0,30,32,3,8,4,0,31,29,1,0,0,0,31,30,1,0,
 		0,0,32,5,1,0,0,0,33,35,5,2,0,0,34,33,1,0,0,0,34,35,1,0,0,0,35,36,1,0,0,
-		0,36,37,5,26,0,0,37,38,5,48,0,0,38,40,3,14,7,0,39,41,5,40,0,0,40,39,1,
-		0,0,0,40,41,1,0,0,0,41,44,1,0,0,0,42,43,5,27,0,0,43,45,3,16,8,0,44,42,
+		0,36,37,5,27,0,0,37,38,5,49,0,0,38,40,3,14,7,0,39,41,5,41,0,0,40,39,1,
+		0,0,0,40,41,1,0,0,0,41,44,1,0,0,0,42,43,5,28,0,0,43,45,3,16,8,0,44,42,
 		1,0,0,0,44,45,1,0,0,0,45,7,1,0,0,0,46,48,5,2,0,0,47,46,1,0,0,0,47,48,1,
-		0,0,0,48,49,1,0,0,0,49,50,5,1,0,0,50,51,5,26,0,0,51,52,5,42,0,0,52,53,
-		3,10,5,0,53,54,5,43,0,0,54,55,5,48,0,0,55,57,3,14,7,0,56,58,5,40,0,0,57,
+		0,0,0,48,49,1,0,0,0,49,50,5,1,0,0,50,51,5,27,0,0,51,52,5,43,0,0,52,53,
+		3,10,5,0,53,54,5,44,0,0,54,55,5,49,0,0,55,57,3,14,7,0,56,58,5,41,0,0,57,
 		56,1,0,0,0,57,58,1,0,0,0,58,59,1,0,0,0,59,60,3,2,1,0,60,61,5,4,0,0,61,
-		9,1,0,0,0,62,67,3,12,6,0,63,64,5,49,0,0,64,66,3,12,6,0,65,63,1,0,0,0,66,
+		9,1,0,0,0,62,67,3,12,6,0,63,64,5,50,0,0,64,66,3,12,6,0,65,63,1,0,0,0,66,
 		69,1,0,0,0,67,65,1,0,0,0,67,68,1,0,0,0,68,11,1,0,0,0,69,67,1,0,0,0,70,
-		71,5,26,0,0,71,72,5,48,0,0,72,74,3,14,7,0,73,75,5,40,0,0,74,73,1,0,0,0,
-		74,75,1,0,0,0,75,13,1,0,0,0,76,77,5,26,0,0,77,15,1,0,0,0,78,79,6,8,-1,
-		0,79,80,5,42,0,0,80,81,3,16,8,0,81,82,5,43,0,0,82,86,1,0,0,0,83,86,5,26,
+		71,5,27,0,0,71,72,5,49,0,0,72,74,3,14,7,0,73,75,5,41,0,0,74,73,1,0,0,0,
+		74,75,1,0,0,0,75,13,1,0,0,0,76,77,5,27,0,0,77,15,1,0,0,0,78,79,6,8,-1,
+		0,79,80,5,43,0,0,80,81,3,16,8,0,81,82,5,44,0,0,82,86,1,0,0,0,83,86,5,27,
 		0,0,84,86,3,18,9,0,85,78,1,0,0,0,85,83,1,0,0,0,85,84,1,0,0,0,86,104,1,
-		0,0,0,87,88,10,7,0,0,88,89,5,39,0,0,89,103,3,16,8,8,90,91,10,6,0,0,91,
+		0,0,0,87,88,10,7,0,0,88,89,5,40,0,0,89,103,3,16,8,8,90,91,10,6,0,0,91,
 		92,7,0,0,0,92,103,3,16,8,7,93,94,10,5,0,0,94,95,7,1,0,0,95,103,3,16,8,
 		6,96,97,10,4,0,0,97,98,5,6,0,0,98,103,3,16,8,5,99,100,10,3,0,0,100,101,
 		5,7,0,0,101,103,3,16,8,4,102,87,1,0,0,0,102,90,1,0,0,0,102,93,1,0,0,0,
 		102,96,1,0,0,0,102,99,1,0,0,0,103,106,1,0,0,0,104,102,1,0,0,0,104,105,
-		1,0,0,0,105,17,1,0,0,0,106,104,1,0,0,0,107,111,7,2,0,0,108,111,5,24,0,
-		0,109,111,5,25,0,0,110,107,1,0,0,0,110,108,1,0,0,0,110,109,1,0,0,0,111,
+		1,0,0,0,105,17,1,0,0,0,106,104,1,0,0,0,107,111,7,2,0,0,108,111,5,25,0,
+		0,109,111,5,26,0,0,110,107,1,0,0,0,110,108,1,0,0,0,110,109,1,0,0,0,111,
 		19,1,0,0,0,13,26,31,34,40,44,47,57,67,74,85,102,104,110
 	};
 

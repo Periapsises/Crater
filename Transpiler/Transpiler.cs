@@ -98,7 +98,7 @@ public class Transpiler(string input)
         switch (expression)
         {
             case NumberLiteral numberLiteral:
-                Append(numberLiteral.Value.ToString());
+                Append(numberLiteral.StringRepresentation);
                 break;
             case StringLiteral stringLiteral:
                 Append('"');

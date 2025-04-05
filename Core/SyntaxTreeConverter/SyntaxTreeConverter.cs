@@ -1,4 +1,5 @@
-﻿using Core.Antlr;
+﻿using System.Globalization;
+using Core.Antlr;
 using Core.SyntaxTreeConverter.Expressions;
 using Core.SyntaxTreeConverter.Statements;
 
@@ -131,8 +132,8 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
     public override object? VisitLiteral(CraterParser.LiteralContext context)
     {
         if (context.number != null)
-            return new NumberLiteral(context.number.Text, context);
-        
+            return new NumberLiteral(context);
+
         if (context.STRING() != null)
             return new StringLiteral(context.STRING().GetText()!, context);
         

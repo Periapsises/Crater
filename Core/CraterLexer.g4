@@ -36,6 +36,7 @@ NEW    : 'new';
 NUMBER      : Integer Decimal?;
 HEXADECIMAL : '0' [xX] [a-fA-F0-9]+;
 EXPONENTIAL : Integer Decimal? 'e' Integer;
+BINARY      : '0' [bB] [01]+;
 
 fragment Integer : [1-9][0-9]* | '0';
 fragment Decimal : '.' [0-9]+;

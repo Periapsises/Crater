@@ -15,17 +15,17 @@ class Program
                         local myExponent: number = 1 ^ 2
                         local myModulo: number = 1 % 2
                         --local myNegativeNumber: number = -1
-                        --local myExponentialNumber: number = 1e2
-                        --local myHexadecimalNumber: number = 0xff
-                        --local myBinaryNumber: number = 0b01
+                        local myExponentialNumber: number = 1e2
+                        local myHexadecimalNumber: number = 0xff
+                        local myBinaryNumber: number = 0b01
                         
                         local myReferencedNumber: number = myDefinedNumber
                         local myVariableAddition: number = myDefinedNumber + 1
                         local myVariableSubtraction: number = myDefinedNumber - 1
                         local myVariableMultiplication: number = myDefinedNumber * 2
                         local myVariableDivision: number = myDefinedNumber / 2
-                        --local myVariableExponent: number = myDefinedNumber ^ 2
-                        --local myVariableModulo: number = myDefinedNumber % 2
+                        local myVariableExponent: number = myDefinedNumber ^ 2
+                        local myVariableModulo: number = myDefinedNumber % 2
                         
                         local invalidAddition: number = 1 + "a"
                         local invalidSubtraction: number = 2 - "a"
