@@ -5,15 +5,12 @@ class Program
     static void Main(string[] args)
     {
         var testInput = """
-                        local myUndefinedString: string?
-                        local myDefinedString: string = "Hi"
-                        local myConcatString: string = "Hello " .. "world!"
+                        local myUninitializedBool: bool?
+                        local myFalseBool: bool = false
+                        local myTrueBool: bool = true
                         
-                        local myReferencedString: string = myDefinedString
-                        local myReferencedConcat: string = myDefinedString .. "?"
-                        
-                        local myNumberToString: string = "a" .. 1
-                        local myStringToNumber: number = 1 + "2"
+                        local myComparison: bool = 1 == 2
+                        local myTernaryOperation: string = false and "A" or "B"
                         """;
 
         var maxLineNumberSize = testInput.Split('\n').Length.ToString().Length;
