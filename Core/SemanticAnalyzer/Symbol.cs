@@ -1,4 +1,6 @@
-﻿namespace Core.SemanticAnalyzer;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Core.SemanticAnalyzer;
 
 public class Symbol(Value value, DataType dataType, bool nullable)
 {
@@ -9,6 +11,16 @@ public class Symbol(Value value, DataType dataType, bool nullable)
     public DataType DataType = dataType;
     public bool Nullable = nullable;
 
+    public bool BinaryOperation(Symbol other, string op, [NotNullWhen(true)] out Symbol? result)
+    {
+        return DataType.TryBinaryOperation(this, other, op, out result);
+    }
+
+    public bool UnaryOperation(string op, [NotNullWhen(true)] out Symbol? result)
+    {
+        return DataType.TryUnaryOperation(this, op, out result);
+    }
+    
     public void Assign(Symbol symbol)
     {
         Value = symbol.Value;

@@ -178,6 +178,8 @@ public class SemanticAnalyzer
                 return AnalyzeExpression(parenthesizedExpression.Expression);
             case BinaryOperation binaryOperation:
                 return AnalyzeBinaryOperation(binaryOperation);
+            case UnaryOperation unaryOperation:
+                return AnalyzeUnaryOperation(unaryOperation);
             case VariableReference variableReference:
                 return AnalyzeVariableReference(variableReference);
             default:
@@ -185,6 +187,43 @@ public class SemanticAnalyzer
         }
     }
 
+    public PossibleSymbols AnalyzeUnaryOperation(UnaryOperation unaryOperation)
+    {
+        var expression = AnalyzeExpression(unaryOperation.Expression);
+        
+        switch (unaryOperation.Operator)
+        {
+            case "-":
+                return AnalyzeUnaryOperation(expression, "-", "__umn", ((CraterParser.UnaryOperationContext)unaryOperation.Context).MINUS().Symbol);
+            default:
+                throw new NotImplementedException($"Unknown unary operator {unaryOperation.Operator}");
+        }
+    }
+
+    public PossibleSymbols AnalyzeUnaryOperation(PossibleSymbols symbols, string op, string meta, IToken token)
+    {
+        var resultingSymbols = new PossibleSymbols();
+        var hasErroredForTypes = new HashSet<DataType>();
+        
+        foreach (var symbol in symbols)
+        {
+            if (symbol.UnaryOperation(meta, out var result))
+            {
+                resultingSymbols.Add(result);
+                continue;
+            }
+            
+            if (hasErroredForTypes.Contains(symbol.DataType))
+                continue;
+                
+            Reporter.Report(new InvalidUnaryOperator(symbol.DataType, op)
+                .WithContext(token));
+            hasErroredForTypes.Add(symbol.DataType);
+        }
+        
+        return resultingSymbols;
+    }
+    
     public PossibleSymbols AnalyzeBinaryOperation(BinaryOperation binaryOperation)
     {
         var left = AnalyzeExpression(binaryOperation.Left);
@@ -192,6 +231,18 @@ public class SemanticAnalyzer
         
         switch (binaryOperation.Operator)
         {
+            case "^":
+                return AnalyzeBinaryOperation(left, right, "^", "__exp", ((CraterParser.ExponentOperationContext)binaryOperation.Context).EXP().Symbol);
+            case "*":
+                return AnalyzeBinaryOperation(left, right, "*", "__mul", ((CraterParser.MultiplicativeOperationContext)binaryOperation.Context).op);
+            case "/":
+                return AnalyzeBinaryOperation(left, right, "/", "__div", ((CraterParser.MultiplicativeOperationContext)binaryOperation.Context).op);
+            case "%":
+                return AnalyzeBinaryOperation(left, right, "%", "__mod", ((CraterParser.MultiplicativeOperationContext)binaryOperation.Context).op);
+            case "+":
+                return AnalyzeBinaryOperation(left, right, "+", "__add", ((CraterParser.AdditiveOperationContext)binaryOperation.Context).op);
+            case "-":
+                return AnalyzeBinaryOperation(left, right, "-", "__sub", ((CraterParser.AdditiveOperationContext)binaryOperation.Context).op);
             case "and":
                 return AnalyzeAndOperation(left, right, binaryOperation);
             case "or":
@@ -199,6 +250,33 @@ public class SemanticAnalyzer
             default:
                 throw new NotImplementedException($"Unknown binary operator {binaryOperation.Operator}");
         }
+    }
+
+    public PossibleSymbols AnalyzeBinaryOperation(PossibleSymbols left, PossibleSymbols right, string op, string meta, IToken token)
+    {
+        var resultingSymbols = new PossibleSymbols();
+        var hasErroredForTypes = new HashSet<(DataType, DataType)>();
+        
+        foreach (var leftSymbol in left)
+        {
+            foreach (var rightSymbol in right)
+            {
+                if (leftSymbol.BinaryOperation(rightSymbol, meta, out var symbol))
+                {
+                    resultingSymbols.Add(symbol);
+                    continue;
+                }
+                
+                if (hasErroredForTypes.Contains((leftSymbol.DataType, rightSymbol.DataType)))
+                    continue;
+                    
+                Reporter.Report(new InvalidBinaryOperator(leftSymbol.DataType, rightSymbol.DataType, op)
+                    .WithContext(token));
+                hasErroredForTypes.Add((leftSymbol.DataType, rightSymbol.DataType));
+            }
+        }
+        
+        return resultingSymbols;
     }
     
     public PossibleSymbols AnalyzeAndOperation(PossibleSymbols leftSymbols, PossibleSymbols rightSymbols, BinaryOperation binaryOperation)

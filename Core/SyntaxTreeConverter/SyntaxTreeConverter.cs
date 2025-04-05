@@ -1,4 +1,5 @@
-﻿using Core.Antlr;
+﻿using System.Globalization;
+using Core.Antlr;
 using Core.SyntaxTreeConverter.Expressions;
 using Core.SyntaxTreeConverter.Statements;
 
@@ -83,6 +84,36 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         return new ParenthesizedExpression(expression, context);
     }
 
+    public override object? VisitUnaryOperation(CraterParser.UnaryOperationContext context)
+    {
+        var expression = (Expression)Visit(context.expression())!;
+        return new UnaryOperation(expression, context.MINUS().GetText()!, context);
+    }
+    
+    public override object? VisitExponentOperation(CraterParser.ExponentOperationContext context)
+    {
+        var left = (Expression)Visit(context.expression()[0])!;
+        var right = (Expression)Visit(context.expression()[1])!;
+
+        return new BinaryOperation(left, right, context.EXP().GetText(), context);
+    }
+    
+    public override object? VisitMultiplicativeOperation(CraterParser.MultiplicativeOperationContext context)
+    {
+        var left = (Expression)Visit(context.expression()[0])!;
+        var right = (Expression)Visit(context.expression()[1])!;
+
+        return new BinaryOperation(left, right, context.op.Text, context);
+    }
+
+    public override object? VisitAdditiveOperation(CraterParser.AdditiveOperationContext context)
+    {
+        var left = (Expression)Visit(context.expression()[0])!;
+        var right = (Expression)Visit(context.expression()[1])!;
+
+        return new BinaryOperation(left, right, context.op.Text, context);
+    }
+    
     public override object? VisitAndOperation(CraterParser.AndOperationContext context)
     {
         var left = (Expression)Visit(context.expression()[0])!;
@@ -107,8 +138,8 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
     public override object? VisitLiteral(CraterParser.LiteralContext context)
     {
         if (context.number != null)
-            return new NumberLiteral(context.number.Text, context);
-        
+            return new NumberLiteral(context);
+
         if (context.STRING() != null)
             return new StringLiteral(context.STRING().GetText()!, context);
         

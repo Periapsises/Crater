@@ -98,7 +98,7 @@ public class Transpiler(string input)
         switch (expression)
         {
             case NumberLiteral numberLiteral:
-                Append(numberLiteral.Value.ToString());
+                Append(numberLiteral.StringRepresentation);
                 break;
             case StringLiteral stringLiteral:
                 Append('"');
@@ -117,6 +117,11 @@ public class Transpiler(string input)
                 TranspileExpression(binaryOperation.Left);
                 Append($" {binaryOperation.Operator} ");
                 TranspileExpression(binaryOperation.Right);
+                break;
+            case UnaryOperation unaryOperation:
+                Append($"{unaryOperation.Operator}");
+                if (unaryOperation.Operator != "-") Append(' ');
+                TranspileExpression(unaryOperation.Expression);
                 break;
             case VariableReference variableReference:
                 Append(variableReference.Name);
