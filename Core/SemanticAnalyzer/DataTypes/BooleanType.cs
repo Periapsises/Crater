@@ -8,11 +8,13 @@ public class BooleanType : DataType
 
     public override bool TryBinaryOperation(Symbol left, Symbol right, string op, [NotNullWhen(true)] out Symbol? result)
     {
-        throw new NotImplementedException();
+        result = null;
+        return false;
     }
     
     public override bool TryUnaryOperation(Symbol self, string op, [NotNullWhen(true)] out Symbol? result)
     {
-        throw new NotImplementedException();
+        result = null;
+        return false;
     }
 }
