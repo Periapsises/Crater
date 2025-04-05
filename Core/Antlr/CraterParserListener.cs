@@ -136,6 +136,18 @@ public interface ICraterParserListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitOrOperation([NotNull] CraterParser.OrOperationContext context);
 	/// <summary>
+	/// Enter a parse tree produced by the <c>UnaryOperation</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterUnaryOperation([NotNull] CraterParser.UnaryOperationContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>UnaryOperation</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitUnaryOperation([NotNull] CraterParser.UnaryOperationContext context);
+	/// <summary>
 	/// Enter a parse tree produced by the <c>VariableReference</c>
 	/// labeled alternative in <see cref="CraterParser.expression"/>.
 	/// </summary>

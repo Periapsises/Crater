@@ -2,19 +2,24 @@
 
 namespace Core.SemanticAnalyzer.DataTypes;
 
-public class FunctionType(List<DataType> argTypes, List<DataType> returnTypes) : MetaType
+public class FunctionType(List<DataType> argTypes, List<DataType> returnTypes) : DataType
 {
     private readonly List<DataType> _argTypes = argTypes;
     private readonly List<DataType> _returnTypes = returnTypes;
     
-    public static readonly MetaType FunctionBase = new FunctionType([], [DataType.VoidType]);
+    public static readonly DataType FunctionBase = new FunctionType([], [DataType.VoidType]);
 
     public override string GetName()
     {
         return $"func({string.Join(", ", _argTypes.Select(x => x.GetName()))}): {_returnTypes.Select(x => x.GetName())}";
     }
     
-    public override bool TryOperation(Symbol left, Symbol right, string op, [NotNullWhen(true)] out Symbol? result)
+    public override bool TryBinaryOperation(Symbol left, Symbol right, string op, [NotNullWhen(true)] out Symbol? result)
+    {
+        throw new NotImplementedException();
+    }
+    
+    public override bool TryUnaryOperation(Symbol self, string op, [NotNullWhen(true)] out Symbol? result)
     {
         throw new NotImplementedException();
     }

@@ -118,6 +118,11 @@ public class Transpiler(string input)
                 Append($" {binaryOperation.Operator} ");
                 TranspileExpression(binaryOperation.Right);
                 break;
+            case UnaryOperation unaryOperation:
+                Append($"{unaryOperation.Operator}");
+                if (unaryOperation.Operator != "-") Append(' ');
+                TranspileExpression(unaryOperation.Expression);
+                break;
             case VariableReference variableReference:
                 Append(variableReference.Name);
                 break;

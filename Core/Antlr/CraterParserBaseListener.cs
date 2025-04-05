@@ -161,6 +161,20 @@ public partial class CraterParserBaseListener : ICraterParserListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitOrOperation([NotNull] CraterParser.OrOperationContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by the <c>UnaryOperation</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterUnaryOperation([NotNull] CraterParser.UnaryOperationContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by the <c>UnaryOperation</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitUnaryOperation([NotNull] CraterParser.UnaryOperationContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by the <c>VariableReference</c>
 	/// labeled alternative in <see cref="CraterParser.expression"/>.
 	/// <para>The default implementation does nothing.</para>

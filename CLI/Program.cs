@@ -14,7 +14,7 @@ class Program
                         local myDivision: number = 1 / 2
                         local myExponent: number = 1 ^ 2
                         local myModulo: number = 1 % 2
-                        --local myNegativeNumber: number = -1
+                        local myNegativeNumber: number = -1
                         local myExponentialNumber: number = 1e2
                         local myHexadecimalNumber: number = 0xff
                         local myBinaryNumber: number = 0b01
@@ -26,6 +26,7 @@ class Program
                         local myVariableDivision: number = myDefinedNumber / 2
                         local myVariableExponent: number = myDefinedNumber ^ 2
                         local myVariableModulo: number = myDefinedNumber % 2
+                        local myVariableNegativeNumber: number = myDefinedNumber + -1
                         
                         local invalidAddition: number = 1 + "a"
                         local invalidSubtraction: number = 2 - "a"
