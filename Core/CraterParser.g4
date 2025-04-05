@@ -32,6 +32,7 @@ expression:
     | expression EXP expression                     # ExponentOperation
     | expression op=(MUL | DIV | MOD) expression    # MultiplicativeOperation
     | expression op=(PLUS | MINUS) expression       # AdditiveOperation
+    | expression CONCAT expression                  # ConcatenationOperation
     | expression AND expression                     # AndOperation
     | expression OR expression                      # OrOperation
     | IDENTIFIER                                    # VariableReference

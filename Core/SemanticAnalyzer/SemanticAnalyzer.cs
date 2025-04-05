@@ -243,6 +243,8 @@ public class SemanticAnalyzer
                 return AnalyzeBinaryOperation(left, right, "+", "__add", ((CraterParser.AdditiveOperationContext)binaryOperation.Context).op);
             case "-":
                 return AnalyzeBinaryOperation(left, right, "-", "__sub", ((CraterParser.AdditiveOperationContext)binaryOperation.Context).op);
+            case "..":
+                return AnalyzeBinaryOperation(left, right, "..", "__concat", ((CraterParser.ConcatenationOperationContext)binaryOperation.Context).CONCAT().Symbol);
             case "and":
                 return AnalyzeAndOperation(left, right, binaryOperation);
             case "or":

@@ -29,6 +29,24 @@ public class NumberType : DataType
             result = null;
             return false;
         }
+
+        if (right.DataType == StringType)
+        {
+            // TODO: Show a warning for potential conversion of invalid number formats
+            if (right.Value.Kind == ValueKind.String)
+            {
+                try
+                {
+                    var numberValue = double.Parse(right.Value.GetString());
+                    right = new Symbol(new Value(ValueKind.Number, numberValue), this, false);
+                }
+                catch (FormatException) { }
+            }
+            else
+            {
+                right = new Symbol(new Value(ValueKind.Unknown, null), this, false);
+            }
+        }
         
         if (left.Value.Kind == ValueKind.Number && right.Value.Kind == ValueKind.Number)
         {
@@ -84,5 +102,18 @@ public class NumberType : DataType
         
         result = null;
         return false;
+    }
+
+    public override bool TryToString(Symbol self, [NotNullWhen(true)] out Symbol? result)
+    {
+        if (self.Value.Kind == ValueKind.Number)
+        {
+            var stringRepresentation = self.Value.GetNumber().ToString();
+            result = new Symbol(new Value(ValueKind.String, stringRepresentation), StringType, false);
+            return true;
+        }
+        
+        result = new Symbol(new Value(ValueKind.Unknown, null), StringType, false);
+        return true;
     }
 }

@@ -20,6 +20,11 @@ public class Symbol(Value value, DataType dataType, bool nullable)
     {
         return DataType.TryUnaryOperation(this, op, out result);
     }
+
+    public bool ToString([NotNullWhen(true)] out Symbol? result)
+    {
+        return DataType.TryToString(this, out result);
+    }
     
     public void Assign(Symbol symbol)
     {

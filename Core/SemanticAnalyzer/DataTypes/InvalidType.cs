@@ -15,4 +15,9 @@ public class InvalidType : DataType
     {
         throw new NotImplementedException();
     }
+
+    public override bool TryToString(Symbol self, [NotNullWhen(true)] out Symbol? result)
+    {
+        throw new NotImplementedException();
+    }
 }
