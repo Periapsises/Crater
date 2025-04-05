@@ -7,11 +7,18 @@ The goal is to add static typing and compile directly into Lua source code.
 
 - [ ] Standard Lua types
   - [ ] Numbers
+    - [x] `integer`, `decimal`, `exponential`, `binary`
+    - [x] Binary `+`, `-`, `*`, `/`, `^` and `%`
+    - [x] Unary `-`
+    - [ ] Concatenation `..`
+    - [ ] To string
   - [ ] Strings
   - [ ] Booleans
   - [ ] Tables
+  - [ ] Tuples
   - [ ] Functions
     - [ ] Variable arguments
+    - [ ] Multiple returns
 - [ ] Custom type definition
 - [ ] Support for `require`
 - [ ] Generic support
