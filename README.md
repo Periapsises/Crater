@@ -6,13 +6,16 @@ The goal is to add static typing and compile directly into Lua source code.
 ## Planned features
 
 - [ ] Standard Lua types
-  - [ ] Numbers
+  - [x] Numbers
     - [x] `integer`, `decimal`, `exponential`, `hexadecimal` and `binary`
     - [x] Binary `+`, `-`, `*`, `/`, `^` and `%`
     - [x] Unary `-`
-    - [ ] Concatenation `..`
-    - [ ] To string
-  - [ ] Strings
+    - [x] Concatenation `..`
+    - [x] To string
+    - [x] String coercion
+  - [x] Strings
+    - [x] Concatenation
+    - [x] Number coercion
   - [ ] Booleans
   - [ ] Tables
   - [ ] Tuples
