@@ -11,6 +11,9 @@ class Program
                         
                         local myReferencedString: string = myDefinedString
                         local myReferencedConcat: string = myDefinedString .. "?"
+                        
+                        local myNumberToString: string = "a" .. 1
+                        local myStringToNumber: number = 1 + "2"
                         """;
 
         var maxLineNumberSize = testInput.Split('\n').Length.ToString().Length;

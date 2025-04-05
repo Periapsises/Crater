@@ -17,4 +17,10 @@ public class BooleanType : DataType
         result = null;
         return false;
     }
+
+    public override bool TryToString(Symbol self, [NotNullWhen(true)] out Symbol? result)
+    {
+        result = null;
+        return false;
+    }
 }

@@ -24,6 +24,8 @@ public abstract class DataType
     
     public abstract bool TryUnaryOperation(Symbol self, string op, [NotNullWhen(true)] out Symbol? result);
     
+    public abstract bool TryToString(Symbol self, [NotNullWhen(true)] out Symbol? result);
+    
     public virtual bool IsCompatible(DataType target)
     {
         return target == this;

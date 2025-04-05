@@ -13,6 +13,9 @@ public class StringType : DataType
             result = null;
             return false;
         }
+
+        if (right.DataType != StringType && right.ToString(out var asString))
+            right = asString;
         
         if (left.Value.Kind == ValueKind.String && right.Value.Kind == ValueKind.String)
         {
@@ -35,5 +38,11 @@ public class StringType : DataType
     {
         result = null;
         return false;
+    }
+
+    public override bool TryToString(Symbol self, [NotNullWhen(true)] out Symbol? result)
+    {
+        result = self;
+        return true;
     }
 }
