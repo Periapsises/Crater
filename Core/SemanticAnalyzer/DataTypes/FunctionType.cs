@@ -14,11 +14,16 @@ public class FunctionType(List<DataType> argTypes, List<DataType> returnTypes) :
         return $"func({string.Join(", ", _argTypes.Select(x => x.GetName()))}): {_returnTypes.Select(x => x.GetName())}";
     }
     
-    public override bool TryBinaryOperation(Symbol left, Symbol right, string op, [NotNullWhen(true)] out Symbol? result)
+    public override bool TryArithmeticOperation(Symbol left, Symbol right, string op, [NotNullWhen(true)] out Symbol? result)
     {
         throw new NotImplementedException();
     }
-    
+
+    public override bool TryLogicOperation(Symbol left, Symbol right, string op, [NotNullWhen(true)] out Symbol? result)
+    {
+        throw new NotImplementedException();
+    }
+
     public override bool TryUnaryOperation(Symbol self, string op, [NotNullWhen(true)] out Symbol? result)
     {
         throw new NotImplementedException();
@@ -28,7 +33,7 @@ public class FunctionType(List<DataType> argTypes, List<DataType> returnTypes) :
     {
         throw new NotImplementedException();
     }
-    
+
     public override bool IsCompatible(DataType other)
     {
         if (other == FunctionBase) return true;

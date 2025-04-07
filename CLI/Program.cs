@@ -5,12 +5,8 @@ class Program
     static void Main(string[] args)
     {
         var testInput = """
-                        local myUninitializedBool: bool?
-                        local myFalseBool: bool = false
-                        local myTrueBool: bool = true
-                        
-                        local myComparison: bool = 1 == 2
-                        local myTernaryOperation: string = false and "A" or "B"
+                        local myKnownString: string = "Hello"
+                        local myOtherKnownTernaryOperation: number = ( myKnownString .. "!" == "Hello!" ) and 1 or 2
                         """;
 
         var maxLineNumberSize = testInput.Split('\n').Length.ToString().Length;

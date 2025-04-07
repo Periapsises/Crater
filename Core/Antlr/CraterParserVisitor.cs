@@ -88,6 +88,13 @@ public interface ICraterParserVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitParenthesizedExpression([NotNull] CraterParser.ParenthesizedExpressionContext context);
 	/// <summary>
+	/// Visit a parse tree produced by the <c>LogicalOperation</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitLogicalOperation([NotNull] CraterParser.LogicalOperationContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>OrOperation</c>
 	/// labeled alternative in <see cref="CraterParser.expression"/>.
 	/// </summary>
