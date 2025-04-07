@@ -20,7 +20,9 @@ public abstract class DataType
 
     public abstract string GetName();
     
-    public abstract bool TryBinaryOperation(Symbol left, Symbol right, string op, [NotNullWhen(true)] out Symbol? result);
+    public abstract bool TryArithmeticOperation(Symbol left, Symbol right, string op, [NotNullWhen(true)] out Symbol? result);
+    
+    public abstract bool TryLogicOperation(Symbol left, Symbol right, string op, [NotNullWhen(true)] out Symbol? result);
     
     public abstract bool TryUnaryOperation(Symbol self, string op, [NotNullWhen(true)] out Symbol? result);
     

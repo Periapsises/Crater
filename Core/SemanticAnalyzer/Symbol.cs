@@ -11,11 +11,16 @@ public class Symbol(Value value, DataType dataType, bool nullable)
     public DataType DataType = dataType;
     public bool Nullable = nullable;
 
-    public bool BinaryOperation(Symbol other, string op, [NotNullWhen(true)] out Symbol? result)
+    public bool ArithmeticOperation(Symbol other, string op, [NotNullWhen(true)] out Symbol? result)
     {
-        return DataType.TryBinaryOperation(this, other, op, out result);
+        return DataType.TryArithmeticOperation(this, other, op, out result);
     }
 
+    public bool LogicOperation(Symbol other, string op, [NotNullWhen(true)] out Symbol? result)
+    {
+        return DataType.TryLogicOperation(this, other, op, out result);
+    }
+    
     public bool UnaryOperation(string op, [NotNullWhen(true)] out Symbol? result)
     {
         return DataType.TryUnaryOperation(this, op, out result);

@@ -1,4 +1,6 @@
-﻿namespace Core.SemanticAnalyzer;
+﻿using Antlr4.Runtime;
+
+namespace Core.SemanticAnalyzer;
 
 public class DiagnosticReporter
 {
@@ -19,4 +21,28 @@ public class DiagnosticReporter
         else if (diagnostic.Severity == Severity.Error)
             ErrorDiagnostics.Add(diagnostic);
     }
+}
+
+public class DiagnosticReport<T>
+{
+    public T? Data;
+    private readonly List<Diagnostic> _diagnostics = [];
+
+    public DiagnosticReport<T> WithContext(IToken context)
+    {
+        _diagnostics.ForEach(diagnostic => diagnostic.WithContext(context));
+        return this;
+    }
+    
+    public void Report(Diagnostic diagnostic) => _diagnostics.Add(diagnostic);
+
+    public DiagnosticReport<T> ReportTo(DiagnosticReporter diagnosticReporter)
+    {
+        foreach (var diagnostic in _diagnostics)
+            diagnosticReporter.Report(diagnostic);
+
+        return this;
+    }
+    
+    public static implicit operator T(DiagnosticReport<T> diagnosticReport) => diagnosticReport.Data!;
 }

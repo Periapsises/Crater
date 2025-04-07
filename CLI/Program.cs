@@ -5,15 +5,8 @@ class Program
     static void Main(string[] args)
     {
         var testInput = """
-                        local myUndefinedString: string?
-                        local myDefinedString: string = "Hi"
-                        local myConcatString: string = "Hello " .. "world!"
-                        
-                        local myReferencedString: string = myDefinedString
-                        local myReferencedConcat: string = myDefinedString .. "?"
-                        
-                        local myNumberToString: string = "a" .. 1
-                        local myStringToNumber: number = 1 + "2"
+                        local myKnownString: string = "Hello"
+                        local myOtherKnownTernaryOperation: number = ( myKnownString .. "!" == "Hello!" ) and 1 or 2
                         """;
 
         var maxLineNumberSize = testInput.Split('\n').Length.ToString().Length;

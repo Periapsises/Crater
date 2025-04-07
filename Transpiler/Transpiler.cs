@@ -123,6 +123,11 @@ public class Transpiler(string input)
                 if (unaryOperation.Operator != "-") Append(' ');
                 TranspileExpression(unaryOperation.Expression);
                 break;
+            case LogicalOperation logicalOperation:
+                TranspileExpression(logicalOperation.Left);
+                Append($" {logicalOperation.Operator} ");
+                TranspileExpression(logicalOperation.Right);
+                break;
             case VariableReference variableReference:
                 Append(variableReference.Name);
                 break;

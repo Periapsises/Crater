@@ -27,16 +27,17 @@ functionParameter: IDENTIFIER COLON typeName QMARK?;
 typeName: IDENTIFIER;
 
 expression:
-    LPAREN expression RPAREN                        # ParenthesizedExpression
-    | MINUS expression                              # UnaryOperation
-    | expression EXP expression                     # ExponentOperation
-    | expression op=(MUL | DIV | MOD) expression    # MultiplicativeOperation
-    | expression op=(PLUS | MINUS) expression       # AdditiveOperation
-    | expression CONCAT expression                  # ConcatenationOperation
-    | expression AND expression                     # AndOperation
-    | expression OR expression                      # OrOperation
-    | IDENTIFIER                                    # VariableReference
-    | literal                                       # LiteralExpression
+    LPAREN expression RPAREN                                                                        # ParenthesizedExpression
+    | MINUS expression                                                                              # UnaryOperation
+    | expression EXP expression                                                                     # ExponentOperation
+    | expression op=(MUL | DIV | MOD) expression                                                    # MultiplicativeOperation
+    | expression op=(PLUS | MINUS) expression                                                       # AdditiveOperation
+    | expression CONCAT expression                                                                  # ConcatenationOperation
+    | expression op=(LESS | LESS_EQUAL | GREATER | GREATER_EQUAL | NOT_EQUAL | EQUAL) expression    # LogicalOperation
+    | expression AND expression                                                                     # AndOperation
+    | expression OR expression                                                                      # OrOperation
+    | IDENTIFIER                                                                                    # VariableReference
+    | literal                                                                                       # LiteralExpression
 ;
 
 literal:

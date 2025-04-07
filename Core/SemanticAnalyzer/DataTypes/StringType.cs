@@ -6,7 +6,7 @@ public class StringType : DataType
 {
     public override string GetName() => "string";
     
-    public override bool TryBinaryOperation(Symbol left, Symbol right, string op, [NotNullWhen(true)] out Symbol? result)
+    public override bool TryArithmeticOperation(Symbol left, Symbol right, string op, [NotNullWhen(true)] out Symbol? result)
     {
         if (op != "__concat")
         {
@@ -33,7 +33,33 @@ public class StringType : DataType
         result = null;
         return false;
     }
-    
+
+    public override bool TryLogicOperation(Symbol left, Symbol right, string op, [NotNullWhen(true)] out Symbol? result)
+    {
+        if (left.Value.Kind == ValueKind.String && right.Value.Kind == ValueKind.String)
+        {
+            var value = op switch
+            {
+                "__eq" => left.Value.GetString() == right.Value.GetString(),
+                "__lt" => string.Compare(left.Value.GetString(), right.Value.GetString(), StringComparison.CurrentCultureIgnoreCase) < 0,
+                "__le" => string.Compare(left.Value.GetString(), right.Value.GetString(), StringComparison.CurrentCultureIgnoreCase) <= 0,
+                _ => throw new NotImplementedException($"Invalid logic operator: {op}")
+            };
+            
+            result = new Symbol(Value.From(value), BooleanType, false);
+            return true;
+        }
+
+        if (right.DataType == StringType)
+        {
+            result = new Symbol(Value.Unknown, BooleanType, false);
+            return true;
+        }
+        
+        result = null;
+        return false;
+    }
+
     public override bool TryUnaryOperation(Symbol self, string op, [NotNullWhen(true)] out Symbol? result)
     {
         result = null;
