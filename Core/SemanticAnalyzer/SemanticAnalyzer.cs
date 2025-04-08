@@ -14,31 +14,27 @@ public class SemanticAnalyzer
 {
     public readonly DiagnosticReporter Reporter;
 
-    private readonly Scope _globalScope;
-    private Scope _localScope;
-
     public SemanticAnalyzer()
     {
         DiagnosticReporter.CurrentReporter = new DiagnosticReporter();
         Reporter = DiagnosticReporter.CurrentReporter;
-
-        _globalScope = new Scope();
-        _localScope = new Scope(_globalScope);
-
-        _globalScope.Declare("number",
-            new Symbol(new Value(ValueKind.DataType, DataType.NumberType), DataType.MetaType, false));
-        _globalScope.Declare("string",
-            new Symbol(new Value(ValueKind.DataType, DataType.StringType), DataType.MetaType, false));
-        _globalScope.Declare("bool",
-            new Symbol(new Value(ValueKind.DataType, DataType.BooleanType), DataType.MetaType, false));
     }
 
     public void AnalyzeModule(Module module)
     {
+        Environment.SetupEnvironment();
+        Environment.EnterModuleScope("main");
+
+        Environment.DeclareGlobal("number", new Symbol(Value.From(DataType.NumberType), DataType.MetaType, false));
+        Environment.DeclareGlobal("string", new Symbol(Value.From(DataType.StringType), DataType.MetaType, false));
+        Environment.DeclareGlobal("bool", new Symbol(Value.From(DataType.BooleanType), DataType.MetaType, false));
+        
         AnalyzeBlock(module.Block);
+        
+        Environment.ExitModuleScope();
     }
 
-    public void AnalyzeBlock(Block block)
+    private void AnalyzeBlock(Block block)
     {
         foreach (var statement in block.Statements)
         {
@@ -56,11 +52,11 @@ public class SemanticAnalyzer
         }
     }
 
-    public void AnalyzeVariableDeclaration(VariableDeclaration variableDeclaration)
+    private void AnalyzeVariableDeclaration(VariableDeclaration variableDeclaration)
     {
-        var scope = variableDeclaration.Local ? _localScope : _globalScope;
+        var scope = variableDeclaration.Local ? Environment.GetLocalScope() : Environment.GetGlobalScope();
 
-        var dataTypeSymbol = _localScope.Find(variableDeclaration.VariableReference);
+        var dataTypeSymbol = Environment.GetVariable(variableDeclaration.VariableReference);
         if (dataTypeSymbol == null)
         {
             Reporter.Report(new TypeNotFound(variableDeclaration.VariableReference)
@@ -102,11 +98,11 @@ public class SemanticAnalyzer
         scope.Declare(variableDeclaration.Identifier, defaultSymbol);
     }
 
-    public void AnalyzeFunctionDeclaration(FunctionDeclaration functionDeclaration)
+    private void AnalyzeFunctionDeclaration(FunctionDeclaration functionDeclaration)
     {
-        var scope = functionDeclaration.Local ? _localScope : _globalScope;
+        var scope = functionDeclaration.Local ? Environment.GetLocalScope() : Environment.GetGlobalScope();
 
-        var returnTypeSymbol = _localScope.Find(functionDeclaration.ReturnTypeReference);
+        var returnTypeSymbol = Environment.GetVariable(functionDeclaration.ReturnTypeReference);
         if (returnTypeSymbol == null)
         {
             Reporter.Report(new TypeNotFound(functionDeclaration.ReturnTypeReference)
@@ -126,7 +122,7 @@ public class SemanticAnalyzer
 
         foreach (var parameter in functionDeclaration.Parameters)
         {
-            var parameterTypeSymbol = _localScope.Find(parameter.DataTypeReference);
+            var parameterTypeSymbol = Environment.GetVariable(parameter.DataTypeReference);
             if (parameterTypeSymbol == null)
             {
                 Reporter.Report(new TypeNotFound(parameter.DataTypeReference)
@@ -154,7 +150,7 @@ public class SemanticAnalyzer
 
         scope.Declare(functionDeclaration.Identifier, functionSymbol);
 
-        var functionScope = new Scope(_localScope);
+        var functionScope = Environment.CreateSubScope();
 
         for (var i = 0; i < functionDeclaration.Parameters.Count; i++)
         {
@@ -163,13 +159,12 @@ public class SemanticAnalyzer
             functionScope.Declare(functionDeclaration.Parameters[i].Name, parameterSymbol);
         }
 
-        var previousScope = _localScope;
-        _localScope = functionScope;
+        Environment.EnterScope(functionScope);
         AnalyzeBlock(functionDeclaration.Block);
-        _localScope = previousScope;
+        Environment.ExitScope();
     }
 
-    public PossibleSymbols AnalyzeExpression(Expression expression)
+    private PossibleSymbols AnalyzeExpression(Expression expression)
     {
         switch (expression)
         {
@@ -194,7 +189,7 @@ public class SemanticAnalyzer
         }
     }
 
-    public PossibleSymbols AnalyzeUnaryOperation(UnaryOperation unaryOperation)
+    private PossibleSymbols AnalyzeUnaryOperation(UnaryOperation unaryOperation)
     {
         var expression = AnalyzeExpression(unaryOperation.Expression);
 
@@ -208,7 +203,7 @@ public class SemanticAnalyzer
         }
     }
 
-    public PossibleSymbols AnalyzeUnaryOperation(PossibleSymbols symbols, string op, string meta, IToken token)
+    private PossibleSymbols AnalyzeUnaryOperation(PossibleSymbols symbols, string op, string meta, IToken token)
     {
         var resultingSymbols = new PossibleSymbols();
         var hasErroredForTypes = new HashSet<DataType>();
@@ -232,7 +227,7 @@ public class SemanticAnalyzer
         return resultingSymbols;
     }
 
-    public PossibleSymbols AnalyzeBinaryOperation(BinaryOperation binaryOperation)
+    private PossibleSymbols AnalyzeBinaryOperation(BinaryOperation binaryOperation)
     {
         var left = AnalyzeExpression(binaryOperation.Left);
         var right = AnalyzeExpression(binaryOperation.Right);
@@ -252,7 +247,7 @@ public class SemanticAnalyzer
         }
     }
 
-    public PossibleSymbols AnalyzeLogicalOperation(LogicalOperation logicalOperation)
+    private PossibleSymbols AnalyzeLogicalOperation(LogicalOperation logicalOperation)
     {
         var left = AnalyzeExpression(logicalOperation.Left);
         var right = AnalyzeExpression(logicalOperation.Right);
@@ -402,9 +397,9 @@ public class SemanticAnalyzer
         return resultingSymbols;
     }
 
-    public Symbol AnalyzeVariableReference(VariableReference variableReference)
+    private Symbol AnalyzeVariableReference(VariableReference variableReference)
     {
-        var symbol = _localScope.Find(variableReference);
+        var symbol = Environment.GetVariable(variableReference);
         if (symbol == null)
         {
             Reporter.Report(new VariableNotFound(variableReference).WithContext(

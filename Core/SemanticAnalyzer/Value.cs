@@ -28,6 +28,7 @@ public class Value
     public static Value From(bool value) => new(ValueKind.Boolean, value);
     public static Value From(double value) => new(ValueKind.Number, value);
     public static Value From(string value) => new(ValueKind.String, value);
+    public static Value From(DataType value) => new(ValueKind.DataType, value);
     public static Value Unknown => new(ValueKind.Unknown, null);
     
     public Value(ValueKind kind, object? value)
