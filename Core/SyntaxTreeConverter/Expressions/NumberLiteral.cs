@@ -7,8 +7,9 @@ public class NumberLiteral: Expression
 {
     public readonly string StringRepresentation;
     public readonly double Value;
+    public readonly CraterParser.LiteralContext Context;
 
-    public NumberLiteral(CraterParser.LiteralContext context): base(context)
+    public NumberLiteral(CraterParser.LiteralContext context)
     {
         StringRepresentation = context.number.Text;
         
@@ -23,5 +24,7 @@ public class NumberLiteral: Expression
             Value = long.Parse(context.BINARY().GetText()!.Substring(2), NumberStyles.BinaryNumber);
             StringRepresentation = Value.ToString();
         }
+        
+        Context = context;
     }
 }

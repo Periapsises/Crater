@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using Core.Antlr;
+﻿using Core.Antlr;
 using Core.SyntaxTreeConverter.Expressions;
 using Core.SyntaxTreeConverter.Statements;
 
@@ -7,13 +6,13 @@ namespace Core.SyntaxTreeConverter;
 
 public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
 {
-    public override object? VisitProgram(CraterParser.ProgramContext context)
+    public override object VisitProgram(CraterParser.ProgramContext context)
     {
         var block = (Block)Visit(context.block())!;
         return new Module(block);
     }
 
-    public override object? VisitBlock(CraterParser.BlockContext context)
+    public override object VisitBlock(CraterParser.BlockContext context)
     {
         var statements = new List<Statement>();
         
@@ -25,36 +24,34 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         return new Block(statements);
     }
 
-    public override object? VisitVariableDeclaration(CraterParser.VariableDeclarationContext context)
+    public override object VisitVariableDeclaration(CraterParser.VariableDeclarationContext context)
     {
         var isLocal = context.LOCAL() != null;
         var identifier = context.IDENTIFIER().GetText()!;
-        var dataTypeReference = (VariableReference)Visit(context.typeName())!;
+        var dataTypeReference = (VariableReference)Visit(context.expression()[0])!;
         var isNullable = context.QMARK() != null;
 
-        if (context.expression() is null)
-        {
+        if (context.expression()[1] is null)
             return new VariableDeclaration(isLocal, identifier, dataTypeReference, isNullable, null, context);
-        }
         
-        var initializer = (Expression)Visit(context.expression())!;
+        var initializer = (Expression)Visit(context.expression()[1])!;
         
         return new VariableDeclaration(isLocal, identifier, dataTypeReference, isNullable, initializer, context);
     }
 
-    public override object? VisitFunctionDeclaration(CraterParser.FunctionDeclarationContext context)
+    public override object VisitFunctionDeclaration(CraterParser.FunctionDeclarationContext context)
     {
         var isLocal = context.LOCAL() != null;
         var identifier = context.IDENTIFIER().GetText()!;
         var arguments = (List<ParameterDeclartion>)Visit(context.functionParameters())!;
-        var returnDataTypeReference = (VariableReference)Visit(context.typeName())!;
+        var returnDataTypeReference = (VariableReference)Visit(context.expression())!;
         var returnIsNullable = context.QMARK() != null;
         var block = (Block)Visit(context.block())!;
         
         return new FunctionDeclaration(isLocal, identifier, arguments, returnDataTypeReference, returnIsNullable, block, context);
     }
 
-    public override object? VisitFunctionParameters(CraterParser.FunctionParametersContext context)
+    public override object VisitFunctionParameters(CraterParser.FunctionParametersContext context)
     {
         List<ParameterDeclartion> arguments = [];
         
@@ -64,94 +61,89 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         return arguments;
     }
 
-    public override object? VisitFunctionParameter(CraterParser.FunctionParameterContext context)
+    public override object VisitFunctionParameter(CraterParser.FunctionParameterContext context)
     {
         var name = context.IDENTIFIER().GetText()!;
-        var dataTypeReference = (VariableReference)Visit(context.typeName())!;
+        var dataTypeReference = (VariableReference)Visit(context.expression())!;
         var isNullable = context.QMARK() != null;
         
         return new ParameterDeclartion(name, dataTypeReference, isNullable, context);
     }
-    
-    public override object? VisitTypeName(CraterParser.TypeNameContext context)
-    {
-        return new VariableReference(context.IDENTIFIER().GetText()!, null, context);
-    }
 
-    public override object? VisitParenthesizedExpression(CraterParser.ParenthesizedExpressionContext context)
+    public override object VisitParenthesizedExpression(CraterParser.ParenthesizedExpressionContext context)
     {
         var expression = (Expression)Visit(context.expression())!;
         return new ParenthesizedExpression(expression, context);
     }
 
-    public override object? VisitUnaryOperation(CraterParser.UnaryOperationContext context)
+    public override object VisitUnaryOperation(CraterParser.UnaryOperationContext context)
     {
         var expression = (Expression)Visit(context.expression())!;
         return new UnaryOperation(expression, context.MINUS().GetText()!, context);
     }
     
-    public override object? VisitExponentOperation(CraterParser.ExponentOperationContext context)
+    public override object VisitExponentOperation(CraterParser.ExponentOperationContext context)
     {
         var left = (Expression)Visit(context.expression()[0])!;
         var right = (Expression)Visit(context.expression()[1])!;
 
-        return new BinaryOperation(left, right, context.EXP().GetText(), context, context.EXP().Symbol);
+        return new BinaryOperation(left, right, context.EXP().GetText(), new BinaryOperationContext(context));
     }
     
-    public override object? VisitMultiplicativeOperation(CraterParser.MultiplicativeOperationContext context)
+    public override object VisitMultiplicativeOperation(CraterParser.MultiplicativeOperationContext context)
     {
         var left = (Expression)Visit(context.expression()[0])!;
         var right = (Expression)Visit(context.expression()[1])!;
 
-        return new BinaryOperation(left, right, context.op.Text, context, context.op);
+        return new BinaryOperation(left, right, context.op.Text, new BinaryOperationContext(context));
     }
 
-    public override object? VisitAdditiveOperation(CraterParser.AdditiveOperationContext context)
+    public override object VisitAdditiveOperation(CraterParser.AdditiveOperationContext context)
     {
         var left = (Expression)Visit(context.expression()[0])!;
         var right = (Expression)Visit(context.expression()[1])!;
 
-        return new BinaryOperation(left, right, context.op.Text, context, context.op);
+        return new BinaryOperation(left, right, context.op.Text, new BinaryOperationContext(context));
     }
 
-    public override object? VisitConcatenationOperation(CraterParser.ConcatenationOperationContext context)
+    public override object VisitConcatenationOperation(CraterParser.ConcatenationOperationContext context)
     {
         var left = (Expression)Visit(context.expression()[0])!;
         var right = (Expression)Visit(context.expression()[1])!;
         
-        return new BinaryOperation(left, right, context.CONCAT().GetText(), context, context.CONCAT().Symbol);
+        return new BinaryOperation(left, right, context.CONCAT().GetText(), new BinaryOperationContext(context));
     }
 
-    public override object? VisitLogicalOperation(CraterParser.LogicalOperationContext context)
+    public override object VisitLogicalOperation(CraterParser.LogicalOperationContext context)
     {
         var left = (Expression)Visit(context.expression()[0])!;
         var right = (Expression)Visit(context.expression()[1])!;
         
-        return new LogicalOperation(left, right, context.op.Text, context, context.op);
+        return new LogicalOperation(left, right, context.op.Text, context);
     }
 
-    public override object? VisitAndOperation(CraterParser.AndOperationContext context)
+    public override object VisitAndOperation(CraterParser.AndOperationContext context)
     {
         var left = (Expression)Visit(context.expression()[0])!;
         var right = (Expression)Visit(context.expression()[1])!;
 
-        return new BinaryOperation(left, right, "and", context, context.AND().Symbol);
+        return new AndOperation(left, right, "and", context);
     }
     
-    public override object? VisitOrOperation(CraterParser.OrOperationContext context)
+    public override object VisitOrOperation(CraterParser.OrOperationContext context)
     {
         var left = (Expression)Visit(context.expression()[0])!;
         var right = (Expression)Visit(context.expression()[1])!;
 
-        return new BinaryOperation(left, right, "or", context, context.OR().Symbol);
+        return new OrOperation(left, right, "or", context);
     }
 
-    public override object? VisitVariableReference(CraterParser.VariableReferenceContext context)
+    public override object VisitVariableReference(CraterParser.VariableReferenceContext context)
     {
         return new VariableReference(context.IDENTIFIER().GetText()!, null, context);
     }
     
-    public override object? VisitLiteral(CraterParser.LiteralContext context)
+    public override object VisitLiteral(CraterParser.LiteralContext context)
     {
         if (context.number != null)
             return new NumberLiteral(context);

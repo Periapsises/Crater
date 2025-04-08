@@ -106,16 +106,6 @@ public partial class CraterParserBaseVisitor<Result> : AbstractParseTreeVisitor<
 	/// <return>The visitor result.</return>
 	public virtual Result VisitFunctionParameter([NotNull] CraterParser.FunctionParameterContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="CraterParser.typeName"/>.
-	/// <para>
-	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
-	/// on <paramref name="context"/>.
-	/// </para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	public virtual Result VisitTypeName([NotNull] CraterParser.TypeNameContext context) { return VisitChildren(context); }
-	/// <summary>
 	/// Visit a parse tree produced by the <c>ParenthesizedExpression</c>
 	/// labeled alternative in <see cref="CraterParser.expression"/>.
 	/// <para>

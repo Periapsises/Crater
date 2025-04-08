@@ -60,14 +60,14 @@ public class SemanticAnalyzer
         if (dataTypeSymbol == null)
         {
             Reporter.Report(new TypeNotFound(variableDeclaration.VariableReference)
-                .WithContext(((CraterParser.VariableDeclarationContext)variableDeclaration.Context).typeName()));
+                .WithContext(variableDeclaration.Context.expression()[0]));
             return;
         }
 
         if (dataTypeSymbol.DataType != DataType.MetaType)
         {
             Reporter.Report(new InvalidType(variableDeclaration.VariableReference)
-                .WithContext(((CraterParser.VariableDeclarationContext)variableDeclaration.Context).typeName()));
+                .WithContext(variableDeclaration.Context.expression()[0]));
             return;
         }
 
@@ -79,20 +79,18 @@ public class SemanticAnalyzer
         {
             var assignedSymbols = AnalyzeExpression(variableDeclaration.Initializer);
 
-            var context = ((CraterParser.VariableDeclarationContext)variableDeclaration.Context).ASSIGN().Symbol;
-            defaultSymbol.Assign(
-                ResolveSymbols(assignedSymbols, defaultSymbol, variableDeclaration.Identifier, context));
+            defaultSymbol.Assign(ResolveSymbols(assignedSymbols, defaultSymbol, variableDeclaration.Identifier, variableDeclaration.Context.ASSIGN().Symbol));
         }
         else if (!variableDeclaration.Nullable)
         {
             Reporter.Report(new UninitializedNonNullable(variableDeclaration.Identifier)
-                .WithContext(((CraterParser.VariableDeclarationContext)variableDeclaration.Context).IDENTIFIER()));
+                .WithContext(variableDeclaration.Context.IDENTIFIER()));
         }
 
         if (scope.HasVariable(variableDeclaration.Identifier))
         {
             Reporter.Report(new VariableShadowing(variableDeclaration.Identifier)
-                .WithContext(((CraterParser.VariableDeclarationContext)variableDeclaration.Context).IDENTIFIER()));
+                .WithContext(variableDeclaration.Context.IDENTIFIER()));
         }
 
         scope.Declare(variableDeclaration.Identifier, defaultSymbol);
@@ -106,14 +104,14 @@ public class SemanticAnalyzer
         if (returnTypeSymbol == null)
         {
             Reporter.Report(new TypeNotFound(functionDeclaration.ReturnTypeReference)
-                .WithContext(((CraterParser.FunctionDeclarationContext)functionDeclaration.Context).typeName()));
+                .WithContext(functionDeclaration.Context.expression()));
             returnTypeSymbol = Symbol.InvalidDataType;
         }
 
         if (returnTypeSymbol.DataType != DataType.MetaType)
         {
             Reporter.Report(new InvalidType(functionDeclaration.ReturnTypeReference)
-                .WithContext(((CraterParser.FunctionDeclarationContext)functionDeclaration.Context).typeName()));
+                .WithContext(functionDeclaration.Context.expression()));
         }
 
         var returnType = returnTypeSymbol.Value.GetDataType();
@@ -126,14 +124,14 @@ public class SemanticAnalyzer
             if (parameterTypeSymbol == null)
             {
                 Reporter.Report(new TypeNotFound(parameter.DataTypeReference)
-                    .WithContext(((CraterParser.FunctionParameterContext)parameter.Context).typeName()));
+                    .WithContext(parameter.Context.expression()));
                 parameterTypeSymbol = Symbol.InvalidDataType;
             }
 
             if (parameterTypeSymbol.DataType != DataType.MetaType)
             {
                 Reporter.Report(new InvalidType(parameter.DataTypeReference)
-                    .WithContext(((CraterParser.FunctionParameterContext)parameter.Context).typeName()));
+                    .WithContext(parameter.Context.expression()));
             }
 
             parameters.Add(parameterTypeSymbol.Value.GetDataType());
@@ -142,7 +140,7 @@ public class SemanticAnalyzer
         if (scope.HasVariable(functionDeclaration.Identifier))
         {
             Reporter.Report(new VariableShadowing(functionDeclaration.Identifier)
-                .WithContext(((CraterParser.FunctionDeclarationContext)functionDeclaration.Context).IDENTIFIER()));
+                .WithContext(functionDeclaration.Context.IDENTIFIER()));
         }
 
         var functionType = new FunctionType(parameters, [returnType]);
@@ -176,12 +174,16 @@ public class SemanticAnalyzer
                 return new Symbol(new Value(ValueKind.Boolean, booleanLiteral.Value), DataType.BooleanType, false);
             case ParenthesizedExpression parenthesizedExpression:
                 return AnalyzeExpression(parenthesizedExpression.Expression);
+            case LogicalOperation logicalOperation:
+                return AnalyzeLogicalOperation(logicalOperation);
+            case AndOperation andOperation:
+                return AnalyzeAndOperation(andOperation);
+            case OrOperation orOperation:
+                return AnalyzeOrOperation(orOperation);
             case BinaryOperation binaryOperation:
                 return AnalyzeBinaryOperation(binaryOperation);
             case UnaryOperation unaryOperation:
                 return AnalyzeUnaryOperation(unaryOperation);
-            case LogicalOperation logicalOperation:
-                return AnalyzeLogicalOperation(logicalOperation);
             case VariableReference variableReference:
                 return AnalyzeVariableReference(variableReference);
             default:
@@ -196,8 +198,7 @@ public class SemanticAnalyzer
         switch (unaryOperation.Operator)
         {
             case "-":
-                return AnalyzeUnaryOperation(expression, "-", "__umn",
-                    ((CraterParser.UnaryOperationContext)unaryOperation.Context).MINUS().Symbol);
+                return AnalyzeUnaryOperation(expression, "-", "__umn", unaryOperation.Context.MINUS().Symbol);
             default:
                 throw new NotImplementedException($"Unknown unary operator {unaryOperation.Operator}");
         }
@@ -232,19 +233,12 @@ public class SemanticAnalyzer
         var left = AnalyzeExpression(binaryOperation.Left);
         var right = AnalyzeExpression(binaryOperation.Right);
 
-        switch (binaryOperation.Operator)
-        {
-            case "and":
-                return AnalyzeAndOperation(left, right, binaryOperation);
-            case "or":
-                return AnalyzeOrOperation(left, right, binaryOperation);
-            default:
-                if (_arithmeticOperators.TryGetValue(binaryOperation.Operator, out var operatorInfo))
-                    return PerformArithmeticOperation(left, right, operatorInfo)
-                        .WithContext(binaryOperation.OpToken)
-                        .ReportTo(Reporter);
-                throw new NotImplementedException($"Unknown binary operator {binaryOperation.Operator}");
-        }
+        if (_arithmeticOperators.TryGetValue(binaryOperation.Operator, out var operatorInfo))
+            return PerformArithmeticOperation(left, right, operatorInfo)
+                .WithContext(binaryOperation.Context.Op)
+                .ReportTo(Reporter);
+        
+        throw new NotImplementedException($"Unknown binary operator {binaryOperation.Operator}");
     }
 
     private PossibleSymbols AnalyzeLogicalOperation(LogicalOperation logicalOperation)
@@ -256,13 +250,15 @@ public class SemanticAnalyzer
             throw new NotImplementedException($"Unknown logical operator {logicalOperation.Operator}");
 
         return PerformLogicOperation(left, right, operatorInfo)
-            .WithContext(logicalOperation.OpToken)
+            .WithContext(logicalOperation.Context.op)
             .ReportTo(Reporter);
     }
 
-    public PossibleSymbols AnalyzeAndOperation(PossibleSymbols leftSymbols, PossibleSymbols rightSymbols,
-        BinaryOperation binaryOperation)
+    public PossibleSymbols AnalyzeAndOperation(AndOperation andOperation)
     {
+        var leftSymbols = AnalyzeExpression(andOperation.Left);
+        var rightSymbols = AnalyzeExpression(andOperation.Right);
+        
         var leftCanBeTruthy = false;
         var leftCanBeFalsy = false;
 
@@ -312,7 +308,7 @@ public class SemanticAnalyzer
         {
             Reporter.Report(
                 new AndAlwaysFalse().WithContext(
-                    ((CraterParser.AndOperationContext)binaryOperation.Context).expression()[0]));
+                    andOperation.Context.expression()[0]));
             return resultingSymbols;
         }
 
@@ -321,7 +317,7 @@ public class SemanticAnalyzer
         {
             Reporter.Report(
                 new AndAlwaysTrue().WithContext(
-                    ((CraterParser.AndOperationContext)binaryOperation.Context).expression()[0]));
+                    andOperation.Context.expression()[0]));
             return rightSymbols;
         }
 
@@ -330,9 +326,11 @@ public class SemanticAnalyzer
         return resultingSymbols;
     }
 
-    public PossibleSymbols AnalyzeOrOperation(PossibleSymbols leftSymbols, PossibleSymbols rightSymbols,
-        BinaryOperation binaryOperation)
+    public PossibleSymbols AnalyzeOrOperation(OrOperation orOperation)
     {
+        var leftSymbols = AnalyzeExpression(orOperation.Left);
+        var rightSymbols = AnalyzeExpression(orOperation.Right);
+        
         var leftCanBeTruthy = false;
         var leftCanBeFalsy = false;
 
@@ -381,14 +379,14 @@ public class SemanticAnalyzer
         {
             Reporter.Report(
                 new OrAlwaysFalse().WithContext(
-                    ((CraterParser.OrOperationContext)binaryOperation.Context).expression()[0]));
+                    orOperation.Context.expression()[0]));
         }
 
         if (!leftCanBeFalsy)
         {
             Reporter.Report(
                 new OrAlwaysTrue().WithContext(
-                    ((CraterParser.OrOperationContext)binaryOperation.Context).expression()[0]));
+                    orOperation.Context.expression()[0]));
             return resultingSymbols;
         }
 
@@ -403,7 +401,7 @@ public class SemanticAnalyzer
         if (symbol == null)
         {
             Reporter.Report(new VariableNotFound(variableReference).WithContext(
-                ((CraterParser.VariableReferenceContext)variableReference.Context).IDENTIFIER()));
+                variableReference.Context.IDENTIFIER()));
             return new Symbol(new Value(ValueKind.Unknown, null), DataType.InvalidType, false);
         }
 

@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using System.Text;
+﻿using System.Text;
 using Antlr4.Runtime;
 using Core.Antlr;
 using Core.SemanticAnalyzer;
@@ -118,15 +117,25 @@ public class Transpiler(string input)
                 Append($" {binaryOperation.Operator} ");
                 TranspileExpression(binaryOperation.Right);
                 break;
-            case UnaryOperation unaryOperation:
-                Append($"{unaryOperation.Operator}");
-                if (unaryOperation.Operator != "-") Append(' ');
-                TranspileExpression(unaryOperation.Expression);
-                break;
             case LogicalOperation logicalOperation:
                 TranspileExpression(logicalOperation.Left);
                 Append($" {logicalOperation.Operator} ");
                 TranspileExpression(logicalOperation.Right);
+                break;
+            case AndOperation andOperation:
+                TranspileExpression(andOperation.Left);
+                Append($" {andOperation.Operator} ");
+                TranspileExpression(andOperation.Right);
+                break;
+            case OrOperation orOperation:
+                TranspileExpression(orOperation.Left);
+                Append($" {orOperation.Operator} ");
+                TranspileExpression(orOperation.Right);
+                break;
+            case UnaryOperation unaryOperation:
+                Append($"{unaryOperation.Operator}");
+                if (unaryOperation.Operator != "-") Append(' ');
+                TranspileExpression(unaryOperation.Expression);
                 break;
             case VariableReference variableReference:
                 Append(variableReference.Name);

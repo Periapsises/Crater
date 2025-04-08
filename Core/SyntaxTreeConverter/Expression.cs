@@ -1,6 +1,3 @@
 ﻿namespace Core.SyntaxTreeConverter;
 
-public class Expression(object context) : AstNode(context)
-{
-    
-}
+public class Expression() { }

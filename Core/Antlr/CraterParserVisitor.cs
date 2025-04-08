@@ -75,12 +75,6 @@ public interface ICraterParserVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitFunctionParameter([NotNull] CraterParser.FunctionParameterContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="CraterParser.typeName"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitTypeName([NotNull] CraterParser.TypeNameContext context);
-	/// <summary>
 	/// Visit a parse tree produced by the <c>ParenthesizedExpression</c>
 	/// labeled alternative in <see cref="CraterParser.expression"/>.
 	/// </summary>

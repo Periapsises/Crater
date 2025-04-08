@@ -1,7 +1,10 @@
-﻿namespace Core.SyntaxTreeConverter.Expressions;
+﻿using Core.Antlr;
 
-public class UnaryOperation(Expression expression, string op, object context): Expression(context)
+namespace Core.SyntaxTreeConverter.Expressions;
+
+public class UnaryOperation(Expression expression, string op, CraterParser.UnaryOperationContext context): Expression()
 {
     public Expression Expression = expression;
     public string Operator = op;
+    public CraterParser.UnaryOperationContext Context = context;
 }

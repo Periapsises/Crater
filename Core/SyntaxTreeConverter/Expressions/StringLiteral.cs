@@ -1,6 +1,10 @@
-﻿namespace Core.SyntaxTreeConverter.Expressions;
+﻿using Antlr4.Runtime;
+using Core.Antlr;
 
-public class StringLiteral(string literal, object context) : Expression(context)
+namespace Core.SyntaxTreeConverter.Expressions;
+
+public class StringLiteral(string literal, CraterParser.LiteralContext context) : Expression()
 {
     public readonly string Value = literal.Trim('"');
+    public readonly CraterParser.LiteralContext Context = context;
 }

@@ -102,16 +102,6 @@ public interface ICraterParserListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitFunctionParameter([NotNull] CraterParser.FunctionParameterContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="CraterParser.typeName"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterTypeName([NotNull] CraterParser.TypeNameContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="CraterParser.typeName"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitTypeName([NotNull] CraterParser.TypeNameContext context);
-	/// <summary>
 	/// Enter a parse tree produced by the <c>ParenthesizedExpression</c>
 	/// labeled alternative in <see cref="CraterParser.expression"/>.
 	/// </summary>

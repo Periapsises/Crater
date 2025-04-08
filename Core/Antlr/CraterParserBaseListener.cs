@@ -121,18 +121,6 @@ public partial class CraterParserBaseListener : ICraterParserListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitFunctionParameter([NotNull] CraterParser.FunctionParameterContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="CraterParser.typeName"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterTypeName([NotNull] CraterParser.TypeNameContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="CraterParser.typeName"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitTypeName([NotNull] CraterParser.TypeNameContext context) { }
-	/// <summary>
 	/// Enter a parse tree produced by the <c>ParenthesizedExpression</c>
 	/// labeled alternative in <see cref="CraterParser.expression"/>.
 	/// <para>The default implementation does nothing.</para>

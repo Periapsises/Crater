@@ -1,6 +1,9 @@
-﻿namespace Core.SyntaxTreeConverter.Expressions;
+﻿using Core.Antlr;
 
-public class BooleanLiteral(string literal, object context) : Expression(context)
+namespace Core.SyntaxTreeConverter.Expressions;
+
+public class BooleanLiteral(string literal, CraterParser.LiteralContext context) : Expression
 {
     public readonly bool Value = Convert.ToBoolean(literal);
+    public readonly CraterParser.LiteralContext Context = context;
 }

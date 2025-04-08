@@ -1,6 +1,9 @@
-﻿namespace Core.SyntaxTreeConverter.Expressions;
+﻿using Core.Antlr;
 
-public class ParenthesizedExpression(Expression expression, object context) : Expression(context)
+namespace Core.SyntaxTreeConverter.Expressions;
+
+public class ParenthesizedExpression(Expression expression, CraterParser.ParenthesizedExpressionContext context) : Expression()
 {
     public readonly Expression Expression = expression;
+    public readonly CraterParser.ParenthesizedExpressionContext Context;
 }
