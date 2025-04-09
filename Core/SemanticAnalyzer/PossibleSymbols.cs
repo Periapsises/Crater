@@ -37,4 +37,23 @@ public class PossibleSymbols : List<Symbol>
         
         return true;
     }
+
+    public bool AlwaysFalse()
+    {
+        foreach (var symbol in this)
+        {
+            if (symbol.Value.Kind == ValueKind.Boolean)
+            {
+                if (symbol.Value.GetBoolean()) return false;
+                continue;
+            }
+
+            if (!symbol.Nullable)
+                return false;
+            else if (symbol.DataType == DataType.BooleanType)
+                return false;
+        }
+        
+        return true;
+    }
 }

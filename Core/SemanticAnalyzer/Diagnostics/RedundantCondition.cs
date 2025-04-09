@@ -19,3 +19,4 @@ public class OrAlwaysTrue() : RedundantCondition("Left side of 'or' operation is
 public class OrAlwaysFalse() : RedundantCondition("Left side of 'or' operation is always false") {}
 
 public class ConditionAlwaysTrue() : RedundantCondition("Condition is always true") {}
+public class ConditionAlwaysFalse() : RedundantCondition("Condition is always false") {}

@@ -165,6 +165,9 @@ public class SemanticAnalyzer
         if (symbols.AlwaysTrue())
             DiagnosticReporter.Report(new ConditionAlwaysTrue().WithContext(ifStatement.Context.condition));
         
+        if (symbols.AlwaysFalse())
+            DiagnosticReporter.Report(new ConditionAlwaysFalse().WithContext(ifStatement.Context.condition));
+        
         Environment.EnterScope(Environment.CreateSubScope());
         AnalyzeBlock(ifStatement.Block);
         Environment.ExitScope();
@@ -178,7 +181,13 @@ public class SemanticAnalyzer
 
     private void AnalyzeElseIfStatement(ElseIfStatement elseIfStatement)
     {
-        AnalyzeExpression(elseIfStatement.Condition);
+        var symbols = AnalyzeExpression(elseIfStatement.Condition);
+        if (symbols.AlwaysTrue())
+            DiagnosticReporter.Report(new ConditionAlwaysTrue().WithContext(elseIfStatement.Context.condition));
+        
+        if (symbols.AlwaysFalse())
+            DiagnosticReporter.Report(new ConditionAlwaysFalse().WithContext(elseIfStatement.Context.condition));
+        
         Environment.EnterScope(Environment.CreateSubScope());
         AnalyzeBlock(elseIfStatement.Block);
         Environment.ExitScope();
