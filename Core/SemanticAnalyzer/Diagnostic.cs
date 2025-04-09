@@ -69,7 +69,7 @@ public abstract class Diagnostic(Severity severity)
         for (var i = tokenIndex + 1; i < tokenStream.Size; i++)
         {
             var token = tokenStream.Get(i);
-            if (token.Line != tokenLine) break;
+            if (token.Line != tokenLine || token.Text == "<EOF>") break;
             
             tokensInLine.Add(token);
         }
