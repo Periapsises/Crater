@@ -286,8 +286,12 @@ public partial class CraterParser : Parser {
 	}
 
 	public partial class VariableDeclarationContext : ParserRuleContext {
-		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode IDENTIFIER() { return GetToken(CraterParser.IDENTIFIER, 0); }
+		public IToken name;
+		public ExpressionContext type;
+		public IToken nullable;
+		public ExpressionContext initializer;
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode COLON() { return GetToken(CraterParser.COLON, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode IDENTIFIER() { return GetToken(CraterParser.IDENTIFIER, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public ExpressionContext[] expression() {
 			return GetRuleContexts<ExpressionContext>();
 		}
@@ -295,8 +299,8 @@ public partial class CraterParser : Parser {
 			return GetRuleContext<ExpressionContext>(i);
 		}
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode LOCAL() { return GetToken(CraterParser.LOCAL, 0); }
-		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode QMARK() { return GetToken(CraterParser.QMARK, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode ASSIGN() { return GetToken(CraterParser.ASSIGN, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode QMARK() { return GetToken(CraterParser.QMARK, 0); }
 		public VariableDeclarationContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
@@ -339,18 +343,18 @@ public partial class CraterParser : Parser {
 			}
 
 			State = 34;
-			Match(IDENTIFIER);
+			_localctx.name = Match(IDENTIFIER);
 			State = 35;
 			Match(COLON);
 			State = 36;
-			expression(0);
+			_localctx.type = expression(0);
 			State = 38;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			if (_la==QMARK) {
 				{
 				State = 37;
-				Match(QMARK);
+				_localctx.nullable = Match(QMARK);
 				}
 			}
 
@@ -362,7 +366,7 @@ public partial class CraterParser : Parser {
 				State = 40;
 				Match(ASSIGN);
 				State = 41;
-				expression(0);
+				_localctx.initializer = expression(0);
 				}
 			}
 
@@ -380,21 +384,24 @@ public partial class CraterParser : Parser {
 	}
 
 	public partial class FunctionDeclarationContext : ParserRuleContext {
+		public IToken name;
+		public ExpressionContext returnType;
+		public IToken returnNullable;
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode FUNCTION() { return GetToken(CraterParser.FUNCTION, 0); }
-		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode IDENTIFIER() { return GetToken(CraterParser.IDENTIFIER, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode LPAREN() { return GetToken(CraterParser.LPAREN, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public FunctionParametersContext functionParameters() {
 			return GetRuleContext<FunctionParametersContext>(0);
 		}
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode RPAREN() { return GetToken(CraterParser.RPAREN, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode COLON() { return GetToken(CraterParser.COLON, 0); }
-		[System.Diagnostics.DebuggerNonUserCode] public ExpressionContext expression() {
-			return GetRuleContext<ExpressionContext>(0);
-		}
 		[System.Diagnostics.DebuggerNonUserCode] public BlockContext block() {
 			return GetRuleContext<BlockContext>(0);
 		}
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode END() { return GetToken(CraterParser.END, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode IDENTIFIER() { return GetToken(CraterParser.IDENTIFIER, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ExpressionContext expression() {
+			return GetRuleContext<ExpressionContext>(0);
+		}
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode LOCAL() { return GetToken(CraterParser.LOCAL, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode QMARK() { return GetToken(CraterParser.QMARK, 0); }
 		public FunctionDeclarationContext(ParserRuleContext parent, int invokingState)
@@ -441,7 +448,7 @@ public partial class CraterParser : Parser {
 			State = 47;
 			Match(FUNCTION);
 			State = 48;
-			Match(IDENTIFIER);
+			_localctx.name = Match(IDENTIFIER);
 			State = 49;
 			Match(LPAREN);
 			State = 50;
@@ -451,14 +458,14 @@ public partial class CraterParser : Parser {
 			State = 52;
 			Match(COLON);
 			State = 53;
-			expression(0);
+			_localctx.returnType = expression(0);
 			State = 55;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			if (_la==QMARK) {
 				{
 				State = 54;
-				Match(QMARK);
+				_localctx.returnNullable = Match(QMARK);
 				}
 			}
 
@@ -553,8 +560,11 @@ public partial class CraterParser : Parser {
 	}
 
 	public partial class FunctionParameterContext : ParserRuleContext {
-		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode IDENTIFIER() { return GetToken(CraterParser.IDENTIFIER, 0); }
+		public IToken name;
+		public ExpressionContext type;
+		public IToken nullable;
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode COLON() { return GetToken(CraterParser.COLON, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode IDENTIFIER() { return GetToken(CraterParser.IDENTIFIER, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public ExpressionContext expression() {
 			return GetRuleContext<ExpressionContext>(0);
 		}
@@ -591,18 +601,18 @@ public partial class CraterParser : Parser {
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 68;
-			Match(IDENTIFIER);
+			_localctx.name = Match(IDENTIFIER);
 			State = 69;
 			Match(COLON);
 			State = 70;
-			expression(0);
+			_localctx.type = expression(0);
 			State = 72;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			if (_la==QMARK) {
 				{
 				State = 71;
-				Match(QMARK);
+				_localctx.nullable = Match(QMARK);
 				}
 			}
 

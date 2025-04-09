@@ -27,14 +27,14 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
     public override object VisitVariableDeclaration(CraterParser.VariableDeclarationContext context)
     {
         var isLocal = context.LOCAL() != null;
-        var identifier = context.IDENTIFIER().GetText()!;
-        var dataTypeReference = (VariableReference)Visit(context.expression()[0])!;
-        var isNullable = context.QMARK() != null;
+        var identifier = context.name.Text!;
+        var dataTypeReference = (VariableReference)Visit(context.type)!;
+        var isNullable = context.nullable != null;
 
-        if (context.expression()[1] is null)
+        if (context.initializer is null)
             return new VariableDeclaration(isLocal, identifier, dataTypeReference, isNullable, null, context);
         
-        var initializer = (Expression)Visit(context.expression()[1])!;
+        var initializer = (Expression)Visit(context.initializer)!;
         
         return new VariableDeclaration(isLocal, identifier, dataTypeReference, isNullable, initializer, context);
     }
@@ -42,10 +42,10 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
     public override object VisitFunctionDeclaration(CraterParser.FunctionDeclarationContext context)
     {
         var isLocal = context.LOCAL() != null;
-        var identifier = context.IDENTIFIER().GetText()!;
+        var identifier = context.name.Text!;
         var arguments = (List<ParameterDeclartion>)Visit(context.functionParameters())!;
-        var returnDataTypeReference = (VariableReference)Visit(context.expression())!;
-        var returnIsNullable = context.QMARK() != null;
+        var returnDataTypeReference = (VariableReference)Visit(context.returnType)!;
+        var returnIsNullable = context.returnNullable != null;
         var block = (Block)Visit(context.block())!;
         
         return new FunctionDeclaration(isLocal, identifier, arguments, returnDataTypeReference, returnIsNullable, block, context);
@@ -63,9 +63,9 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
 
     public override object VisitFunctionParameter(CraterParser.FunctionParameterContext context)
     {
-        var name = context.IDENTIFIER().GetText()!;
-        var dataTypeReference = (VariableReference)Visit(context.expression())!;
-        var isNullable = context.QMARK() != null;
+        var name = context.name.Text!;
+        var dataTypeReference = (VariableReference)Visit(context.type)!;
+        var isNullable = context.nullable != null;
         
         return new ParameterDeclartion(name, dataTypeReference, isNullable, context);
     }

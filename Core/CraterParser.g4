@@ -16,13 +16,13 @@ statement:
     | functionDeclaration
 ;
 
-variableDeclaration: LOCAL? IDENTIFIER COLON expression QMARK? (ASSIGN expression)?;
+variableDeclaration: LOCAL? name=IDENTIFIER COLON type=expression nullable=QMARK? (ASSIGN initializer=expression)?;
 
-functionDeclaration: LOCAL? FUNCTION IDENTIFIER LPAREN functionParameters RPAREN COLON expression QMARK? block END;
+functionDeclaration: LOCAL? FUNCTION name=IDENTIFIER LPAREN functionParameters RPAREN COLON returnType=expression returnNullable=QMARK? block END;
 
 functionParameters: functionParameter (COMMA functionParameter)*;
 
-functionParameter: IDENTIFIER COLON expression QMARK?;
+functionParameter: name=IDENTIFIER COLON type=expression nullable=QMARK?;
 
 expression:
     LPAREN expression RPAREN                                                                        # ParenthesizedExpression
