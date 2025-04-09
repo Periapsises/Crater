@@ -24,12 +24,14 @@ public class Transpiler(string input)
         var syntaxTreeConverter = new SyntaxTreeConverter();
         var module = (Module)syntaxTreeConverter.Visit(craterParser.program())!;
 
+        var reporter = DiagnosticReporter.CreateInstance();
+        
         var semanticAnalyzer = new SemanticAnalyzer();
         semanticAnalyzer.AnalyzeModule(module);
         
         TranspileModule(module);
         
-        return new TranslationResult(_builder.ToString(), semanticAnalyzer.Reporter);
+        return new TranslationResult(_builder.ToString(), reporter);
     }
 
     private void TranspileModule(Module module)

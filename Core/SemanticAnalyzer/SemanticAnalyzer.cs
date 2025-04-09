@@ -12,13 +12,7 @@ namespace Core.SemanticAnalyzer;
 
 public class SemanticAnalyzer
 {
-    public readonly DiagnosticReporter Reporter;
-
-    public SemanticAnalyzer()
-    {
-        DiagnosticReporter.CurrentReporter = new DiagnosticReporter();
-        Reporter = DiagnosticReporter.CurrentReporter;
-    }
+    public SemanticAnalyzer() { }
 
     public void AnalyzeModule(Module module)
     {
@@ -59,14 +53,14 @@ public class SemanticAnalyzer
         var dataTypeSymbol = Environment.GetVariable(variableDeclaration.VariableReference);
         if (dataTypeSymbol == null)
         {
-            Reporter.Report(new TypeNotFound(variableDeclaration.VariableReference)
+            DiagnosticReporter.Report(new TypeNotFound(variableDeclaration.VariableReference)
                 .WithContext(variableDeclaration.Context.expression()[0]));
             return;
         }
 
         if (dataTypeSymbol.DataType != DataType.MetaType)
         {
-            Reporter.Report(new InvalidType(variableDeclaration.VariableReference)
+            DiagnosticReporter.Report(new InvalidType(variableDeclaration.VariableReference)
                 .WithContext(variableDeclaration.Context.expression()[0]));
             return;
         }
@@ -83,13 +77,13 @@ public class SemanticAnalyzer
         }
         else if (!variableDeclaration.Nullable)
         {
-            Reporter.Report(new UninitializedNonNullable(variableDeclaration.Identifier)
+            DiagnosticReporter.Report(new UninitializedNonNullable(variableDeclaration.Identifier)
                 .WithContext(variableDeclaration.Context.IDENTIFIER()));
         }
 
         if (scope.HasVariable(variableDeclaration.Identifier))
         {
-            Reporter.Report(new VariableShadowing(variableDeclaration.Identifier)
+            DiagnosticReporter.Report(new VariableShadowing(variableDeclaration.Identifier)
                 .WithContext(variableDeclaration.Context.IDENTIFIER()));
         }
 
@@ -103,14 +97,14 @@ public class SemanticAnalyzer
         var returnTypeSymbol = Environment.GetVariable(functionDeclaration.ReturnTypeReference);
         if (returnTypeSymbol == null)
         {
-            Reporter.Report(new TypeNotFound(functionDeclaration.ReturnTypeReference)
+            DiagnosticReporter.Report(new TypeNotFound(functionDeclaration.ReturnTypeReference)
                 .WithContext(functionDeclaration.Context.expression()));
             returnTypeSymbol = Symbol.InvalidDataType;
         }
 
         if (returnTypeSymbol.DataType != DataType.MetaType)
         {
-            Reporter.Report(new InvalidType(functionDeclaration.ReturnTypeReference)
+            DiagnosticReporter.Report(new InvalidType(functionDeclaration.ReturnTypeReference)
                 .WithContext(functionDeclaration.Context.expression()));
         }
 
@@ -123,14 +117,14 @@ public class SemanticAnalyzer
             var parameterTypeSymbol = Environment.GetVariable(parameter.DataTypeReference);
             if (parameterTypeSymbol == null)
             {
-                Reporter.Report(new TypeNotFound(parameter.DataTypeReference)
+                DiagnosticReporter.Report(new TypeNotFound(parameter.DataTypeReference)
                     .WithContext(parameter.Context.expression()));
                 parameterTypeSymbol = Symbol.InvalidDataType;
             }
 
             if (parameterTypeSymbol.DataType != DataType.MetaType)
             {
-                Reporter.Report(new InvalidType(parameter.DataTypeReference)
+                DiagnosticReporter.Report(new InvalidType(parameter.DataTypeReference)
                     .WithContext(parameter.Context.expression()));
             }
 
@@ -139,7 +133,7 @@ public class SemanticAnalyzer
 
         if (scope.HasVariable(functionDeclaration.Identifier))
         {
-            Reporter.Report(new VariableShadowing(functionDeclaration.Identifier)
+            DiagnosticReporter.Report(new VariableShadowing(functionDeclaration.Identifier)
                 .WithContext(functionDeclaration.Context.IDENTIFIER()));
         }
 
@@ -220,7 +214,7 @@ public class SemanticAnalyzer
             if (hasErroredForTypes.Contains(symbol.DataType))
                 continue;
 
-            Reporter.Report(new InvalidUnaryOperator(symbol.DataType, op)
+            DiagnosticReporter.Report(new InvalidUnaryOperator(symbol.DataType, op)
                 .WithContext(token));
             hasErroredForTypes.Add(symbol.DataType);
         }
@@ -236,7 +230,7 @@ public class SemanticAnalyzer
         if (_arithmeticOperators.TryGetValue(binaryOperation.Operator, out var operatorInfo))
             return PerformArithmeticOperation(left, right, operatorInfo)
                 .WithContext(binaryOperation.Context.Op)
-                .ReportTo(Reporter);
+                .SendReport();
         
         throw new NotImplementedException($"Unknown binary operator {binaryOperation.Operator}");
     }
@@ -251,7 +245,7 @@ public class SemanticAnalyzer
 
         return PerformLogicOperation(left, right, operatorInfo)
             .WithContext(logicalOperation.Context.op)
-            .ReportTo(Reporter);
+            .SendReport();
     }
 
     public PossibleSymbols AnalyzeAndOperation(AndOperation andOperation)
@@ -306,18 +300,14 @@ public class SemanticAnalyzer
         // If an 'and' operation's left symbols are only "falsy" then they are the only symbols passed further.
         if (!leftCanBeTruthy)
         {
-            Reporter.Report(
-                new AndAlwaysFalse().WithContext(
-                    andOperation.Context.expression()[0]));
+            DiagnosticReporter.Report(new AndAlwaysFalse().WithContext(andOperation.Context.expression()[0]));
             return resultingSymbols;
         }
 
         // If an 'and' operation's left symbols are only "truthy" then only the right symbols are passed further.
         if (!leftCanBeFalsy)
         {
-            Reporter.Report(
-                new AndAlwaysTrue().WithContext(
-                    andOperation.Context.expression()[0]));
+            DiagnosticReporter.Report(new AndAlwaysTrue().WithContext(andOperation.Context.expression()[0]));
             return rightSymbols;
         }
 
@@ -376,17 +366,11 @@ public class SemanticAnalyzer
         }
 
         if (!leftCanBeTruthy)
-        {
-            Reporter.Report(
-                new OrAlwaysFalse().WithContext(
-                    orOperation.Context.expression()[0]));
-        }
+            DiagnosticReporter.Report(new OrAlwaysFalse().WithContext(orOperation.Context.expression()[0]));
 
         if (!leftCanBeFalsy)
         {
-            Reporter.Report(
-                new OrAlwaysTrue().WithContext(
-                    orOperation.Context.expression()[0]));
+            DiagnosticReporter.Report(new OrAlwaysTrue().WithContext(orOperation.Context.expression()[0]));
             return resultingSymbols;
         }
 
@@ -400,9 +384,9 @@ public class SemanticAnalyzer
         var symbol = Environment.GetVariable(variableReference);
         if (symbol == null)
         {
-            Reporter.Report(new VariableNotFound(variableReference).WithContext(
-                variableReference.Context.IDENTIFIER()));
-            return new Symbol(new Value(ValueKind.Unknown, null), DataType.InvalidType, false);
+            DiagnosticReporter.Report(new VariableNotFound(variableReference)
+                .WithContext(variableReference.Context.IDENTIFIER()));
+            return new Symbol(Value.InvalidValue, DataType.InvalidType, false);
         }
 
         return symbol;
@@ -421,14 +405,14 @@ public class SemanticAnalyzer
             var hasError = false;
             if (!hasErroredForType.Contains(symbol.DataType) && !symbol.DataType.IsCompatible(target.DataType))
             {
-                Reporter.Report(new TypeMismatch(symbol.DataType, target.DataType).WithContext(context));
+                DiagnosticReporter.Report(new TypeMismatch(symbol.DataType, target.DataType).WithContext(context));
                 hasErroredForType.Add(symbol.DataType);
                 hasError = true;
             }
 
             if (!hasErroredForNullable && symbol.Nullable && !target.Nullable)
             {
-                Reporter.Report(new PossibleNullAssignment(variable));
+                DiagnosticReporter.Report(new PossibleNullAssignment(variable));
                 hasErroredForNullable = true;
                 hasError = true;
             }

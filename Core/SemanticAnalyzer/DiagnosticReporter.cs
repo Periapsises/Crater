@@ -4,22 +4,29 @@ namespace Core.SemanticAnalyzer;
 
 public class DiagnosticReporter
 {
-    public static DiagnosticReporter? CurrentReporter;
+    private static DiagnosticReporter? _instance = null;
 
     public readonly List<Diagnostic> InfoDiagnostics = [];
     public readonly List<Diagnostic> WarningDiagnostics = [];
     public readonly List<Diagnostic> ErrorDiagnostics = [];
 
-    public void Report(Diagnostic diagnostic)
+    public static DiagnosticReporter CreateInstance()
     {
-        if (CurrentReporter == null) return;
+        _instance = new DiagnosticReporter();
+        return _instance;
+    }
+    
+    public static void Report(Diagnostic diagnostic)
+    {
+        if (_instance == null)
+            throw new NullReferenceException();
         
         if (diagnostic.Severity == Severity.Info)
-            InfoDiagnostics.Add(diagnostic);
+            _instance.InfoDiagnostics.Add(diagnostic);
         else if (diagnostic.Severity == Severity.Warning)
-            WarningDiagnostics.Add(diagnostic);
+            _instance.WarningDiagnostics.Add(diagnostic);
         else if (diagnostic.Severity == Severity.Error)
-            ErrorDiagnostics.Add(diagnostic);
+            _instance.ErrorDiagnostics.Add(diagnostic);
     }
 }
 
@@ -36,12 +43,12 @@ public class DiagnosticReport<T>
     
     public void Report(Diagnostic diagnostic) => _diagnostics.Add(diagnostic);
 
-    public DiagnosticReport<T> ReportTo(DiagnosticReporter diagnosticReporter)
+    public T SendReport()
     {
         foreach (var diagnostic in _diagnostics)
-            diagnosticReporter.Report(diagnostic);
+            DiagnosticReporter.Report(diagnostic);
 
-        return this;
+        return this.Data!;
     }
     
     public static implicit operator T(DiagnosticReport<T> diagnosticReport) => diagnosticReport.Data!;
