@@ -35,11 +35,13 @@ public abstract class Diagnostic(Severity severity)
     protected string GetCodeLocation()
     {
         if (Code == string.Empty) return "";
-
-        var code = Code;
+        
+        var code = Code.TrimStart();
+        var numCharsRemoved = Code.Length - code.Length;
+        
         if (Highlighted != null) code = Highlighted;
         
-        var spacing = new string(' ', Column + Line.ToString().Length + 1);
+        var spacing = new string(' ', Column + Line.ToString().Length + 1 - numCharsRemoved);
         var highlight = new string('^', HighlightLength);
         return $"\u001b[90m{Line}\u001b[0m {code}\n{spacing}\u001b[91m{highlight}\u001b[0m";
     }
@@ -100,7 +102,7 @@ public abstract class Diagnostic(Severity severity)
 
         var input = context.Start.InputStream;
         if (input != null)
-            Code = input.ToString()?.Split('\n')[Line - 1].TrimStart()!;
+            Code = input.ToString()?.Split('\n')[Line - 1]!;
         
         if (DiagnosticReporter.HasCommonTokenStream())
             Highlighted = GetColorFormattedTokens(context.Start);
