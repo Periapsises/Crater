@@ -100,6 +100,20 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         return new ElseStatement(block, context);
     }
 
+    public override object VisitDotIndexing(CraterParser.DotIndexingContext context)
+    {
+        var expression = (Expression)Visit(context.primaryExpression())!;
+        return new DotIndex(expression, context.IDENTIFIER().GetText(), context);
+    }
+
+    public override object VisitBracketIndexing(CraterParser.BracketIndexingContext context)
+    {
+        var expression = (Expression)Visit(context.primaryExpression())!;
+        var index = (Expression)Visit(context.expression())!;
+        
+        return new BracketIndex(expression, index, context);
+    }
+
     public override object VisitParenthesizedExpression(CraterParser.ParenthesizedExpressionContext context)
     {
         var expression = (Expression)Visit(context.expression())!;

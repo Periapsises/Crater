@@ -7,15 +7,8 @@ class Program
     private static void Main(string[] args)
     {
         var testInput = """
-                        if true then
-                            local myNestedVar: number = 5
-                            local myOtherNestedVar: number = 5 + myNestedVar
-                            
-                            if myOtherNestedVar == 10 then
-                            end
-                        end
-                        
-                        local myVar: number = myNestedVar
+                        local a: number = 5
+                        local b: string = a.b
                         """;
 
         var maxLineNumberSize = testInput.Split('\n').Length.ToString().Length;

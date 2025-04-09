@@ -187,6 +187,16 @@ public class Transpiler(string input)
             case VariableReference variableReference:
                 Append(variableReference.Name);
                 break;
+            case DotIndex dotIndex:
+                TranspileExpression(dotIndex.Expression);
+                Append($".{dotIndex.Index}");
+                break;
+            case BracketIndex bracketIndex:
+                TranspileExpression(bracketIndex.Expression);
+                Append('[');
+                TranspileExpression(bracketIndex.Index);
+                Append(']');
+                break;
             default:
                 throw new NotImplementedException($"Unsupported expression type {expression.GetType()}");
         }

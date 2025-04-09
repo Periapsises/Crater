@@ -47,4 +47,10 @@ public class BooleanType : DataType
         result = new Symbol(Value.Unknown, StringType, false);
         return true;
     }
+
+    public override bool TryIndex(Symbol self, Symbol index, [NotNullWhen(true)] out Symbol? result)
+    {
+        result = null;
+        return false;
+    }
 }

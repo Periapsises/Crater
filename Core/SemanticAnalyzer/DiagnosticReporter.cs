@@ -56,6 +56,12 @@ public class DiagnosticReport<T>
     public T? Data;
     private readonly List<Diagnostic> _diagnostics = [];
 
+    public DiagnosticReport<T> WithContext(ParserRuleContext context)
+    {
+        _diagnostics.ForEach(diagnostic => diagnostic.WithContext(context));
+        return this;
+    }
+    
     public DiagnosticReport<T> WithContext(IToken context)
     {
         _diagnostics.ForEach(diagnostic => diagnostic.WithContext(context));

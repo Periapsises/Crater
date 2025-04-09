@@ -28,4 +28,9 @@ public class CustomType : DataType
         result = null;
         return false;
     }
+
+    public override bool TryIndex(Symbol self, Symbol index, [NotNullWhen(true)] out Symbol? result)
+    {
+        throw new NotImplementedException();
+    }
 }

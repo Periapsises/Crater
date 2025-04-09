@@ -25,4 +25,9 @@ public class InvalidType : DataType
     {
         throw new NotImplementedException();
     }
+
+    public override bool TryIndex(Symbol self, Symbol index, [NotNullWhen(true)] out Symbol? result)
+    {
+        throw new NotImplementedException();
+    }
 }

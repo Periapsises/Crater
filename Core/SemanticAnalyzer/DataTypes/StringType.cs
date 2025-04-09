@@ -71,4 +71,9 @@ public class StringType : DataType
         result = self;
         return true;
     }
+
+    public override bool TryIndex(Symbol self, Symbol index, [NotNullWhen(true)] out Symbol? result)
+    {
+        throw new NotImplementedException();
+    }
 }

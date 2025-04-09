@@ -34,6 +34,11 @@ public class FunctionType(List<DataType> argTypes, List<DataType> returnTypes) :
         throw new NotImplementedException();
     }
 
+    public override bool TryIndex(Symbol self, Symbol index, [NotNullWhen(true)] out Symbol? result)
+    {
+        throw new NotImplementedException();
+    }
+
     public override bool IsCompatible(DataType other)
     {
         if (other == FunctionBase) return true;

@@ -28,6 +28,8 @@ public abstract class DataType
     
     public abstract bool TryToString(Symbol self, [NotNullWhen(true)] out Symbol? result);
     
+    public abstract bool TryIndex(Symbol self, Symbol index, [NotNullWhen(true)] out Symbol? result);
+    
     public virtual bool IsCompatible(DataType target)
     {
         return target == this;

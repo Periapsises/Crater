@@ -32,7 +32,7 @@ elseIfStatement: ELSEIF condition=expression THEN block;
 elseStatement: ELSE block;
 
 expression:
-    LPAREN expression RPAREN                                                                        # ParenthesizedExpression
+    primaryExpression                                                                               # PrefixExpression
     | MINUS expression                                                                              # UnaryOperation
     | expression EXP expression                                                                     # ExponentOperation
     | expression op=(MUL | DIV | MOD) expression                                                    # MultiplicativeOperation
@@ -41,8 +41,14 @@ expression:
     | expression op=(LESS | LESS_EQUAL | GREATER | GREATER_EQUAL | NOT_EQUAL | EQUAL) expression    # LogicalOperation
     | expression AND expression                                                                     # AndOperation
     | expression OR expression                                                                      # OrOperation
-    | IDENTIFIER                                                                                    # VariableReference
     | literal                                                                                       # LiteralExpression
+;
+
+primaryExpression:
+    primaryExpression DOT IDENTIFIER                        # DotIndexing
+    | primaryExpression LSQRBRACKET expression RSQRBRACKET  # BracketIndexing
+    | LPAREN expression RPAREN                              # ParenthesizedExpression
+    | IDENTIFIER                                            # VariableReference
 ;
 
 literal:

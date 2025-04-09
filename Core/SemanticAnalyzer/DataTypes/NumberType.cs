@@ -115,18 +115,9 @@ public class NumberType : DataType
         return true;
     }
 
-    public Symbol Equals(Symbol left, Symbol right)
+    public override bool TryIndex(Symbol self, Symbol index, [NotNullWhen(true)] out Symbol? result)
     {
-        if (left.Value.Kind == ValueKind.Number && right.Value.Kind == ValueKind.Number)
-        {
-            // TODO: Determine if double precision could mess with the result and become a problem
-            var isEqual = left.Value.GetNumber() == right.Value.GetNumber();
-            return new Symbol(new Value(ValueKind.Boolean, isEqual), BooleanType, false);
-        }
-
-        if (right.DataType == NumberType)
-            return new Symbol(new Value(ValueKind.Unknown, null), BooleanType, false);
-        
-        return new Symbol(new Value(ValueKind.Boolean, false), BooleanType, false);
+        result = null;
+        return false;
     }
 }

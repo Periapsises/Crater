@@ -38,5 +38,10 @@ public class Symbol(Value value, DataType dataType, bool nullable)
         Nullable = symbol.Nullable;
     }
 
+    public bool Index(Symbol indexingSymbol, [NotNullWhen(true)] out Symbol? result)
+    {
+        return DataType.TryIndex(this, indexingSymbol, out result);
+    }
+
     public static implicit operator PossibleSymbols(Symbol symbol) => [symbol];
 }

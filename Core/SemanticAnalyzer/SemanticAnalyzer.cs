@@ -224,6 +224,10 @@ public class SemanticAnalyzer
                 return AnalyzeUnaryOperation(unaryOperation);
             case VariableReference variableReference:
                 return AnalyzeVariableReference(variableReference);
+            case DotIndex dotIndex:
+                return AnalyzeDotIndex(dotIndex);
+            case BracketIndex bracketIndex:
+                return AnalyzeBracketIndex(bracketIndex);
             default:
                 throw new NotImplementedException($"Unknown expression type {expression.GetType()}");
         }
@@ -436,6 +440,49 @@ public class SemanticAnalyzer
         return symbol;
     }
 
+    private PossibleSymbols AnalyzeDotIndex(DotIndex dotIndex)
+    {
+        var symbols = AnalyzeExpression(dotIndex.Expression);
+        var indices = new Symbol(Value.From(dotIndex.Index), DataType.StringType, false);
+
+        return AnalyzeIndex(symbols, [indices])
+            .WithContext(dotIndex.Context)
+            .SendReport();
+    }
+
+    private PossibleSymbols AnalyzeBracketIndex(BracketIndex bracketIndex)
+    {
+        var symbols = AnalyzeExpression(bracketIndex.Expression);
+        var indices = AnalyzeExpression(bracketIndex.Index);
+        
+        return AnalyzeIndex(symbols, indices)
+            .WithContext(bracketIndex.Context)
+            .SendReport();
+    }
+
+    private DiagnosticReport<PossibleSymbols> AnalyzeIndex(PossibleSymbols symbols, PossibleSymbols indices)
+    {
+        var resultingSymbols = new PossibleSymbols();
+        var reporter = new DiagnosticReport<PossibleSymbols>();
+        
+        foreach (var indexedSymbol in symbols)
+        {
+            foreach (var indexingSymbol in indices)
+            {
+                if (indexedSymbol.Index(indexingSymbol, out var result))
+                {
+                    resultingSymbols.Add(result);
+                    continue;
+                }
+                
+                reporter.Report(new InvalidIndex(indexedSymbol.DataType));
+            }
+        }
+
+        reporter.Data = resultingSymbols;
+        return reporter;
+    }
+    
     private Symbol ResolveSymbols(PossibleSymbols possibleSymbols, Symbol target, string variable, IToken context)
     {
         var resultingSymbols = new PossibleSymbols();
