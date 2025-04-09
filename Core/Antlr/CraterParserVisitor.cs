@@ -75,6 +75,24 @@ public interface ICraterParserVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitFunctionParameter([NotNull] CraterParser.FunctionParameterContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CraterParser.ifStatement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitIfStatement([NotNull] CraterParser.IfStatementContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CraterParser.elseIfStatement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitElseIfStatement([NotNull] CraterParser.ElseIfStatementContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CraterParser.elseStatement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitElseStatement([NotNull] CraterParser.ElseStatementContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>ParenthesizedExpression</c>
 	/// labeled alternative in <see cref="CraterParser.expression"/>.
 	/// </summary>

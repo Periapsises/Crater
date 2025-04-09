@@ -70,6 +70,36 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         return new ParameterDeclartion(name, dataTypeReference, isNullable, context);
     }
 
+    public override object VisitIfStatement(CraterParser.IfStatementContext context)
+    {
+        var condition = (Expression)Visit(context.condition)!;
+        var block = (Block)Visit(context.block())!;
+        
+        List<ElseIfStatement> elseIfStatements = [];
+        foreach (var elseIfStatementContext in context.elseIfStatement())
+            elseIfStatements.Add((ElseIfStatement)Visit(elseIfStatementContext)!);
+
+        ElseStatement? elseStatement = null;
+        if (context.elseStatement() != null)
+            elseStatement = (ElseStatement)Visit(context.elseStatement())!;
+        
+        return new IfStatement(condition, block, elseIfStatements, elseStatement, context);
+    }
+
+    public override object VisitElseIfStatement(CraterParser.ElseIfStatementContext context)
+    {
+        var condition = (Expression)Visit(context.condition)!;
+        var block = (Block)Visit(context.block())!;
+        
+        return new ElseIfStatement(condition, block, context);
+    }
+
+    public override object VisitElseStatement(CraterParser.ElseStatementContext context)
+    {
+        var block = (Block)Visit(context.block())!;
+        return new ElseStatement(block, context);
+    }
+
     public override object VisitParenthesizedExpression(CraterParser.ParenthesizedExpressionContext context)
     {
         var expression = (Expression)Visit(context.expression())!;

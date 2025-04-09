@@ -14,6 +14,7 @@ block: statement*;
 statement:
     variableDeclaration
     | functionDeclaration
+    | ifStatement
 ;
 
 variableDeclaration: LOCAL? name=IDENTIFIER COLON type=expression nullable=QMARK? (ASSIGN initializer=expression)?;
@@ -23,6 +24,12 @@ functionDeclaration: LOCAL? FUNCTION name=IDENTIFIER LPAREN functionParameters R
 functionParameters: functionParameter (COMMA functionParameter)*;
 
 functionParameter: name=IDENTIFIER COLON type=expression nullable=QMARK?;
+
+ifStatement: IF condition=expression THEN block elseIfStatement* elseStatement? END;
+
+elseIfStatement: ELSEIF condition=expression THEN block;
+
+elseStatement: ELSE block;
 
 expression:
     LPAREN expression RPAREN                                                                        # ParenthesizedExpression

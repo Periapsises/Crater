@@ -24,7 +24,7 @@ public class Transpiler(string input)
         var syntaxTreeConverter = new SyntaxTreeConverter();
         var module = (Module)syntaxTreeConverter.Visit(craterParser.program())!;
 
-        var reporter = DiagnosticReporter.CreateInstance();
+        var reporter = DiagnosticReporter.CreateInstance(tokenStream);
         
         var semanticAnalyzer = new SemanticAnalyzer();
         semanticAnalyzer.AnalyzeModule(module);
@@ -50,6 +50,9 @@ public class Transpiler(string input)
                     break;
                 case FunctionDeclaration functionDeclaration:
                     TranspileFunctionDeclaration(functionDeclaration);
+                    break;
+                case IfStatement ifStatement:
+                    TranspileIfStatement(ifStatement);
                     break;
                 default:
                     throw new NotImplementedException($"Unsupported statement type {statement.GetType()}");
@@ -94,6 +97,48 @@ public class Transpiler(string input)
         Append("end\n");
     }
 
+    private void TranspileIfStatement(IfStatement ifStatement)
+    {
+        AppendSpacing();
+        Append("if ");
+        TranspileExpression(ifStatement.Condition);
+        Append(" then\n");
+        
+        _spacing += 4;
+        TranspileBlock(ifStatement.Block);
+        _spacing -= 4;
+        
+        foreach (var elseIfStatement in ifStatement.ElseIfStatements)
+            TranspileElseIfStatement(elseIfStatement);
+        
+        if (ifStatement.ElseStatement != null)
+            TranspileElseStatement(ifStatement.ElseStatement);
+        
+        Append("end\n");
+    }
+
+    private void TranspileElseIfStatement(ElseIfStatement ifStatement)
+    {
+        AppendSpacing();
+        Append("elseif ");
+        TranspileExpression(ifStatement.Condition);
+        Append(" then\n");
+        
+        _spacing += 4;
+        TranspileBlock(ifStatement.Block);
+        _spacing -= 4;
+    }
+
+    private void TranspileElseStatement(ElseStatement elseStatement)
+    {
+        AppendSpacing();
+        Append("else\n");
+        
+        _spacing += 4;
+        TranspileBlock(elseStatement.Block);
+        _spacing -= 4;
+    }
+    
     private void TranspileExpression(Expression expression)
     {
         switch (expression)

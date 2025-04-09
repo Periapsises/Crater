@@ -121,6 +121,42 @@ public partial class CraterParserBaseListener : ICraterParserListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitFunctionParameter([NotNull] CraterParser.FunctionParameterContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CraterParser.ifStatement"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterIfStatement([NotNull] CraterParser.IfStatementContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CraterParser.ifStatement"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitIfStatement([NotNull] CraterParser.IfStatementContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CraterParser.elseIfStatement"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterElseIfStatement([NotNull] CraterParser.ElseIfStatementContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CraterParser.elseIfStatement"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitElseIfStatement([NotNull] CraterParser.ElseIfStatementContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CraterParser.elseStatement"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterElseStatement([NotNull] CraterParser.ElseStatementContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CraterParser.elseStatement"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitElseStatement([NotNull] CraterParser.ElseStatementContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by the <c>ParenthesizedExpression</c>
 	/// labeled alternative in <see cref="CraterParser.expression"/>.
 	/// <para>The default implementation does nothing.</para>

@@ -5,8 +5,11 @@ class Program
     static void Main(string[] args)
     {
         var testInput = """
-                        local myKnownString: string = "Hello"
-                        local myOtherKnownTernaryOperation: number = ( myKnownString .. "!" == "Hello!" ) and 1 or 2
+                        local m: string = "Hello" + 1
+                        
+                        if true then
+                            local a: number = 1
+                        end
                         """;
 
         var maxLineNumberSize = testInput.Split('\n').Length.ToString().Length;

@@ -102,6 +102,36 @@ public interface ICraterParserListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitFunctionParameter([NotNull] CraterParser.FunctionParameterContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CraterParser.ifStatement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterIfStatement([NotNull] CraterParser.IfStatementContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CraterParser.ifStatement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitIfStatement([NotNull] CraterParser.IfStatementContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CraterParser.elseIfStatement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterElseIfStatement([NotNull] CraterParser.ElseIfStatementContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CraterParser.elseIfStatement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitElseIfStatement([NotNull] CraterParser.ElseIfStatementContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CraterParser.elseStatement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterElseStatement([NotNull] CraterParser.ElseStatementContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CraterParser.elseStatement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitElseStatement([NotNull] CraterParser.ElseStatementContext context);
+	/// <summary>
 	/// Enter a parse tree produced by the <c>ParenthesizedExpression</c>
 	/// labeled alternative in <see cref="CraterParser.expression"/>.
 	/// </summary>

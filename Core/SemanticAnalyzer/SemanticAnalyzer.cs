@@ -40,6 +40,9 @@ public class SemanticAnalyzer
                 case FunctionDeclaration functionDeclaration:
                     AnalyzeFunctionDeclaration(functionDeclaration);
                     break;
+                case IfStatement ifStatement:
+                    AnalyzeIfStatement(ifStatement);
+                    break;
                 default:
                     throw new NotImplementedException($"Unknown statement type {statement.GetType()}");
             }
@@ -156,6 +159,38 @@ public class SemanticAnalyzer
         Environment.ExitScope();
     }
 
+    private void AnalyzeIfStatement(IfStatement ifStatement)
+    {
+        var symbols = AnalyzeExpression(ifStatement.Condition);
+        if (symbols.AlwaysTrue())
+            DiagnosticReporter.Report(new ConditionAlwaysTrue().WithContext(ifStatement.Context.condition));
+        
+        Environment.EnterScope(Environment.CreateSubScope());
+        AnalyzeBlock(ifStatement.Block);
+        Environment.ExitScope();
+        
+        foreach (var elseIfStatement in ifStatement.ElseIfStatements)
+            AnalyzeElseIfStatement(elseIfStatement);
+        
+        if (ifStatement.ElseStatement != null)
+            AnalyzeElseStatement(ifStatement.ElseStatement);
+    }
+
+    private void AnalyzeElseIfStatement(ElseIfStatement elseIfStatement)
+    {
+        AnalyzeExpression(elseIfStatement.Condition);
+        Environment.EnterScope(Environment.CreateSubScope());
+        AnalyzeBlock(elseIfStatement.Block);
+        Environment.ExitScope();
+    }
+
+    private void AnalyzeElseStatement(ElseStatement elseStatement)
+    {
+        Environment.EnterScope(Environment.CreateSubScope());
+        AnalyzeBlock(elseStatement.Block);
+        Environment.ExitScope();
+    }
+    
     private PossibleSymbols AnalyzeExpression(Expression expression)
     {
         switch (expression)
