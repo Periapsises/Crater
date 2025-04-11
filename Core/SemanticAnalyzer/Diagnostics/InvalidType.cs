@@ -2,15 +2,10 @@
 
 namespace Core.SemanticAnalyzer.Diagnostics;
 
-public class InvalidType(VariableReference reference): Diagnostic(Severity.Error)
+public class InvalidType : Diagnostic
 {
-    public override string GetMessage()
+    public InvalidType(VariableReference reference) : base(Severity.Error)
     {
-        var message = $"{Error}The type name '\u001b[96m{reference.FullString}\u001b[0m' is not a valid type{GetLocation()}";
-        
-        if (Code != string.Empty)
-            message += $"\n{GetCodeLocation()}";
-        
-        return message;
+        Message = $"The type name '\u001b[96m{reference.FullString}\u001b[0m' is not a valid type";
     }
 }

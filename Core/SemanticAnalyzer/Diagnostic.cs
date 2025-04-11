@@ -22,8 +22,8 @@ public abstract class Diagnostic(Severity severity)
     protected static readonly string Info = "\u001b[36m[Info] \u001b[0m";
     protected static readonly string Warning = "\u001b[33m[Warning] \u001b[0m";
     protected static readonly string Error = "\u001b[31m[Error] \u001b[0m";
-
-    public abstract string GetMessage();
+    
+    public string Message { get; protected set; } = string.Empty;
 
     protected string GetLocation()
     {
@@ -126,5 +126,42 @@ public abstract class Diagnostic(Severity severity)
             Highlighted = GetColorFormattedTokens(token);
 
         return this;
+    }
+
+    private const string Reset = "\x1b[0m";
+    
+    private const string Black = "\x1b[30m";
+    private const string Red = "\x1b[31m";
+    private const string Green = "\x1b[32m";
+    private const string Yellow = "\x1b[33m";
+    private const string Blue = "\x1b[34m";
+    private const string Magenta = "\x1b[35m";
+    private const string Cyan = "\x1b[36m";
+    private const string White = "\x1b[37m";
+    private const string Gray = "\x1b[90m";
+    private const string BrightRed = "\x1b[91m";
+    private const string BrightGreen = "\x1b[92m";
+    private const string BrightYellow = "\x1b[93m";
+    private const string BrightBlue = "\x1b[94m";
+    private const string BrightMagenta = "\x1b[95m";
+    private const string BrightCyan = "\x1b[96m";
+    private const string BrightWhite = "\x1b[97m";
+    
+    protected string Format(string message, params object[] args)
+    {
+        var formattedArguments = new List<object>();
+
+        foreach (var arg in args)
+        {
+            var formattedArgument = arg switch
+            {
+                DataType dataType => BrightCyan + dataType.GetName() + Reset,
+                _ => arg
+            };
+            
+            formattedArguments.Add(formattedArgument);
+        }
+        
+        return string.Format(message, formattedArguments.ToArray());
     }
 }
