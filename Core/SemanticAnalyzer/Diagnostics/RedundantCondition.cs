@@ -1,15 +1,10 @@
 ﻿namespace Core.SemanticAnalyzer.Diagnostics;
 
-public abstract class RedundantCondition(string text): Diagnostic(Severity.Info)
+public abstract class RedundantCondition: Diagnostic
 {
-    public override string GetMessage()
+    protected RedundantCondition(string text) : base(Severity.Info)
     {
-        var message = $"{Info}{text}{GetLocation()}";
-        
-        if (Code != string.Empty)
-            message += $"\n{GetCodeLocation()}";
-        
-        return message;
+        Message = text;
     }
 }
 

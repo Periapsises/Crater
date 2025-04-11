@@ -1,14 +1,9 @@
 ﻿namespace Core.SemanticAnalyzer.Diagnostics;
 
-public class PossibleNullAssignment(string variable) : Diagnostic(Severity.Warning)
+public class PossibleNullAssignment : Diagnostic
 {
-    public override string GetMessage()
+    public PossibleNullAssignment(string variable) : base(Severity.Warning)
     {
-        var message = $"{Warning}Assigning possible nil value to non-nullable '{variable}'{GetLocation()}";
-        
-        if (Code != string.Empty)
-            message += $"\n{GetCodeLocation()}";
-        
-        return message;
+        Message = "Assigning possible nil value to non-nullable '" + variable + "'";
     }
 }

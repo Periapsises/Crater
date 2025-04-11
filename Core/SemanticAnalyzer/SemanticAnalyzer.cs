@@ -475,7 +475,7 @@ public class SemanticAnalyzer
                     continue;
                 }
                 
-                reporter.Report(new InvalidIndex(indexedSymbol.DataType));
+                reporter.Report(new InvalidIndex(indexedSymbol.DataType, indexingSymbol.DataType));
             }
         }
 
