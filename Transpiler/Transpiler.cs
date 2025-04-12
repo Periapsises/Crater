@@ -187,12 +187,13 @@ public class Transpiler(string input)
             case VariableReference variableReference:
                 Append(variableReference.Name);
                 break;
+            case PrimaryExpression primaryExpression:
+                TranspilePrimaryExpression(primaryExpression);
+                break;
             case DotIndex dotIndex:
-                TranspileExpression(dotIndex.Expression);
                 Append($".{dotIndex.Index}");
                 break;
             case BracketIndex bracketIndex:
-                TranspileExpression(bracketIndex.Expression);
                 Append('[');
                 TranspileExpression(bracketIndex.Index);
                 Append(']');
@@ -200,6 +201,13 @@ public class Transpiler(string input)
             default:
                 throw new NotImplementedException($"Unsupported expression type {expression.GetType()}");
         }
+    }
+    
+    private void TranspilePrimaryExpression(PrimaryExpression primaryExpression)
+    {
+        TranspileExpression(primaryExpression.PrefixExpression);
+        foreach (var postfixExpression in primaryExpression.PostfixExpressions)
+            TranspileExpression(postfixExpression);
     }
 
     private void AppendSpacing() => _builder.Append(new string(' ', _spacing));

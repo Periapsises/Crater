@@ -1,4 +1,5 @@
-﻿using Core.Antlr;
+﻿using System.Linq.Expressions;
+using Core.Antlr;
 using Core.SyntaxTreeConverter.Expressions;
 using Core.SyntaxTreeConverter.Statements;
 
@@ -100,20 +101,55 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         return new ElseStatement(block, context);
     }
 
+    public override object VisitFunctionCallStatement(CraterParser.FunctionCallStatementContext context)
+    {
+        var primaryExpression = (PrimaryExpression)Visit(context.primaryExpression())!;
+        var arguments = new List<Expression>();
+        if (context.functionArguments() != null)
+            arguments = (List<Expression>)Visit(context.functionArguments())!;
+        
+        return new FunctionCallStatement(primaryExpression, arguments, context);
+    }
+    
+    public override object VisitPrimaryExpression(CraterParser.PrimaryExpressionContext context)
+    {
+        var prefixExpression = (Expression)Visit(context.prefixExpression())!;
+        var postfixExpressions = new List<Expression>();
+        foreach (var postfixExpressionContext in context.postfixExpression())
+            postfixExpressions.Add((Expression)Visit(postfixExpressionContext)!);
+        
+        return new PrimaryExpression(prefixExpression, postfixExpressions, context);
+    }
+    
     public override object VisitDotIndexing(CraterParser.DotIndexingContext context)
     {
-        var expression = (Expression)Visit(context.primaryExpression())!;
-        return new DotIndex(expression, context.IDENTIFIER().GetText(), context);
+        return new DotIndex(context.IDENTIFIER().GetText(), context);
     }
 
     public override object VisitBracketIndexing(CraterParser.BracketIndexingContext context)
     {
-        var expression = (Expression)Visit(context.primaryExpression())!;
         var index = (Expression)Visit(context.expression())!;
-        
-        return new BracketIndex(expression, index, context);
+        return new BracketIndex(index, context);
     }
 
+    public override object VisitFunctionCall(CraterParser.FunctionCallContext context)
+    {
+        var arguments = new List<Expression>();
+        if (context.functionArguments() != null)
+            arguments = (List<Expression>)Visit(context.functionArguments())!;
+        
+        return new FunctionCall(arguments, context);
+    }
+
+    public override object VisitFunctionArguments(CraterParser.FunctionArgumentsContext context)
+    {
+        var arguments = new List<Expression>();
+        foreach (var functionArgumentContext in context.expression())
+            arguments.Add((Expression)Visit(functionArgumentContext)!);
+
+        return arguments;
+    }
+    
     public override object VisitParenthesizedExpression(CraterParser.ParenthesizedExpressionContext context)
     {
         var expression = (Expression)Visit(context.expression())!;

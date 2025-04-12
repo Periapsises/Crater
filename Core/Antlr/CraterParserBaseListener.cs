@@ -157,6 +157,30 @@ public partial class CraterParserBaseListener : ICraterParserListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitElseStatement([NotNull] CraterParser.ElseStatementContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CraterParser.functionCallStatement"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterFunctionCallStatement([NotNull] CraterParser.FunctionCallStatementContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CraterParser.functionCallStatement"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitFunctionCallStatement([NotNull] CraterParser.FunctionCallStatementContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CraterParser.functionArguments"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterFunctionArguments([NotNull] CraterParser.FunctionArgumentsContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CraterParser.functionArguments"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitFunctionArguments([NotNull] CraterParser.FunctionArgumentsContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by the <c>LogicalOperation</c>
 	/// labeled alternative in <see cref="CraterParser.expression"/>.
 	/// <para>The default implementation does nothing.</para>
@@ -184,6 +208,20 @@ public partial class CraterParserBaseListener : ICraterParserListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitOrOperation([NotNull] CraterParser.OrOperationContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by the <c>BaseExpression</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterBaseExpression([NotNull] CraterParser.BaseExpressionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by the <c>BaseExpression</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitBaseExpression([NotNull] CraterParser.BaseExpressionContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by the <c>ConcatenationOperation</c>
 	/// labeled alternative in <see cref="CraterParser.expression"/>.
@@ -226,20 +264,6 @@ public partial class CraterParserBaseListener : ICraterParserListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitExponentOperation([NotNull] CraterParser.ExponentOperationContext context) { }
-	/// <summary>
-	/// Enter a parse tree produced by the <c>PrefixExpression</c>
-	/// labeled alternative in <see cref="CraterParser.expression"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterPrefixExpression([NotNull] CraterParser.PrefixExpressionContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by the <c>PrefixExpression</c>
-	/// labeled alternative in <see cref="CraterParser.expression"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitPrefixExpression([NotNull] CraterParser.PrefixExpressionContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by the <c>LiteralExpression</c>
 	/// labeled alternative in <see cref="CraterParser.expression"/>.
@@ -297,61 +321,87 @@ public partial class CraterParserBaseListener : ICraterParserListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitAdditiveOperation([NotNull] CraterParser.AdditiveOperationContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CraterParser.primaryExpression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterPrimaryExpression([NotNull] CraterParser.PrimaryExpressionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CraterParser.primaryExpression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitPrimaryExpression([NotNull] CraterParser.PrimaryExpressionContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by the <c>ParenthesizedExpression</c>
-	/// labeled alternative in <see cref="CraterParser.primaryExpression"/>.
+	/// labeled alternative in <see cref="CraterParser.prefixExpression"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void EnterParenthesizedExpression([NotNull] CraterParser.ParenthesizedExpressionContext context) { }
 	/// <summary>
 	/// Exit a parse tree produced by the <c>ParenthesizedExpression</c>
-	/// labeled alternative in <see cref="CraterParser.primaryExpression"/>.
+	/// labeled alternative in <see cref="CraterParser.prefixExpression"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitParenthesizedExpression([NotNull] CraterParser.ParenthesizedExpressionContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by the <c>DotIndexing</c>
-	/// labeled alternative in <see cref="CraterParser.primaryExpression"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterDotIndexing([NotNull] CraterParser.DotIndexingContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by the <c>DotIndexing</c>
-	/// labeled alternative in <see cref="CraterParser.primaryExpression"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitDotIndexing([NotNull] CraterParser.DotIndexingContext context) { }
-	/// <summary>
 	/// Enter a parse tree produced by the <c>VariableReference</c>
-	/// labeled alternative in <see cref="CraterParser.primaryExpression"/>.
+	/// labeled alternative in <see cref="CraterParser.prefixExpression"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void EnterVariableReference([NotNull] CraterParser.VariableReferenceContext context) { }
 	/// <summary>
 	/// Exit a parse tree produced by the <c>VariableReference</c>
-	/// labeled alternative in <see cref="CraterParser.primaryExpression"/>.
+	/// labeled alternative in <see cref="CraterParser.prefixExpression"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitVariableReference([NotNull] CraterParser.VariableReferenceContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by the <c>DotIndexing</c>
+	/// labeled alternative in <see cref="CraterParser.postfixExpression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterDotIndexing([NotNull] CraterParser.DotIndexingContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by the <c>DotIndexing</c>
+	/// labeled alternative in <see cref="CraterParser.postfixExpression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitDotIndexing([NotNull] CraterParser.DotIndexingContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by the <c>BracketIndexing</c>
-	/// labeled alternative in <see cref="CraterParser.primaryExpression"/>.
+	/// labeled alternative in <see cref="CraterParser.postfixExpression"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void EnterBracketIndexing([NotNull] CraterParser.BracketIndexingContext context) { }
 	/// <summary>
 	/// Exit a parse tree produced by the <c>BracketIndexing</c>
-	/// labeled alternative in <see cref="CraterParser.primaryExpression"/>.
+	/// labeled alternative in <see cref="CraterParser.postfixExpression"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitBracketIndexing([NotNull] CraterParser.BracketIndexingContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by the <c>FunctionCall</c>
+	/// labeled alternative in <see cref="CraterParser.postfixExpression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterFunctionCall([NotNull] CraterParser.FunctionCallContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by the <c>FunctionCall</c>
+	/// labeled alternative in <see cref="CraterParser.postfixExpression"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitFunctionCall([NotNull] CraterParser.FunctionCallContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="CraterParser.literal"/>.
 	/// <para>The default implementation does nothing.</para>

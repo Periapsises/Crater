@@ -15,6 +15,7 @@ statement:
     variableDeclaration
     | functionDeclaration
     | ifStatement
+    | functionCallStatement
 ;
 
 variableDeclaration: LOCAL? name=IDENTIFIER COLON type=expression nullable=QMARK? (ASSIGN initializer=expression)?;
@@ -31,8 +32,12 @@ elseIfStatement: ELSEIF condition=expression THEN block;
 
 elseStatement: ELSE block;
 
+functionCallStatement: primaryExpression LPAREN functionArguments? RPAREN;
+
+functionArguments: expression (COMMA expression)*; 
+
 expression:
-    primaryExpression                                                                               # PrefixExpression
+    primaryExpression                                                                               # BaseExpression
     | MINUS expression                                                                              # UnaryOperation
     | expression EXP expression                                                                     # ExponentOperation
     | expression op=(MUL | DIV | MOD) expression                                                    # MultiplicativeOperation
@@ -44,15 +49,21 @@ expression:
     | literal                                                                                       # LiteralExpression
 ;
 
-primaryExpression:
-    primaryExpression DOT IDENTIFIER                        # DotIndexing
-    | primaryExpression LSQRBRACKET expression RSQRBRACKET  # BracketIndexing
-    | LPAREN expression RPAREN                              # ParenthesizedExpression
-    | IDENTIFIER                                            # VariableReference
+primaryExpression: prefixExpression postfixExpression*;
+
+prefixExpression:
+    LPAREN expression RPAREN    # ParenthesizedExpression
+    | IDENTIFIER                # VariableReference
+;
+
+postfixExpression:
+    DOT IDENTIFIER                          # DotIndexing
+    | LSQRBRACKET expression RSQRBRACKET    # BracketIndexing
+    | LPAREN functionArguments? RPAREN      # FunctionCall
 ;
 
 literal:
-    number = (NUMBER | HEXADECIMAL | EXPONENTIAL | BINARY)
+    number=(NUMBER | HEXADECIMAL | EXPONENTIAL | BINARY)
     | STRING
     | BOOLEAN
 ;

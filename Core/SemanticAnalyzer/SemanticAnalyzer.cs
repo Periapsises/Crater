@@ -224,13 +224,32 @@ public class SemanticAnalyzer
                 return AnalyzeUnaryOperation(unaryOperation);
             case VariableReference variableReference:
                 return AnalyzeVariableReference(variableReference);
-            case DotIndex dotIndex:
-                return AnalyzeDotIndex(dotIndex);
-            case BracketIndex bracketIndex:
-                return AnalyzeBracketIndex(bracketIndex);
+            case PrimaryExpression primaryExpression:
+                return AnalyzePrimaryExpression(primaryExpression);
             default:
                 throw new NotImplementedException($"Unknown expression type {expression.GetType()}");
         }
+    }
+
+    private PossibleSymbols AnalyzePrimaryExpression(PrimaryExpression primaryExpression)
+    {
+        var symbols = AnalyzeExpression(primaryExpression.PrefixExpression);
+        foreach (var postfixExpression in primaryExpression.PostfixExpressions)
+        {
+            switch (postfixExpression)
+            {
+                case DotIndex dotIndex:
+                    symbols = AnalyzeDotIndex(symbols, dotIndex);
+                    break;
+                case BracketIndex bracketIndex:
+                    symbols = AnalyzeBracketIndex(symbols, bracketIndex);
+                    break;
+                default:
+                    throw new NotImplementedException($"Unknown expression type {postfixExpression.GetType()}");
+            }
+        }
+        
+        return symbols;
     }
 
     private PossibleSymbols AnalyzeUnaryOperation(UnaryOperation unaryOperation)
@@ -440,9 +459,8 @@ public class SemanticAnalyzer
         return symbol;
     }
 
-    private PossibleSymbols AnalyzeDotIndex(DotIndex dotIndex)
+    private PossibleSymbols AnalyzeDotIndex(PossibleSymbols symbols, DotIndex dotIndex)
     {
-        var symbols = AnalyzeExpression(dotIndex.Expression);
         var indices = new Symbol(Value.From(dotIndex.Index), DataType.StringType, false);
 
         return AnalyzeIndex(symbols, [indices])
@@ -450,9 +468,8 @@ public class SemanticAnalyzer
             .SendReport();
     }
 
-    private PossibleSymbols AnalyzeBracketIndex(BracketIndex bracketIndex)
+    private PossibleSymbols AnalyzeBracketIndex(PossibleSymbols symbols, BracketIndex bracketIndex)
     {
-        var symbols = AnalyzeExpression(bracketIndex.Expression);
         var indices = AnalyzeExpression(bracketIndex.Index);
         
         return AnalyzeIndex(symbols, indices)

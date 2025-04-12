@@ -9,11 +9,8 @@ class Program
     private static void Main(string[] args)
     {
         var testInput = """
-                        local a: number = 5
-                        local b: string = a.b
-                        local c: number = true and 1 or 0
-                        local d: string
-                        local e: string
+                        local a: number = foo.bar()
+                        foo.bar()
                         """;
 
         var maxLineNumberSize = testInput.Split('\n').Length.ToString().Length;

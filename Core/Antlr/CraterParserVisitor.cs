@@ -93,6 +93,18 @@ public interface ICraterParserVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitElseStatement([NotNull] CraterParser.ElseStatementContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CraterParser.functionCallStatement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitFunctionCallStatement([NotNull] CraterParser.FunctionCallStatementContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CraterParser.functionArguments"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitFunctionArguments([NotNull] CraterParser.FunctionArgumentsContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>LogicalOperation</c>
 	/// labeled alternative in <see cref="CraterParser.expression"/>.
 	/// </summary>
@@ -106,6 +118,13 @@ public interface ICraterParserVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitOrOperation([NotNull] CraterParser.OrOperationContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>BaseExpression</c>
+	/// labeled alternative in <see cref="CraterParser.expression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitBaseExpression([NotNull] CraterParser.BaseExpressionContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>ConcatenationOperation</c>
 	/// labeled alternative in <see cref="CraterParser.expression"/>.
@@ -127,13 +146,6 @@ public interface ICraterParserVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitExponentOperation([NotNull] CraterParser.ExponentOperationContext context);
-	/// <summary>
-	/// Visit a parse tree produced by the <c>PrefixExpression</c>
-	/// labeled alternative in <see cref="CraterParser.expression"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitPrefixExpression([NotNull] CraterParser.PrefixExpressionContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>LiteralExpression</c>
 	/// labeled alternative in <see cref="CraterParser.expression"/>.
@@ -163,33 +175,46 @@ public interface ICraterParserVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitAdditiveOperation([NotNull] CraterParser.AdditiveOperationContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CraterParser.primaryExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitPrimaryExpression([NotNull] CraterParser.PrimaryExpressionContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>ParenthesizedExpression</c>
-	/// labeled alternative in <see cref="CraterParser.primaryExpression"/>.
+	/// labeled alternative in <see cref="CraterParser.prefixExpression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitParenthesizedExpression([NotNull] CraterParser.ParenthesizedExpressionContext context);
 	/// <summary>
-	/// Visit a parse tree produced by the <c>DotIndexing</c>
-	/// labeled alternative in <see cref="CraterParser.primaryExpression"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitDotIndexing([NotNull] CraterParser.DotIndexingContext context);
-	/// <summary>
 	/// Visit a parse tree produced by the <c>VariableReference</c>
-	/// labeled alternative in <see cref="CraterParser.primaryExpression"/>.
+	/// labeled alternative in <see cref="CraterParser.prefixExpression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitVariableReference([NotNull] CraterParser.VariableReferenceContext context);
 	/// <summary>
+	/// Visit a parse tree produced by the <c>DotIndexing</c>
+	/// labeled alternative in <see cref="CraterParser.postfixExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitDotIndexing([NotNull] CraterParser.DotIndexingContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>BracketIndexing</c>
-	/// labeled alternative in <see cref="CraterParser.primaryExpression"/>.
+	/// labeled alternative in <see cref="CraterParser.postfixExpression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitBracketIndexing([NotNull] CraterParser.BracketIndexingContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>FunctionCall</c>
+	/// labeled alternative in <see cref="CraterParser.postfixExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitFunctionCall([NotNull] CraterParser.FunctionCallContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="CraterParser.literal"/>.
 	/// </summary>
