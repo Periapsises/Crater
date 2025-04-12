@@ -2,8 +2,8 @@
 
 public class InvalidUnaryOperator : ErrorDiagnostic
 {
-    public InvalidUnaryOperator(DataType self, string op)
+    public InvalidUnaryOperator(DataType dataType, string op)
     {
-        Message = Format("Cannot apply operator '\u001b[96m" + op + "\u001b[0m' to operand of type '{0}'", self);
+        Message = Format("Cannot apply operator '{0}' to operand of type '{1}'", op, dataType);
     }
 }

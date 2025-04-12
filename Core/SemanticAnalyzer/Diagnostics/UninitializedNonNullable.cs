@@ -2,8 +2,8 @@
 
 public class UninitializedNonNullable: WarningDiagnostic
 {
-    public UninitializedNonNullable(string variable)
+    public UninitializedNonNullable(string variableName)
     {
-        Message = $"Variable '{variable}' is declared as non-nullable but is uninitialized";
+        Message = Format("Variable '{0}' is declared as non-nullable but is uninitialized", variableName);
     }
 }

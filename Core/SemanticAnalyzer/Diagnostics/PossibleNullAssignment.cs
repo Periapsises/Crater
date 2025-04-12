@@ -2,8 +2,8 @@
 
 public class PossibleNullAssignment : WarningDiagnostic
 {
-    public PossibleNullAssignment(string variable)
+    public PossibleNullAssignment(string variableName)
     {
-        Message = "Assigning possible nil value to non-nullable '" + variable + "'";
+        Message = Format("Assigning possible nil value to non-nullable '{0}'", variableName);
     }
 }

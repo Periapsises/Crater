@@ -2,8 +2,8 @@
 
 public class VariableShadowing: WarningDiagnostic
 {
-    public VariableShadowing(string variable)
+    public VariableShadowing(string variableName)
     {
-        Message = $"Variable '{variable}' shadows existing binding";
+        Message = Format("Variable '{0}' shadows existing binding", variableName);
     }
 }
