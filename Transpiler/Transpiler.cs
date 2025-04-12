@@ -24,14 +24,14 @@ public class Transpiler(string input)
         var syntaxTreeConverter = new SyntaxTreeConverter();
         var module = (Module)syntaxTreeConverter.Visit(craterParser.program())!;
 
-        var reporter = DiagnosticReporter.CreateInstance(tokenStream);
+        DiagnosticReporter.CreateInstance(tokenStream);
         
         var semanticAnalyzer = new SemanticAnalyzer();
         semanticAnalyzer.AnalyzeModule(module);
         
         TranspileModule(module);
         
-        return new TranslationResult(_builder.ToString(), reporter);
+        return new TranslationResult(_builder.ToString());
     }
 
     private void TranspileModule(Module module)
@@ -207,8 +207,7 @@ public class Transpiler(string input)
     private void Append(char ch) => _builder.Append(ch);
 }
 
-public class TranslationResult(string translatedCode, DiagnosticReporter reporter)
+public class TranslationResult(string translatedCode)
 {
     public readonly string TranslatedCode = translatedCode;
-    public readonly DiagnosticReporter Reporter = reporter;
 }

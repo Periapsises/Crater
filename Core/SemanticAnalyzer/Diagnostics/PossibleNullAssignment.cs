@@ -1,8 +1,8 @@
 ﻿namespace Core.SemanticAnalyzer.Diagnostics;
 
-public class PossibleNullAssignment : Diagnostic
+public class PossibleNullAssignment : WarningDiagnostic
 {
-    public PossibleNullAssignment(string variable) : base(Severity.Warning)
+    public PossibleNullAssignment(string variable)
     {
         Message = "Assigning possible nil value to non-nullable '" + variable + "'";
     }

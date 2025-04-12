@@ -8,10 +8,27 @@ public class DiagnosticReporter(ITokenStream? tokenStream)
 
     private readonly ITokenStream? _tokenStream = tokenStream;
 
-    public readonly List<Diagnostic> InfoDiagnostics = [];
-    public readonly List<Diagnostic> WarningDiagnostics = [];
-    public readonly List<Diagnostic> ErrorDiagnostics = [];
+    private readonly List<Diagnostic> _diagnostics = [];
 
+    public static List<Diagnostic> GetDiagnostics()
+    {
+        if (_instance is null)
+            throw new NullReferenceException();
+
+        _instance._diagnostics.Sort((diagnostic1, diagnostic2) =>
+        {
+            var severityComparision = diagnostic2.Severity - diagnostic1.Severity;
+            if (severityComparision != 0) return severityComparision;
+            
+            var lineComparision = diagnostic1.Line - diagnostic2.Line;
+            if (lineComparision != 0) return lineComparision;
+            
+            return diagnostic1.Column - diagnostic2.Column;
+        });
+        
+        return _instance._diagnostics;
+    }
+    
     public static DiagnosticReporter CreateInstance(ITokenStream? tokenStream = null)
     {
         _instance = new DiagnosticReporter(tokenStream);
@@ -42,12 +59,7 @@ public class DiagnosticReporter(ITokenStream? tokenStream)
         if (_instance == null)
             throw new NullReferenceException();
         
-        if (diagnostic.Severity == Severity.Info)
-            _instance.InfoDiagnostics.Add(diagnostic);
-        else if (diagnostic.Severity == Severity.Warning)
-            _instance.WarningDiagnostics.Add(diagnostic);
-        else if (diagnostic.Severity == Severity.Error)
-            _instance.ErrorDiagnostics.Add(diagnostic);
+        _instance._diagnostics.Add(diagnostic);
     }
 }
 
@@ -75,7 +87,7 @@ public class DiagnosticReport<T>
         foreach (var diagnostic in _diagnostics)
             DiagnosticReporter.Report(diagnostic);
 
-        return this.Data!;
+        return Data!;
     }
     
     public static implicit operator T(DiagnosticReport<T> diagnosticReport) => diagnosticReport.Data!;

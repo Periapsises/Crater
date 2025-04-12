@@ -1,13 +1,13 @@
 ﻿namespace Core.SemanticAnalyzer.Diagnostics;
 
-public class InvalidIndex : Diagnostic
+public class InvalidIndex : ErrorDiagnostic
 {
-    public InvalidIndex(DataType indexedType, DataType indexingType) : base(Severity.Error)
+    public InvalidIndex(DataType indexedType, DataType indexingType)
     {
-        Message = Format("Type %s does not support indexing of type %s", indexedType, indexingType);
+        Message = Format("Type '{0}' does not support indexing of type '{0}'", indexedType, indexingType);
     }
 
-    public InvalidIndex(DataType indexedType, string indexName) : base(Severity.Error)
+    public InvalidIndex(DataType indexedType, string indexName)
     {
         Message = $"Type {indexedType.GetName()} does not contain an index named {indexName}";
     }

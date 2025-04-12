@@ -1,9 +1,9 @@
 ﻿namespace Core.SemanticAnalyzer.Diagnostics;
 
-public class TypeMismatch : Diagnostic
+public class TypeMismatch : ErrorDiagnostic
 {
-    public TypeMismatch(DataType source, DataType target) : base(Severity.Error)
+    public TypeMismatch(DataType source, DataType target)
     {
-        Message = Format("Type mismatch: Cannot convert from '%s' to '%s'", source, target);
+        Message = Format("Type mismatch: Cannot convert from '{0}' to '{1}'", source, target);
     }
 }

@@ -1,8 +1,8 @@
 ﻿namespace Core.SemanticAnalyzer.Diagnostics;
 
-public abstract class RedundantCondition: Diagnostic
+public abstract class RedundantCondition: InfoDiagnostic
 {
-    protected RedundantCondition(string text) : base(Severity.Info)
+    protected RedundantCondition(string text)
     {
         Message = text;
     }

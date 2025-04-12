@@ -1,4 +1,6 @@
 ﻿using System.Diagnostics;
+using Core.SemanticAnalyzer;
+using Environment = System.Environment;
 
 namespace CLI;
 
@@ -9,6 +11,9 @@ class Program
         var testInput = """
                         local a: number = 5
                         local b: string = a.b
+                        local c: number = true and 1 or 0
+                        local d: string
+                        local e: string
                         """;
 
         var maxLineNumberSize = testInput.Split('\n').Length.ToString().Length;
@@ -33,18 +38,12 @@ class Program
         
         stopwatch.Stop();
 
-        foreach (var diagnostic in output.Reporter.ErrorDiagnostics)
-            Console.WriteLine(diagnostic.GetMessage());
-
-        foreach (var diagnostic in output.Reporter.WarningDiagnostics)
-            Console.WriteLine(diagnostic.GetMessage());
+        foreach (var diagnostic in DiagnosticReporter.GetDiagnostics())
+            Console.WriteLine(diagnostic.GetErrorFormatted());
         
-        foreach (var diagnostic in output.Reporter.InfoDiagnostics)
-            Console.WriteLine(diagnostic.GetMessage());
-        
-        var numErrors = output.Reporter.ErrorDiagnostics.Count;
-        var numWarnings = output.Reporter.WarningDiagnostics.Count;
-        var numInfos = output.Reporter.InfoDiagnostics.Count;
+        var numErrors = DiagnosticReporter.GetDiagnostics().Count(diagnostic => diagnostic.Severity == Severity.Error);
+        var numWarnings = DiagnosticReporter.GetDiagnostics().Count(diagnostic => diagnostic.Severity == Severity.Warning);
+        var numInfos = DiagnosticReporter.GetDiagnostics().Count(diagnostic => diagnostic.Severity == Severity.Info);
 
         var errorString = "error" + (numErrors == 1 ? "" : "s");
         var warningString = "warning" + (numWarnings == 1 ? "" : "s");

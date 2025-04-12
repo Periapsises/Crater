@@ -15,15 +15,14 @@ public abstract class Diagnostic(Severity severity)
     public readonly Severity Severity = severity;
     public int Line { get; private set; }
     public int Column { get; private set; }
-    public string Code { get; private set; } = string.Empty;
-    public string? Highlighted;
-    public int HighlightLength = 1;
-
-    protected static readonly string Info = "\u001b[36m[Info] \u001b[0m";
-    protected static readonly string Warning = "\u001b[33m[Warning] \u001b[0m";
-    protected static readonly string Error = "\u001b[31m[Error] \u001b[0m";
     
-    public string Message { get; protected set; } = string.Empty;
+    private string _code = string.Empty;
+    private string? _highlighted;
+    private int _highlightLength = 1;
+    
+    protected string Message = string.Empty;
+
+    public abstract string GetErrorFormatted();
 
     protected string GetLocation()
     {
@@ -34,15 +33,15 @@ public abstract class Diagnostic(Severity severity)
 
     protected string GetCodeLocation()
     {
-        if (Code == string.Empty) return "";
+        if (_code == string.Empty) return "";
         
-        var code = Code.TrimStart();
-        var numCharsRemoved = Code.Length - code.Length;
+        var code = _code.TrimStart();
+        var numCharsRemoved = _code.Length - code.Length;
         
-        if (Highlighted != null) code = Highlighted;
+        if (_highlighted != null) code = _highlighted;
         
         var spacing = new string(' ', Column + Line.ToString().Length + 1 - numCharsRemoved);
-        var highlight = new string('^', HighlightLength);
+        var highlight = new string('^', _highlightLength);
         return $"\u001b[90m{Line}\u001b[0m {code}\n{spacing}\u001b[91m{highlight}\u001b[0m";
     }
 
@@ -98,14 +97,14 @@ public abstract class Diagnostic(Severity severity)
     {
         Line = context.Start.Line;
         Column = context.Start.Column;
-        HighlightLength = context.Stop.StopIndex - context.Start.StartIndex + 1;
+        _highlightLength = context.Stop.StopIndex - context.Start.StartIndex + 1;
 
         var input = context.Start.InputStream;
         if (input != null)
-            Code = input.ToString()?.Split('\n')[Line - 1]!;
+            _code = input.ToString()?.Split('\n')[Line - 1]!;
         
         if (DiagnosticReporter.HasCommonTokenStream())
-            Highlighted = GetColorFormattedTokens(context.Start);
+            _highlighted = GetColorFormattedTokens(context.Start);
 
         return this;
     }
@@ -116,36 +115,35 @@ public abstract class Diagnostic(Severity severity)
     {
         Line = token.Line;
         Column = token.Column;
-        HighlightLength = token.Text.Length;
+        _highlightLength = token.Text.Length;
 
         var input = token.InputStream;
         if (input != null)
-            Code = input.ToString()?.Split('\n')[Line - 1]!;
+            _code = input.ToString()?.Split('\n')[Line - 1]!;
         
         if (DiagnosticReporter.HasCommonTokenStream())
-            Highlighted = GetColorFormattedTokens(token);
+            _highlighted = GetColorFormattedTokens(token);
 
         return this;
     }
 
-    private const string Reset = "\x1b[0m";
-    
-    private const string Black = "\x1b[30m";
-    private const string Red = "\x1b[31m";
-    private const string Green = "\x1b[32m";
-    private const string Yellow = "\x1b[33m";
-    private const string Blue = "\x1b[34m";
-    private const string Magenta = "\x1b[35m";
-    private const string Cyan = "\x1b[36m";
-    private const string White = "\x1b[37m";
-    private const string Gray = "\x1b[90m";
-    private const string BrightRed = "\x1b[91m";
-    private const string BrightGreen = "\x1b[92m";
-    private const string BrightYellow = "\x1b[93m";
-    private const string BrightBlue = "\x1b[94m";
-    private const string BrightMagenta = "\x1b[95m";
-    private const string BrightCyan = "\x1b[96m";
-    private const string BrightWhite = "\x1b[97m";
+    protected const string Reset = "\x1b[0m";
+    protected const string Black = "\x1b[30m";
+    protected const string Red = "\x1b[31m";
+    protected const string Green = "\x1b[32m";
+    protected const string Yellow = "\x1b[33m";
+    protected const string Blue = "\x1b[34m";
+    protected const string Magenta = "\x1b[35m";
+    protected const string Cyan = "\x1b[36m";
+    protected const string White = "\x1b[37m";
+    protected const string Gray = "\x1b[90m";
+    protected const string BrightRed = "\x1b[91m";
+    protected const string BrightGreen = "\x1b[92m";
+    protected const string BrightYellow = "\x1b[93m";
+    protected const string BrightBlue = "\x1b[94m";
+    protected const string BrightMagenta = "\x1b[95m";
+    protected const string BrightCyan = "\x1b[96m";
+    protected const string BrightWhite = "\x1b[97m";
     
     protected string Format(string message, params object[] args)
     {
@@ -163,5 +161,29 @@ public abstract class Diagnostic(Severity severity)
         }
         
         return string.Format(message, formattedArguments.ToArray());
+    }
+}
+
+public abstract class ErrorDiagnostic() : Diagnostic(Severity.Error)
+{
+    public override string GetErrorFormatted()
+    {
+        return $"{BrightRed}[Error]{Reset} {Message}{GetLocation()}";
+    }
+}
+
+public abstract class WarningDiagnostic() : Diagnostic(Severity.Warning)
+{
+    public override string GetErrorFormatted()
+    {
+        return $"{BrightYellow}[Warning]{Reset} {Message}{GetLocation()}";
+    }
+}
+
+public abstract class InfoDiagnostic() : Diagnostic(Severity.Info)
+{
+    public override string GetErrorFormatted()
+    {
+        return $"{BrightCyan}[Info]{Reset} {Message}{GetLocation()}";
     }
 }

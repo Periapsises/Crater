@@ -1,8 +1,8 @@
 ﻿namespace Core.SemanticAnalyzer.Diagnostics;
 
-public class VariableShadowing: Diagnostic
+public class VariableShadowing: WarningDiagnostic
 {
-    public VariableShadowing(string variable) : base(Severity.Warning)
+    public VariableShadowing(string variable)
     {
         Message = $"Variable '{variable}' shadows existing binding";
     }
