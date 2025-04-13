@@ -43,5 +43,10 @@ public class Symbol(Value value, DataType dataType, bool nullable)
         return DataType.TryIndex(this, indexingSymbol, out result);
     }
 
+    public bool Call(List<PossibleSymbols> arguments, [NotNullWhen(true)] out Symbol? result)
+    {
+        
+    }
+    
     public static implicit operator PossibleSymbols(Symbol symbol) => [symbol];
 }

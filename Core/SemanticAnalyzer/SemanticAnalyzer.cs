@@ -28,6 +28,8 @@ public class SemanticAnalyzer
 
     private void AnalyzeBlock(Block block)
     {
+        using var _ = new ScopedContext(block.Context);
+        
         foreach (var statement in block.Statements)
         {
             switch (statement)
@@ -49,6 +51,8 @@ public class SemanticAnalyzer
 
     private void AnalyzeVariableDeclaration(VariableDeclaration variableDeclaration)
     {
+        using var _ = new ScopedContext(variableDeclaration.Context);
+        
         var scope = variableDeclaration.Local ? Environment.GetLocalScope() : Environment.GetGlobalScope();
         var dataType = GetDataTypeFromExpression(variableDeclaration.DataTypeReference);
 
@@ -77,6 +81,8 @@ public class SemanticAnalyzer
 
     private void AnalyzeFunctionDeclaration(FunctionDeclaration functionDeclaration)
     {
+        using var _ = new ScopedContext(functionDeclaration.Context);
+        
         var scope = functionDeclaration.Local ? Environment.GetLocalScope() : Environment.GetGlobalScope();
         var returnType = GetDataTypeFromExpression(functionDeclaration.ReturnTypeReference);
 
@@ -115,6 +121,8 @@ public class SemanticAnalyzer
 
     private void AnalyzeIfStatement(IfStatement ifStatement)
     {
+        using var _ = new ScopedContext(ifStatement.Context);
+        
         var symbols = AnalyzeExpression(ifStatement.Condition);
         if (symbols.AlwaysTrue())
             DiagnosticReporter.Report(new ConditionAlwaysTrue().WithContext(ifStatement.Context.condition));
@@ -135,6 +143,8 @@ public class SemanticAnalyzer
 
     private void AnalyzeElseIfStatement(ElseIfStatement elseIfStatement)
     {
+        using var _ = new ScopedContext(elseIfStatement.Context);
+        
         var symbols = AnalyzeExpression(elseIfStatement.Condition);
         if (symbols.AlwaysTrue())
             DiagnosticReporter.Report(new ConditionAlwaysTrue().WithContext(elseIfStatement.Context.condition));
@@ -149,6 +159,8 @@ public class SemanticAnalyzer
 
     private void AnalyzeElseStatement(ElseStatement elseStatement)
     {
+        using var _ = new ScopedContext(elseStatement.Context);
+        
         Environment.EnterScope(Environment.CreateSubScope());
         AnalyzeBlock(elseStatement.Block);
         Environment.ExitScope();
@@ -187,6 +199,8 @@ public class SemanticAnalyzer
 
     private PossibleSymbols AnalyzePrimaryExpression(PrimaryExpression primaryExpression)
     {
+        using var _ = new ScopedContext(primaryExpression.Context);
+        
         var symbols = AnalyzeExpression(primaryExpression.PrefixExpression);
         foreach (var postfixExpression in primaryExpression.PostfixExpressions)
         {
@@ -211,6 +225,8 @@ public class SemanticAnalyzer
 
     private PossibleSymbols AnalyzeFunctionCall(PossibleSymbols possibleSymbols, FunctionCall functionCall)
     {
+        using var _ = new ScopedContext(functionCall.Context);
+        
         var arguments = new List<PossibleSymbols>();
         foreach (var argument in functionCall.Arguments)
             arguments.Add(AnalyzeExpression(argument));
@@ -233,6 +249,8 @@ public class SemanticAnalyzer
 
     private PossibleSymbols AnalyzeUnaryOperation(UnaryOperation unaryOperation)
     {
+        using var _ = new ScopedContext(unaryOperation.Context);
+        
         var expression = AnalyzeExpression(unaryOperation.Expression);
 
         switch (unaryOperation.Operator)
@@ -270,6 +288,8 @@ public class SemanticAnalyzer
 
     private PossibleSymbols AnalyzeBinaryOperation(BinaryOperation binaryOperation)
     {
+        using var _ = new ScopedContext(binaryOperation.Context);
+        
         var left = AnalyzeExpression(binaryOperation.Left);
         var right = AnalyzeExpression(binaryOperation.Right);
 
@@ -283,6 +303,8 @@ public class SemanticAnalyzer
 
     private PossibleSymbols AnalyzeLogicalOperation(LogicalOperation logicalOperation)
     {
+        using var _ = new ScopedContext(logicalOperation.Context);
+        
         var left = AnalyzeExpression(logicalOperation.Left);
         var right = AnalyzeExpression(logicalOperation.Right);
 
@@ -296,6 +318,8 @@ public class SemanticAnalyzer
 
     public PossibleSymbols AnalyzeAndOperation(AndOperation andOperation)
     {
+        using var _ = new ScopedContext(andOperation.Context);
+        
         var leftSymbols = AnalyzeExpression(andOperation.Left);
         var rightSymbols = AnalyzeExpression(andOperation.Right);
         
@@ -364,6 +388,8 @@ public class SemanticAnalyzer
 
     public PossibleSymbols AnalyzeOrOperation(OrOperation orOperation)
     {
+        using var _ = new ScopedContext(orOperation.Context);
+        
         var leftSymbols = AnalyzeExpression(orOperation.Left);
         var rightSymbols = AnalyzeExpression(orOperation.Right);
         
@@ -427,6 +453,8 @@ public class SemanticAnalyzer
 
     private Symbol AnalyzeVariableReference(VariableReference variableReference)
     {
+        using var _ = new ScopedContext(variableReference.Context);
+        
         if (!Environment.TryGetSymbol(variableReference, out var symbol))
         {
             DiagnosticReporter.Report(new VariableNotFound(variableReference)
@@ -439,6 +467,8 @@ public class SemanticAnalyzer
 
     private PossibleSymbols AnalyzeDotIndex(PossibleSymbols symbols, DotIndex dotIndex)
     {
+        using var _ = new ScopedContext(dotIndex.Context);
+        
         var indices = new Symbol(Value.From(dotIndex.Index), DataType.StringType, false);
 
         return AnalyzeIndex(symbols, [indices])
@@ -448,6 +478,8 @@ public class SemanticAnalyzer
 
     private PossibleSymbols AnalyzeBracketIndex(PossibleSymbols symbols, BracketIndex bracketIndex)
     {
+        using var _ = new ScopedContext(bracketIndex.Context);
+        
         var indices = AnalyzeExpression(bracketIndex.Index);
         
         return AnalyzeIndex(symbols, indices)
@@ -478,7 +510,7 @@ public class SemanticAnalyzer
         return reporter;
     }
     
-    private Symbol ResolveSymbols(PossibleSymbols possibleSymbols, Symbol target, string variable, IToken context)
+    private Symbol ResolveSymbols(PossibleSymbols possibleSymbols, Symbol target, string variable)
     {
         var resultingSymbols = new PossibleSymbols();
 
