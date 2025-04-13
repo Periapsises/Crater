@@ -5,43 +5,62 @@ namespace Core.SyntaxTreeConverter.Expressions;
 
 public class BinaryOperationContext(object context)
 {
-    public CraterParser.ExpressionContext Left => GetExpression(0);
-    public CraterParser.ExpressionContext Right => GetExpression(1);
+    public ExpressionCtx Left => GetExpression(0);
+    public ExpressionCtx Right => GetExpression(1);
     
-    private CraterParser.ExpressionContext GetExpression(int id)
+    private ExpressionCtx GetExpression(int id)
     {
         switch (context)
         {
-            case CraterParser.ExponentOperationContext exponentOperation:
+            case ExponentOperationCtx exponentOperation:
                 return exponentOperation.expression()[id];
-            case CraterParser.MultiplicativeOperationContext multiplicativeOperation:
+            case MultiplicativeOperationCtx multiplicativeOperation:
                 return multiplicativeOperation.expression()[id];
-            case CraterParser.AdditiveOperationContext additiveOperation:
+            case AdditiveOperationCtx additiveOperation:
                 return additiveOperation.expression()[id];
-            case CraterParser.ConcatenationOperationContext concatenationoperation:
+            case ConcatenationOperationCtx concatenationoperation:
                 return concatenationoperation.expression()[id];
-            case CraterParser.LogicalOperationContext logicalOperation:
+            case LogicalOperationCtx logicalOperation:
                 return logicalOperation.expression()[id];
             default:
                 throw new NotImplementedException($"Context {context} is not implemented");
         }
     }
 
+    public string GetFullString()
+    {
+        switch (context)
+        {
+            case ExponentOperationCtx exponentOperation:
+                return exponentOperation.GetText();
+            case MultiplicativeOperationCtx multiplicativeOperation:
+                return multiplicativeOperation.GetText();
+            case AdditiveOperationCtx additiveOperation:
+                return additiveOperation.GetText();
+            case ConcatenationOperationCtx concatenationoperation:
+                return concatenationoperation.GetText();
+            case LogicalOperationCtx logicalOperation:
+                return logicalOperation.GetText();
+            default:
+                throw new NotImplementedException($"Context {context} is not implemented");
+        }
+    }
+    
     public IToken Op => GetOperator();
     
     private IToken GetOperator()
     {
         switch (context)
         {
-            case CraterParser.ExponentOperationContext exponentOperation:
+            case ExponentOperationCtx exponentOperation:
                 return exponentOperation.EXP().Symbol;
-            case CraterParser.MultiplicativeOperationContext multiplicativeOperation:
+            case MultiplicativeOperationCtx multiplicativeOperation:
                 return multiplicativeOperation.op;
-            case CraterParser.AdditiveOperationContext additiveOperation:
+            case AdditiveOperationCtx additiveOperation:
                 return additiveOperation.op;
-            case CraterParser.ConcatenationOperationContext concatenationoperation:
+            case ConcatenationOperationCtx concatenationoperation:
                 return concatenationoperation.CONCAT().Symbol;
-            case CraterParser.LogicalOperationContext logicalOperation:
+            case LogicalOperationCtx logicalOperation:
                 return logicalOperation.op;
             default:
                 throw new NotImplementedException($"Context {context} is not implemented");
@@ -49,7 +68,7 @@ public class BinaryOperationContext(object context)
     }
 }
 
-public class BinaryOperation(Expression left, Expression right, string op, BinaryOperationContext context) : Expression
+public class BinaryOperation(Expression left, Expression right, string op, BinaryOperationContext context) : Expression(context.GetFullString())
 {
     public readonly Expression Left = left;
     public readonly Expression Right = right;
@@ -57,26 +76,26 @@ public class BinaryOperation(Expression left, Expression right, string op, Binar
     public readonly BinaryOperationContext Context = context;
 }
 
-public class LogicalOperation(Expression left, Expression right, string op, CraterParser.LogicalOperationContext context) : Expression
+public class LogicalOperation(Expression left, Expression right, string op, LogicalOperationCtx context) : Expression(context.GetText())
 {
     public readonly Expression Left = left;
     public readonly Expression Right = right;
     public readonly string Operator = op;
-    public readonly CraterParser.LogicalOperationContext Context = context;
+    public readonly LogicalOperationCtx Context = context;
 }
 
-public class AndOperation(Expression left, Expression right, string op, CraterParser.AndOperationContext context) : Expression
+public class AndOperation(Expression left, Expression right, string op, AndOperationCtx context) : Expression(context.GetText())
 {
     public readonly Expression Left = left;
     public readonly Expression Right = right;
     public readonly string Operator = op;
-    public readonly CraterParser.AndOperationContext Context = context;
+    public readonly AndOperationCtx Context = context;
 }
 
-public class OrOperation(Expression left, Expression right, string op, CraterParser.OrOperationContext context) : Expression
+public class OrOperation(Expression left, Expression right, string op, OrOperationCtx context) : Expression(context.GetText())
 {
     public readonly Expression Left = left;
     public readonly Expression Right = right;
     public readonly string Operator = op;
-    public readonly CraterParser.OrOperationContext Context = context;
+    public readonly OrOperationCtx Context = context;
 }

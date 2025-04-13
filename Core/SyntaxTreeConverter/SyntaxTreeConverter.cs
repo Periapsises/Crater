@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using Core.Antlr;
+﻿using Core.Antlr;
 using Core.SyntaxTreeConverter.Expressions;
 using Core.SyntaxTreeConverter.Statements;
 
@@ -7,13 +6,13 @@ namespace Core.SyntaxTreeConverter;
 
 public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
 {
-    public override object VisitProgram(CraterParser.ProgramContext context)
+    public override object VisitProgram(ProgramCtx context)
     {
         var block = (Block)Visit(context.block())!;
         return new Module(block);
     }
 
-    public override object VisitBlock(CraterParser.BlockContext context)
+    public override object VisitBlock(BlockCtx context)
     {
         var statements = new List<Statement>();
         
@@ -25,11 +24,11 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         return new Block(statements);
     }
 
-    public override object VisitVariableDeclaration(CraterParser.VariableDeclarationContext context)
+    public override object VisitVariableDeclaration(VariableDeclarationCtx context)
     {
         var isLocal = context.LOCAL() != null;
         var identifier = context.name.Text!;
-        var dataTypeReference = (VariableReference)Visit(context.type)!;
+        var dataTypeReference = (Expression)Visit(context.type)!;
         var isNullable = context.nullable != null;
 
         if (context.initializer is null)
@@ -40,7 +39,7 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         return new VariableDeclaration(isLocal, identifier, dataTypeReference, isNullable, initializer, context);
     }
 
-    public override object VisitFunctionDeclaration(CraterParser.FunctionDeclarationContext context)
+    public override object VisitFunctionDeclaration(FunctionDeclarationCtx context)
     {
         var isLocal = context.LOCAL() != null;
         var identifier = context.name.Text!;
@@ -52,7 +51,7 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         return new FunctionDeclaration(isLocal, identifier, arguments, returnDataTypeReference, returnIsNullable, block, context);
     }
 
-    public override object VisitFunctionParameters(CraterParser.FunctionParametersContext context)
+    public override object VisitFunctionParameters(FunctionParametersCtx context)
     {
         List<ParameterDeclartion> arguments = [];
         
@@ -62,7 +61,7 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         return arguments;
     }
 
-    public override object VisitFunctionParameter(CraterParser.FunctionParameterContext context)
+    public override object VisitFunctionParameter(FunctionParameterCtx context)
     {
         var name = context.name.Text!;
         var dataTypeReference = (VariableReference)Visit(context.type)!;
@@ -71,7 +70,7 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         return new ParameterDeclartion(name, dataTypeReference, isNullable, context);
     }
 
-    public override object VisitIfStatement(CraterParser.IfStatementContext context)
+    public override object VisitIfStatement(IfStatementCtx context)
     {
         var condition = (Expression)Visit(context.condition)!;
         var block = (Block)Visit(context.block())!;
@@ -87,7 +86,7 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         return new IfStatement(condition, block, elseIfStatements, elseStatement, context);
     }
 
-    public override object VisitElseIfStatement(CraterParser.ElseIfStatementContext context)
+    public override object VisitElseIfStatement(ElseIfStatementCtx context)
     {
         var condition = (Expression)Visit(context.condition)!;
         var block = (Block)Visit(context.block())!;
@@ -95,13 +94,13 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         return new ElseIfStatement(condition, block, context);
     }
 
-    public override object VisitElseStatement(CraterParser.ElseStatementContext context)
+    public override object VisitElseStatement(ElseStatementCtx context)
     {
         var block = (Block)Visit(context.block())!;
         return new ElseStatement(block, context);
     }
 
-    public override object VisitFunctionCallStatement(CraterParser.FunctionCallStatementContext context)
+    public override object VisitFunctionCallStatement(FunctionCallStatementCtx context)
     {
         var primaryExpression = (PrimaryExpression)Visit(context.primaryExpression())!;
         var arguments = new List<Expression>();
@@ -111,7 +110,7 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         return new FunctionCallStatement(primaryExpression, arguments, context);
     }
     
-    public override object VisitPrimaryExpression(CraterParser.PrimaryExpressionContext context)
+    public override object VisitPrimaryExpression(PrimaryExpressionCtx context)
     {
         var prefixExpression = (Expression)Visit(context.prefixExpression())!;
         var postfixExpressions = new List<Expression>();
@@ -121,18 +120,18 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         return new PrimaryExpression(prefixExpression, postfixExpressions, context);
     }
     
-    public override object VisitDotIndexing(CraterParser.DotIndexingContext context)
+    public override object VisitDotIndexing(DotIndexingCtx context)
     {
         return new DotIndex(context.IDENTIFIER().GetText(), context);
     }
 
-    public override object VisitBracketIndexing(CraterParser.BracketIndexingContext context)
+    public override object VisitBracketIndexing(BracketIndexingCtx context)
     {
         var index = (Expression)Visit(context.expression())!;
         return new BracketIndex(index, context);
     }
 
-    public override object VisitFunctionCall(CraterParser.FunctionCallContext context)
+    public override object VisitFunctionCall(FunctionCallCtx context)
     {
         var arguments = new List<Expression>();
         if (context.functionArguments() != null)
@@ -141,7 +140,7 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         return new FunctionCall(arguments, context);
     }
 
-    public override object VisitFunctionArguments(CraterParser.FunctionArgumentsContext context)
+    public override object VisitFunctionArguments(FunctionArgumentsCtx context)
     {
         var arguments = new List<Expression>();
         foreach (var functionArgumentContext in context.expression())
@@ -150,19 +149,19 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         return arguments;
     }
     
-    public override object VisitParenthesizedExpression(CraterParser.ParenthesizedExpressionContext context)
+    public override object VisitParenthesizedExpression(ParenthesizedExpressionCtx context)
     {
         var expression = (Expression)Visit(context.expression())!;
         return new ParenthesizedExpression(expression, context);
     }
 
-    public override object VisitUnaryOperation(CraterParser.UnaryOperationContext context)
+    public override object VisitUnaryOperation(UnaryOperationCtx context)
     {
         var expression = (Expression)Visit(context.expression())!;
         return new UnaryOperation(expression, context.MINUS().GetText()!, context);
     }
     
-    public override object VisitExponentOperation(CraterParser.ExponentOperationContext context)
+    public override object VisitExponentOperation(ExponentOperationCtx context)
     {
         var left = (Expression)Visit(context.expression()[0])!;
         var right = (Expression)Visit(context.expression()[1])!;
@@ -170,7 +169,7 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         return new BinaryOperation(left, right, context.EXP().GetText(), new BinaryOperationContext(context));
     }
     
-    public override object VisitMultiplicativeOperation(CraterParser.MultiplicativeOperationContext context)
+    public override object VisitMultiplicativeOperation(MultiplicativeOperationCtx context)
     {
         var left = (Expression)Visit(context.expression()[0])!;
         var right = (Expression)Visit(context.expression()[1])!;
@@ -178,7 +177,7 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         return new BinaryOperation(left, right, context.op.Text, new BinaryOperationContext(context));
     }
 
-    public override object VisitAdditiveOperation(CraterParser.AdditiveOperationContext context)
+    public override object VisitAdditiveOperation(AdditiveOperationCtx context)
     {
         var left = (Expression)Visit(context.expression()[0])!;
         var right = (Expression)Visit(context.expression()[1])!;
@@ -186,7 +185,7 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         return new BinaryOperation(left, right, context.op.Text, new BinaryOperationContext(context));
     }
 
-    public override object VisitConcatenationOperation(CraterParser.ConcatenationOperationContext context)
+    public override object VisitConcatenationOperation(ConcatenationOperationCtx context)
     {
         var left = (Expression)Visit(context.expression()[0])!;
         var right = (Expression)Visit(context.expression()[1])!;
@@ -194,7 +193,7 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         return new BinaryOperation(left, right, context.CONCAT().GetText(), new BinaryOperationContext(context));
     }
 
-    public override object VisitLogicalOperation(CraterParser.LogicalOperationContext context)
+    public override object VisitLogicalOperation(LogicalOperationCtx context)
     {
         var left = (Expression)Visit(context.expression()[0])!;
         var right = (Expression)Visit(context.expression()[1])!;
@@ -202,7 +201,7 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         return new LogicalOperation(left, right, context.op.Text, context);
     }
 
-    public override object VisitAndOperation(CraterParser.AndOperationContext context)
+    public override object VisitAndOperation(AndOperationCtx context)
     {
         var left = (Expression)Visit(context.expression()[0])!;
         var right = (Expression)Visit(context.expression()[1])!;
@@ -210,7 +209,7 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         return new AndOperation(left, right, "and", context);
     }
     
-    public override object VisitOrOperation(CraterParser.OrOperationContext context)
+    public override object VisitOrOperation(OrOperationCtx context)
     {
         var left = (Expression)Visit(context.expression()[0])!;
         var right = (Expression)Visit(context.expression()[1])!;
@@ -218,12 +217,12 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         return new OrOperation(left, right, "or", context);
     }
 
-    public override object VisitVariableReference(CraterParser.VariableReferenceContext context)
+    public override object VisitVariableReference(VariableReferenceCtx context)
     {
-        return new VariableReference(context.IDENTIFIER().GetText()!, null, context);
+        return new VariableReference(context.IDENTIFIER().GetText()!, context);
     }
     
-    public override object VisitLiteral(CraterParser.LiteralContext context)
+    public override object VisitLiteral(LiteralCtx context)
     {
         if (context.number != null)
             return new NumberLiteral(context);

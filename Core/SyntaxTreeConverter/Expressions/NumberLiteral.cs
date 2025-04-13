@@ -7,9 +7,9 @@ public class NumberLiteral: Expression
 {
     public readonly string StringRepresentation;
     public readonly double Value;
-    public readonly CraterParser.LiteralContext Context;
+    public readonly LiteralCtx Context;
 
-    public NumberLiteral(CraterParser.LiteralContext context)
+    public NumberLiteral(LiteralCtx context) : base(context.GetText())
     {
         StringRepresentation = context.number.Text;
         

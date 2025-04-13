@@ -2,8 +2,8 @@
 
 namespace Core.SyntaxTreeConverter.Expressions;
 
-public class ParenthesizedExpression(Expression expression, CraterParser.ParenthesizedExpressionContext context) : Expression()
+public class ParenthesizedExpression(Expression expression, ParenthesizedExpressionCtx context) : Expression(context.GetText())
 {
     public readonly Expression Expression = expression;
-    public readonly CraterParser.ParenthesizedExpressionContext Context;
+    public readonly ParenthesizedExpressionCtx Context;
 }

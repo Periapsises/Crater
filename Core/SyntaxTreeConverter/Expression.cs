@@ -1,3 +1,6 @@
 ﻿namespace Core.SyntaxTreeConverter;
 
-public class Expression() { }
+public abstract class Expression(string fullString)
+{
+    public readonly string FullString = fullString;
+}

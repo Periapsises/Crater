@@ -3,8 +3,8 @@ using Core.Antlr;
 
 namespace Core.SyntaxTreeConverter.Expressions;
 
-public class StringLiteral(string literal, CraterParser.LiteralContext context) : Expression()
+public class StringLiteral(string literal, LiteralCtx context) : Expression(context.GetText())
 {
     public readonly string Value = literal.Trim('"');
-    public readonly CraterParser.LiteralContext Context = context;
+    public readonly LiteralCtx Context = context;
 }

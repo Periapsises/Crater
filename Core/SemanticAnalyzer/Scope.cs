@@ -1,4 +1,5 @@
-﻿using Core.SyntaxTreeConverter;
+﻿using System.Diagnostics.CodeAnalysis;
+using Core.SyntaxTreeConverter;
 
 namespace Core.SemanticAnalyzer;
 
@@ -11,24 +12,19 @@ public class Scope(Scope? parent = null)
         _symbols[name] = symbol;
     }
 
-    public bool HasVariable(string name)
+    public bool HasSymbol(string name)
     {
         return _symbols.ContainsKey(name);
     }
     
-    private Symbol? Get(string name)
+    public bool TryGetSymbol(string name, [NotNullWhen(true)] out Symbol? symbol)
     {
-        if (_symbols.TryGetValue(name, out var symbol))
-            return symbol;
+        if (_symbols.TryGetValue(name, out symbol))
+            return true;
         
         if (parent != null)
-            return parent.Get(name);
+            return parent.TryGetSymbol(name, out symbol);
         
-        return null;
-    }
-
-    public Symbol? Find(VariableReference searchReference)
-    {
-        return Get(searchReference.Name);
+        return false;
     }
 }

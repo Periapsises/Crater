@@ -12,8 +12,6 @@ namespace Core.SemanticAnalyzer;
 
 public class SemanticAnalyzer
 {
-    public SemanticAnalyzer() { }
-
     public void AnalyzeModule(Module module)
     {
         Environment.SetupEnvironment();
@@ -52,23 +50,7 @@ public class SemanticAnalyzer
     private void AnalyzeVariableDeclaration(VariableDeclaration variableDeclaration)
     {
         var scope = variableDeclaration.Local ? Environment.GetLocalScope() : Environment.GetGlobalScope();
-
-        var dataTypeSymbol = Environment.GetVariable(variableDeclaration.VariableReference);
-        if (dataTypeSymbol == null)
-        {
-            DiagnosticReporter.Report(new TypeNotFound(variableDeclaration.VariableReference)
-                .WithContext(variableDeclaration.Context.expression()[0]));
-            return;
-        }
-
-        if (dataTypeSymbol.DataType != DataType.MetaType)
-        {
-            DiagnosticReporter.Report(new InvalidType(variableDeclaration.VariableReference)
-                .WithContext(variableDeclaration.Context.expression()[0]));
-            return;
-        }
-
-        var dataType = dataTypeSymbol.Value.GetDataType();
+        var dataType = GetDataTypeFromExpression(variableDeclaration.DataTypeReference);
 
         var defaultSymbol = new Symbol(Value.NullValue, dataType, variableDeclaration.Nullable);
 
@@ -84,7 +66,7 @@ public class SemanticAnalyzer
                 .WithContext(variableDeclaration.Context.IDENTIFIER()));
         }
 
-        if (scope.HasVariable(variableDeclaration.Identifier))
+        if (scope.HasSymbol(variableDeclaration.Identifier))
         {
             DiagnosticReporter.Report(new VariableShadowing(variableDeclaration.Identifier)
                 .WithContext(variableDeclaration.Context.IDENTIFIER()));
@@ -96,45 +78,17 @@ public class SemanticAnalyzer
     private void AnalyzeFunctionDeclaration(FunctionDeclaration functionDeclaration)
     {
         var scope = functionDeclaration.Local ? Environment.GetLocalScope() : Environment.GetGlobalScope();
-
-        var returnTypeSymbol = Environment.GetVariable(functionDeclaration.ReturnTypeReference);
-        if (returnTypeSymbol == null)
-        {
-            DiagnosticReporter.Report(new TypeNotFound(functionDeclaration.ReturnTypeReference)
-                .WithContext(functionDeclaration.Context.expression()));
-            returnTypeSymbol = Symbol.InvalidDataType;
-        }
-
-        if (returnTypeSymbol.DataType != DataType.MetaType)
-        {
-            DiagnosticReporter.Report(new InvalidType(functionDeclaration.ReturnTypeReference)
-                .WithContext(functionDeclaration.Context.expression()));
-        }
-
-        var returnType = returnTypeSymbol.Value.GetDataType();
+        var returnType = GetDataTypeFromExpression(functionDeclaration.ReturnTypeReference);
 
         List<DataType> parameters = [];
 
         foreach (var parameter in functionDeclaration.Parameters)
         {
-            var parameterTypeSymbol = Environment.GetVariable(parameter.DataTypeReference);
-            if (parameterTypeSymbol == null)
-            {
-                DiagnosticReporter.Report(new TypeNotFound(parameter.DataTypeReference)
-                    .WithContext(parameter.Context.expression()));
-                parameterTypeSymbol = Symbol.InvalidDataType;
-            }
-
-            if (parameterTypeSymbol.DataType != DataType.MetaType)
-            {
-                DiagnosticReporter.Report(new InvalidType(parameter.DataTypeReference)
-                    .WithContext(parameter.Context.expression()));
-            }
-
-            parameters.Add(parameterTypeSymbol.Value.GetDataType());
+            var parameterType = GetDataTypeFromExpression(parameter.DataTypeReference);
+            parameters.Add(parameterType);
         }
 
-        if (scope.HasVariable(functionDeclaration.Identifier))
+        if (scope.HasSymbol(functionDeclaration.Identifier))
         {
             DiagnosticReporter.Report(new VariableShadowing(functionDeclaration.Identifier)
                 .WithContext(functionDeclaration.Context.IDENTIFIER()));
@@ -244,12 +198,37 @@ public class SemanticAnalyzer
                 case BracketIndex bracketIndex:
                     symbols = AnalyzeBracketIndex(symbols, bracketIndex);
                     break;
+                case FunctionCall functionCall:
+                    symbols = AnalyzeFunctionCall(symbols, functionCall);
+                    break;
                 default:
                     throw new NotImplementedException($"Unknown expression type {postfixExpression.GetType()}");
             }
         }
         
         return symbols;
+    }
+
+    private PossibleSymbols AnalyzeFunctionCall(PossibleSymbols possibleSymbols, FunctionCall functionCall)
+    {
+        var arguments = new List<PossibleSymbols>();
+        foreach (var argument in functionCall.Arguments)
+            arguments.Add(AnalyzeExpression(argument));
+        
+        var resultingSymbols = new PossibleSymbols();
+        
+        foreach (var symbol in possibleSymbols)
+        {
+            if (!symbol.Call(arguments, out var outputSymbols))
+            {
+                // DiagnosticReporter.Report();
+                continue;
+            }
+            
+            resultingSymbols.AddRange(outputSymbols);
+        }
+        
+        return resultingSymbols;
     }
 
     private PossibleSymbols AnalyzeUnaryOperation(UnaryOperation unaryOperation)
@@ -448,8 +427,7 @@ public class SemanticAnalyzer
 
     private Symbol AnalyzeVariableReference(VariableReference variableReference)
     {
-        var symbol = Environment.GetVariable(variableReference);
-        if (symbol == null)
+        if (!Environment.TryGetSymbol(variableReference, out var symbol))
         {
             DiagnosticReporter.Report(new VariableNotFound(variableReference)
                 .WithContext(variableReference.Context.IDENTIFIER()));
@@ -658,5 +636,23 @@ public class SemanticAnalyzer
 
         diagnostics.Data = resultingSymbols;
         return diagnostics;
+    }
+
+    private DataType GetDataTypeFromExpression(Expression expression)
+    {
+        var possibleSymbols = AnalyzeExpression(expression);
+        if (possibleSymbols.Count != 1)
+        {
+            DiagnosticReporter.Report(new InvalidType(expression));
+            return DataType.InvalidType;
+        }
+
+        if (possibleSymbols[0].DataType != DataType.MetaType)
+        {
+            DiagnosticReporter.Report(new InvalidType(expression));
+            return DataType.InvalidType;
+        }
+        
+        return possibleSymbols[0].Value.GetDataType();
     }
 }

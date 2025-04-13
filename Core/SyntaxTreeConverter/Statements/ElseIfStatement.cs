@@ -2,10 +2,10 @@
 
 namespace Core.SyntaxTreeConverter.Statements;
 
-public class ElseIfStatement(Expression condition, Block block, CraterParser.ElseIfStatementContext context) : Statement
+public class ElseIfStatement(Expression condition, Block block, ElseIfStatementCtx context) : Statement
 {
     public readonly Expression Condition = condition;
     public readonly Block Block = block;
     
-    public readonly CraterParser.ElseIfStatementContext Context = context;
+    public readonly ElseIfStatementCtx Context = context;
 }

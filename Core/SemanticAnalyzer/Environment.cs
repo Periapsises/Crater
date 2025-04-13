@@ -1,4 +1,6 @@
-﻿using Core.SyntaxTreeConverter;
+﻿using System.Diagnostics.CodeAnalysis;
+using Core.SyntaxTreeConverter;
+using Core.SyntaxTreeConverter.Expressions;
 
 namespace Core.SemanticAnalyzer;
 
@@ -103,11 +105,11 @@ public class Environment
         Instance._globalScope.Declare(name, symbol);
     }
 
-    public static Symbol? GetVariable(VariableReference reference)
+    public static bool TryGetSymbol(VariableReference variableReference, [NotNullWhen(true)] out Symbol? symbol)
     {
         if (Instance is null) throw new NullReferenceException();
         if (Instance._localScope is null) throw new NullReferenceException();
         
-        return Instance._localScope.Find(reference);
+        return Instance._localScope.TryGetSymbol(variableReference.Name, out symbol);
     }
 }

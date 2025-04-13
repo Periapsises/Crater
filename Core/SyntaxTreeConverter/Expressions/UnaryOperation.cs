@@ -2,9 +2,9 @@
 
 namespace Core.SyntaxTreeConverter.Expressions;
 
-public class UnaryOperation(Expression expression, string op, CraterParser.UnaryOperationContext context): Expression()
+public class UnaryOperation(Expression expression, string op, UnaryOperationCtx context): Expression(context.GetText())
 {
-    public Expression Expression = expression;
-    public string Operator = op;
-    public CraterParser.UnaryOperationContext Context = context;
+    public readonly Expression Expression = expression;
+    public readonly string Operator = op;
+    public readonly UnaryOperationCtx Context = context;
 }

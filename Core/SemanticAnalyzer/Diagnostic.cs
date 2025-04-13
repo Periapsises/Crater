@@ -1,6 +1,7 @@
 ﻿using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using Core.SyntaxTreeConverter;
+using Core.SyntaxTreeConverter.Expressions;
 
 namespace Core.SemanticAnalyzer;
 
@@ -155,7 +156,7 @@ public abstract class Diagnostic(Severity severity)
             var formattedArgument = arg switch
             {
                 DataType dataType => dataType.GetName(),
-                VariableReference reference => reference.FullString,
+                Expression expression => expression.FullString,
                 _ => arg
             };
             

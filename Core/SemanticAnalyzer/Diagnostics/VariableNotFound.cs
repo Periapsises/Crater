@@ -1,4 +1,4 @@
-﻿using Core.SyntaxTreeConverter;
+﻿using Core.SyntaxTreeConverter.Expressions;
 
 namespace Core.SemanticAnalyzer.Diagnostics;
 
