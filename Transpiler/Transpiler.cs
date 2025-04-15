@@ -54,6 +54,9 @@ public class Transpiler(string input)
                 case IfStatement ifStatement:
                     TranspileIfStatement(ifStatement);
                     break;
+                case FunctionCallStatement functionCallStatement:
+                    TranspileFunctionCallStatement(functionCallStatement);
+                    break;
                 default:
                     throw new NotImplementedException($"Unsupported statement type {statement.GetType()}");
             }
@@ -138,6 +141,29 @@ public class Transpiler(string input)
         TranspileBlock(elseStatement.Block);
         _spacing -= 4;
     }
+
+    private void TranspileFunctionCallStatement(FunctionCallStatement functionCallStatement)
+    {
+        AppendSpacing();
+        TranspileExpression(functionCallStatement.PrimaryExpression);
+        Append('(');
+
+        if (functionCallStatement.Arguments.Count > 0)
+        {
+            Append(' ');
+
+            for (var i = 0; i < functionCallStatement.Arguments.Count; i++)
+            {
+                TranspileExpression(functionCallStatement.Arguments[i]);
+                if (i < functionCallStatement.Arguments.Count - 1)
+                    Append(", ");
+            }
+            
+            Append(' ');
+        }
+        
+        Append(')');
+    }
     
     private void TranspileExpression(Expression expression)
     {
@@ -198,6 +224,9 @@ public class Transpiler(string input)
                 TranspileExpression(bracketIndex.Index);
                 Append(']');
                 break;
+            case FunctionCall functionCall:
+                TranspileFunctionCallExpression(functionCall);
+                break;
             default:
                 throw new NotImplementedException($"Unsupported expression type {expression.GetType()}");
         }
@@ -208,6 +237,27 @@ public class Transpiler(string input)
         TranspileExpression(primaryExpression.PrefixExpression);
         foreach (var postfixExpression in primaryExpression.PostfixExpressions)
             TranspileExpression(postfixExpression);
+    }
+
+    private void TranspileFunctionCallExpression(FunctionCall functionCall)
+    {
+        Append('(');
+
+        if (functionCall.Arguments.Count > 0)
+        {
+            Append(' ');
+
+            for (var i = 0; i < functionCall.Arguments.Count; i++)
+            {
+                TranspileExpression(functionCall.Arguments[i]);
+                if (i < functionCall.Arguments.Count - 1)
+                    Append(", ");
+            }
+            
+            Append(' ');
+        }
+
+        Append(')');
     }
 
     private void AppendSpacing() => _builder.Append(new string(' ', _spacing));

@@ -21,7 +21,7 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
             statements.Add((Statement)Visit(statement)!);
         }
         
-        return new Block(statements);
+        return new Block(statements, context);
     }
 
     public override object VisitVariableDeclaration(VariableDeclarationCtx context)
@@ -166,7 +166,7 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         var left = (Expression)Visit(context.expression()[0])!;
         var right = (Expression)Visit(context.expression()[1])!;
 
-        return new BinaryOperation(left, right, context.EXP().GetText(), new BinaryOperationContext(context));
+        return new BinaryOperation(left, right, context.EXP().GetText(), context);
     }
     
     public override object VisitMultiplicativeOperation(MultiplicativeOperationCtx context)
@@ -174,7 +174,7 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         var left = (Expression)Visit(context.expression()[0])!;
         var right = (Expression)Visit(context.expression()[1])!;
 
-        return new BinaryOperation(left, right, context.op.Text, new BinaryOperationContext(context));
+        return new BinaryOperation(left, right, context.op.Text, context);
     }
 
     public override object VisitAdditiveOperation(AdditiveOperationCtx context)
@@ -182,7 +182,7 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         var left = (Expression)Visit(context.expression()[0])!;
         var right = (Expression)Visit(context.expression()[1])!;
 
-        return new BinaryOperation(left, right, context.op.Text, new BinaryOperationContext(context));
+        return new BinaryOperation(left, right, context.op.Text, context);
     }
 
     public override object VisitConcatenationOperation(ConcatenationOperationCtx context)
@@ -190,7 +190,7 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
         var left = (Expression)Visit(context.expression()[0])!;
         var right = (Expression)Visit(context.expression()[1])!;
         
-        return new BinaryOperation(left, right, context.CONCAT().GetText(), new BinaryOperationContext(context));
+        return new BinaryOperation(left, right, context.CONCAT().GetText(), context);
     }
 
     public override object VisitLogicalOperation(LogicalOperationCtx context)

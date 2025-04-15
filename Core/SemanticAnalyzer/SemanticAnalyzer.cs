@@ -1,5 +1,4 @@
 ﻿using Antlr4.Runtime;
-using Core.Antlr;
 using Core.SemanticAnalyzer.DataTypes;
 using Core.SemanticAnalyzer.Diagnostics;
 using Core.SyntaxTreeConverter;
@@ -43,6 +42,9 @@ public class SemanticAnalyzer
                 case IfStatement ifStatement:
                     AnalyzeIfStatement(ifStatement);
                     break;
+                case FunctionCallStatement functionCallStatement:
+                    AnalyzeFunctionCallStatement(functionCallStatement);
+                    break;
                 default:
                     throw new NotImplementedException($"Unknown statement type {statement.GetType()}");
             }
@@ -62,7 +64,7 @@ public class SemanticAnalyzer
         {
             var assignedSymbols = AnalyzeExpression(variableDeclaration.Initializer);
 
-            defaultSymbol.Assign(ResolveSymbols(assignedSymbols, defaultSymbol, variableDeclaration.Identifier, variableDeclaration.Context.ASSIGN().Symbol));
+            defaultSymbol.Assign(ResolveSymbols(assignedSymbols, defaultSymbol, variableDeclaration.Identifier));
         }
         else if (!variableDeclaration.Nullable)
         {
@@ -165,6 +167,28 @@ public class SemanticAnalyzer
         AnalyzeBlock(elseStatement.Block);
         Environment.ExitScope();
     }
+
+    private void AnalyzeFunctionCallStatement(FunctionCallStatement functionCallStatement)
+    {
+        using var _ = new ScopedContext(functionCallStatement.Context);
+        
+        var symbols = AnalyzeExpression(functionCallStatement.PrimaryExpression);
+        var arguments = new List<PossibleSymbols>();
+        foreach (var argument in functionCallStatement.Arguments)
+            arguments.Add(AnalyzeExpression(argument));
+        
+        foreach (var symbol in symbols)
+        {
+            var result = symbol.Call(arguments);
+            switch (result.OperationResult)
+            {
+                case OperationResult.Success:
+                    continue;
+                case OperationResult.InvalidArgument:
+                    break;
+            }
+        }
+    }
     
     private PossibleSymbols AnalyzeExpression(Expression expression)
     {
@@ -235,13 +259,13 @@ public class SemanticAnalyzer
         
         foreach (var symbol in possibleSymbols)
         {
-            if (!symbol.Call(arguments, out var outputSymbols))
+            var result = symbol.Call(arguments);
+            switch (result.OperationResult)
             {
-                // DiagnosticReporter.Report();
-                continue;
+                case OperationResult.Success:
+                    resultingSymbols.Add(result.Symbol!);
+                    break;
             }
-            
-            resultingSymbols.AddRange(outputSymbols);
         }
         
         return resultingSymbols;
@@ -269,10 +293,12 @@ public class SemanticAnalyzer
 
         foreach (var symbol in symbols)
         {
-            if (symbol.UnaryOperation(meta, out var result))
+            var result = symbol.UnaryOperation(meta);
+            switch (result.OperationResult)
             {
-                resultingSymbols.Add(result);
-                continue;
+                case OperationResult.Success:
+                    resultingSymbols.Add(result.Symbol!);
+                    continue;
             }
 
             if (hasErroredForTypes.Contains(symbol.DataType))
@@ -295,7 +321,6 @@ public class SemanticAnalyzer
 
         if (_arithmeticOperators.TryGetValue(binaryOperation.Operator, out var operatorInfo))
             return PerformArithmeticOperation(left, right, operatorInfo)
-                .WithContext(binaryOperation.Context.Op)
                 .SendReport();
         
         throw new NotImplementedException($"Unknown binary operator {binaryOperation.Operator}");
@@ -496,10 +521,12 @@ public class SemanticAnalyzer
         {
             foreach (var indexingSymbol in indices)
             {
-                if (indexedSymbol.Index(indexingSymbol, out var result))
+                var result = indexedSymbol.Index(indexingSymbol);
+                switch (result.OperationResult)
                 {
-                    resultingSymbols.Add(result);
-                    continue;
+                    case OperationResult.Success:
+                        resultingSymbols.Add(result.Symbol!);
+                        continue;
                 }
                 
                 reporter.Report(new InvalidIndex(indexedSymbol.DataType, indexingSymbol.DataType));
@@ -523,7 +550,7 @@ public class SemanticAnalyzer
             var hasError = false;
             if (!hasErroredForType.Contains(symbol.DataType) && !symbol.DataType.IsCompatible(target.DataType))
             {
-                DiagnosticReporter.Report(new TypeMismatch(symbol.DataType, target.DataType).WithContext(context));
+                DiagnosticReporter.Report(new TypeMismatch(symbol.DataType, target.DataType));
                 hasErroredForType.Add(symbol.DataType);
                 hasError = true;
             }
@@ -587,10 +614,12 @@ public class SemanticAnalyzer
         {
             foreach (var rightSymbol in rightSymbols)
             {
-                if (leftSymbol.ArithmeticOperation(rightSymbol, opInfo.Metamethod, out var result))
+                var result = leftSymbol.ArithmeticOperation(rightSymbol, opInfo.Metamethod);
+                switch (result.OperationResult)
                 {
-                    resultingSymbols.Add(result);
-                    continue;
+                    case OperationResult.Success:
+                        resultingSymbols.Add(result.Symbol!);
+                        continue;
                 }
 
                 if (hasErroredForTypes.Contains((leftSymbol.DataType, rightSymbol.DataType)))
@@ -621,10 +650,12 @@ public class SemanticAnalyzer
         {
             foreach (var rightSymbol in rightSymbols)
             {
-                if (leftSymbol.LogicOperation(rightSymbol, opInfo.Metamethod, out var result))
+                var result = leftSymbol.LogicOperation(rightSymbol, opInfo.Metamethod);
+                switch (result.OperationResult)
                 {
-                    resultingSymbols.Add(result);
-                    continue;
+                    case OperationResult.Success:
+                        resultingSymbols.Add(result.Symbol!);
+                        continue;
                 }
 
                 if (hasErroredForTypes.Contains((leftSymbol.DataType, rightSymbol.DataType)))

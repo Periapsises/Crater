@@ -1,40 +1,38 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace Core.SemanticAnalyzer.DataTypes;
+﻿namespace Core.SemanticAnalyzer.DataTypes;
 
 public class StringType : DataType
 {
     public override string GetName() => "string";
     
-    public override bool TryArithmeticOperation(Symbol left, Symbol right, string op, [NotNullWhen(true)] out Symbol? result)
+    public override Result TryArithmeticOperation(Symbol left, Symbol right, string op)
     {
         if (op != "__concat")
         {
-            result = null;
-            return false;
+            return new Result(OperationResult.NotImplemented);
         }
 
-        if (right.DataType != StringType && right.ToString(out var asString))
-            right = asString;
-        
+        if (right.DataType != StringType)
+        {
+            var conversionResult = right.ToString();
+            if (conversionResult.OperationResult == OperationResult.Success)
+                right = conversionResult.Symbol!;
+        }
+
         if (left.Value.Kind == ValueKind.String && right.Value.Kind == ValueKind.String)
         {
             var value = left.Value.GetString() + right.Value.GetString();
-            result = new Symbol(new Value(ValueKind.String, value), this, false);
-            return true;
+            return new Result(OperationResult.Success, new Symbol(new Value(ValueKind.String, value), this, false));
         }
 
         if (right.DataType == StringType)
         {
-            result = new Symbol(new Value(ValueKind.Unknown, null), this, false);
-            return true;
+            return new Result(OperationResult.Success, new Symbol(new Value(ValueKind.Unknown, null), this, false));
         }
         
-        result = null;
-        return false;
+        return new Result(OperationResult.NotImplemented);
     }
 
-    public override bool TryLogicOperation(Symbol left, Symbol right, string op, [NotNullWhen(true)] out Symbol? result)
+    public override Result TryLogicOperation(Symbol left, Symbol right, string op)
     {
         if (left.Value.Kind == ValueKind.String && right.Value.Kind == ValueKind.String)
         {
@@ -46,34 +44,29 @@ public class StringType : DataType
                 _ => throw new NotImplementedException($"Invalid logic operator: {op}")
             };
             
-            result = new Symbol(Value.From(value), BooleanType, false);
-            return true;
+            return new Result(OperationResult.Success, new Symbol(Value.From(value), BooleanType, false));
         }
 
         if (right.DataType == StringType)
         {
-            result = new Symbol(Value.Unknown, BooleanType, false);
-            return true;
+            return new Result(OperationResult.Success, new Symbol(Value.Unknown, BooleanType, false));
         }
         
-        result = null;
-        return false;
+        return new Result(OperationResult.NotImplemented);
     }
 
-    public override bool TryUnaryOperation(Symbol self, string op, [NotNullWhen(true)] out Symbol? result)
+    public override Result TryUnaryOperation(Symbol self, string op)
     {
-        result = null;
-        return false;
+        return new Result(OperationResult.NotImplemented);
     }
 
-    public override bool TryToString(Symbol self, [NotNullWhen(true)] out Symbol? result)
+    public override Result TryToString(Symbol self)
     {
-        result = self;
-        return true;
+        return new Result(OperationResult.NotImplemented);
     }
 
-    public override bool TryIndex(Symbol self, Symbol index, [NotNullWhen(true)] out Symbol? result)
+    public override Result TryIndex(Symbol self, Symbol index)
     {
-        throw new NotImplementedException();
+        return new Result(OperationResult.NotImplemented);
     }
 }

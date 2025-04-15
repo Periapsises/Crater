@@ -11,24 +11,24 @@ public class Symbol(Value value, DataType dataType, bool nullable)
     public DataType DataType = dataType;
     public bool Nullable = nullable;
 
-    public bool ArithmeticOperation(Symbol other, string op, [NotNullWhen(true)] out Symbol? result)
+    public Result ArithmeticOperation(Symbol other, string op)
     {
-        return DataType.TryArithmeticOperation(this, other, op, out result);
+        return DataType.TryArithmeticOperation(this, other, op);
     }
 
-    public bool LogicOperation(Symbol other, string op, [NotNullWhen(true)] out Symbol? result)
+    public Result LogicOperation(Symbol other, string op)
     {
-        return DataType.TryLogicOperation(this, other, op, out result);
+        return DataType.TryLogicOperation(this, other, op);
     }
     
-    public bool UnaryOperation(string op, [NotNullWhen(true)] out Symbol? result)
+    public Result UnaryOperation(string op)
     {
-        return DataType.TryUnaryOperation(this, op, out result);
+        return DataType.TryUnaryOperation(this, op);
     }
 
-    public bool ToString([NotNullWhen(true)] out Symbol? result)
+    public new Result ToString()
     {
-        return DataType.TryToString(this, out result);
+        return DataType.TryToString(this);
     }
     
     public void Assign(Symbol symbol)
@@ -38,14 +38,14 @@ public class Symbol(Value value, DataType dataType, bool nullable)
         Nullable = symbol.Nullable;
     }
 
-    public bool Index(Symbol indexingSymbol, [NotNullWhen(true)] out Symbol? result)
+    public Result Index(Symbol indexingSymbol)
     {
-        return DataType.TryIndex(this, indexingSymbol, out result);
+        return DataType.TryIndex(this, indexingSymbol);
     }
 
-    public bool Call(List<PossibleSymbols> arguments, [NotNullWhen(true)] out Symbol? result)
+    public Result Call(List<PossibleSymbols> arguments)
     {
-        
+        return new Result(OperationResult.NotImplemented);
     }
     
     public static implicit operator PossibleSymbols(Symbol symbol) => [symbol];

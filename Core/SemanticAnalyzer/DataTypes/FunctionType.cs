@@ -1,42 +1,40 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace Core.SemanticAnalyzer.DataTypes;
+﻿namespace Core.SemanticAnalyzer.DataTypes;
 
 public class FunctionType(List<DataType> argTypes, List<DataType> returnTypes) : DataType
 {
     private readonly List<DataType> _argTypes = argTypes;
     private readonly List<DataType> _returnTypes = returnTypes;
     
-    public static readonly DataType FunctionBase = new FunctionType([], [DataType.VoidType]);
+    public static readonly DataType FunctionBase = new FunctionType([], []);
 
     public override string GetName()
     {
         return $"func({string.Join(", ", _argTypes.Select(x => x.GetName()))}): {_returnTypes.Select(x => x.GetName())}";
     }
     
-    public override bool TryArithmeticOperation(Symbol left, Symbol right, string op, [NotNullWhen(true)] out Symbol? result)
+    public override Result TryArithmeticOperation(Symbol left, Symbol right, string op)
     {
-        throw new NotImplementedException();
+        return new Result(OperationResult.NotImplemented);
     }
 
-    public override bool TryLogicOperation(Symbol left, Symbol right, string op, [NotNullWhen(true)] out Symbol? result)
+    public override Result TryLogicOperation(Symbol left, Symbol right, string op)
     {
-        throw new NotImplementedException();
+        return new Result(OperationResult.NotImplemented);
     }
 
-    public override bool TryUnaryOperation(Symbol self, string op, [NotNullWhen(true)] out Symbol? result)
+    public override Result TryUnaryOperation(Symbol self, string op)
     {
-        throw new NotImplementedException();
+        return new Result(OperationResult.NotImplemented);
     }
 
-    public override bool TryToString(Symbol self, [NotNullWhen(true)] out Symbol? result)
+    public override Result TryToString(Symbol self)
     {
-        throw new NotImplementedException();
+        return new Result(OperationResult.Success, new Symbol(Value.Unknown, StringType, false));
     }
 
-    public override bool TryIndex(Symbol self, Symbol index, [NotNullWhen(true)] out Symbol? result)
+    public override Result TryIndex(Symbol self, Symbol index)
     {
-        throw new NotImplementedException();
+        return new Result(OperationResult.NotImplemented);
     }
 
     public override bool IsCompatible(DataType other)

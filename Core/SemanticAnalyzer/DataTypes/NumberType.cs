@@ -1,12 +1,10 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace Core.SemanticAnalyzer.DataTypes;
+﻿namespace Core.SemanticAnalyzer.DataTypes;
 
 public class NumberType : DataType
 {
     public override string GetName() => "number";
 
-    public override bool TryArithmeticOperation(Symbol left, Symbol right, string op, [NotNullWhen(true)] out Symbol? result)
+    public override Result TryArithmeticOperation(Symbol left, Symbol right, string op)
     {
         if (right.DataType == StringType)
         {
@@ -39,21 +37,18 @@ public class NumberType : DataType
                 _ => throw new NotImplementedException($"Invalid arithmetic operator {op}")
             };
             
-            result = new Symbol(new Value(ValueKind.Number, number), this, false);
-            return true;
+            return new Result(OperationResult.Success, new Symbol(new Value(ValueKind.Number, number), this, false));
         }
 
         if (right.DataType == NumberType)
         {
-            result = new Symbol(new Value(ValueKind.Unknown, null), this, false);
-            return true;
+            return new Result(OperationResult.Success, new Symbol(new Value(ValueKind.Unknown, null), this, false));
         }
 
-        result = null;
-        return false;
+        return new Result(OperationResult.NotImplemented);
     }
 
-    public override bool TryLogicOperation(Symbol left, Symbol right, string op, [NotNullWhen(true)] out Symbol? result)
+    public override Result TryLogicOperation(Symbol left, Symbol right, string op)
     {
         if (left.Value.Kind == ValueKind.Number && right.Value.Kind == ValueKind.Number)
         {
@@ -65,21 +60,19 @@ public class NumberType : DataType
                 _ => throw new NotImplementedException($"Invalid logic operator {op}")
             };
             
-            result = new Symbol(new Value(ValueKind.Boolean, value), BooleanType, false);
-            return true;
+            return new Result(OperationResult.Success, new Symbol(new Value(ValueKind.Boolean, value), BooleanType, false));
         }
 
         if (right.DataType == NumberType)
         {
-            result = new Symbol(new Value(ValueKind.Unknown, null), BooleanType, false);
-            return true;
+            return new Result(OperationResult.Success,
+                new Symbol(new Value(ValueKind.Unknown, null), BooleanType, false));
         }
 
-        result = null;
-        return false;
+        return new Result(OperationResult.NotImplemented);
     }
 
-    public override bool TryUnaryOperation(Symbol self, string op, [NotNullWhen(true)] out Symbol? result)
+    public override Result TryUnaryOperation(Symbol self, string op)
     {
         if (self.Value.Kind == ValueKind.Number)
         {
@@ -88,36 +81,31 @@ public class NumberType : DataType
                 "__unm" => -self.Value.GetNumber(),
                 _ => throw new NotImplementedException($"Invalid operator {op}")
             };
-            
-            result = new Symbol(new Value(ValueKind.Number, number), this, false);
+
+            return new Result(OperationResult.Success, new Symbol(new Value(ValueKind.Number, number), this, false));
         }
 
         if (self.DataType == NumberType)
         {
-            result = new Symbol(new Value(ValueKind.Unknown, null), this, false);
-            return true;
+            return new Result(OperationResult.Success, new Symbol(new Value(ValueKind.Unknown, null), this, false));
         }
         
-        result = null;
-        return false;
+        return new Result(OperationResult.NotImplemented);
     }
 
-    public override bool TryToString(Symbol self, [NotNullWhen(true)] out Symbol? result)
+    public override Result TryToString(Symbol self)
     {
         if (self.Value.Kind == ValueKind.Number)
         {
             var stringRepresentation = self.Value.GetNumber().ToString();
-            result = new Symbol(new Value(ValueKind.String, stringRepresentation), StringType, false);
-            return true;
+            return new Result(OperationResult.Success, new Symbol(new Value(ValueKind.String, stringRepresentation), StringType, false));
         }
         
-        result = new Symbol(new Value(ValueKind.Unknown, null), StringType, false);
-        return true;
+        return new Result(OperationResult.Success, new Symbol(new Value(ValueKind.Unknown, null), StringType, false));
     }
 
-    public override bool TryIndex(Symbol self, Symbol index, [NotNullWhen(true)] out Symbol? result)
+    public override Result TryIndex(Symbol self, Symbol index)
     {
-        result = null;
-        return false;
+        return new Result(OperationResult.NotImplemented);
     }
 }

@@ -1,36 +1,31 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace Core.SemanticAnalyzer.DataTypes;
+﻿namespace Core.SemanticAnalyzer.DataTypes;
 
 public class CustomType : DataType
 {
     public override string GetName() => "class";
     
-    public override bool TryArithmeticOperation(Symbol left, Symbol right, string op, [NotNullWhen(true)] out Symbol? result)
+    public override Result TryArithmeticOperation(Symbol left, Symbol right, string op)
     {
-        result = null;
-        return false;
+        return new Result(OperationResult.NotImplemented);
     }
 
-    public override bool TryLogicOperation(Symbol left, Symbol right, string op, [NotNullWhen(true)] out Symbol? result)
+    public override Result TryLogicOperation(Symbol left, Symbol right, string op)
     {
-        throw new NotImplementedException();
+        return new Result(OperationResult.NotImplemented);
     }
 
-    public override bool TryUnaryOperation(Symbol self, string op, [NotNullWhen(true)] out Symbol? result)
+    public override Result TryUnaryOperation(Symbol self, string op)
     {
-        result = null;
-        return false;
+        return new Result(OperationResult.NotImplemented);
     }
     
-    public override bool TryToString(Symbol self, [NotNullWhen(true)] out Symbol? result)
+    public override Result TryToString(Symbol self)
     {
-        result = null;
-        return false;
+        return new Result(OperationResult.NotImplemented);
     }
 
-    public override bool TryIndex(Symbol self, Symbol index, [NotNullWhen(true)] out Symbol? result)
+    public override Result TryIndex(Symbol self, Symbol index)
     {
-        throw new NotImplementedException();
+        return new Result(OperationResult.NotImplemented);
     }
 }
