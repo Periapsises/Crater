@@ -1,30 +1,35 @@
 ﻿namespace Core.SemanticAnalyzer.DataTypes;
 
-public class CustomType : DataType
+public class CustomType() : DataType(BaseType)
 {
     public override string GetName() => "class";
     
-    public override Result TryArithmeticOperation(Symbol left, Symbol right, string op)
+    public override Result TryArithmeticOperation(Value left, Value right, string op)
     {
         return new Result(OperationResult.NotImplemented);
     }
 
-    public override Result TryLogicOperation(Symbol left, Symbol right, string op)
+    public override Result TryLogicOperation(Value left, Value right, string op)
     {
         return new Result(OperationResult.NotImplemented);
     }
 
-    public override Result TryUnaryOperation(Symbol self, string op)
+    public override Result TryUnaryOperation(Value self, string op)
     {
         return new Result(OperationResult.NotImplemented);
     }
     
-    public override Result TryToString(Symbol self)
+    public override Result TryToString(Value self)
     {
         return new Result(OperationResult.NotImplemented);
     }
 
-    public override Result TryIndex(Symbol self, Symbol index)
+    public override Result TryIndex(Value self, Value index)
+    {
+        return new Result(OperationResult.NotImplemented);
+    }
+
+    public override Result TryCall(Value self, List<Value> arguments)
     {
         return new Result(OperationResult.NotImplemented);
     }

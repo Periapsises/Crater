@@ -28,35 +28,33 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
     {
         var isLocal = context.LOCAL() != null;
         var identifier = context.name.Text!;
-        var dataTypeReference = (Expression)Visit(context.type)!;
-        var isNullable = context.nullable != null;
+        var dataTypeReference = (TypeReference)Visit(context.type)!;
 
         if (context.initializer is null)
-            return new VariableDeclaration(isLocal, identifier, dataTypeReference, isNullable, null, context);
+            return new VariableDeclaration(isLocal, identifier, dataTypeReference, null, context);
         
         var initializer = (Expression)Visit(context.initializer)!;
         
-        return new VariableDeclaration(isLocal, identifier, dataTypeReference, isNullable, initializer, context);
+        return new VariableDeclaration(isLocal, identifier, dataTypeReference, initializer, context);
     }
 
     public override object VisitFunctionDeclaration(FunctionDeclarationCtx context)
     {
         var isLocal = context.LOCAL() != null;
         var identifier = context.name.Text!;
-        var arguments = (List<ParameterDeclartion>)Visit(context.functionParameters())!;
-        var returnDataTypeReference = (VariableReference)Visit(context.returnType)!;
-        var returnIsNullable = context.returnNullable != null;
+        var arguments = (List<ParameterDeclaration>)Visit(context.functionParameters())!;
+        var returnDataTypeReference = (List<TypeReference>)Visit(context.returnType)!;
         var block = (Block)Visit(context.block())!;
         
-        return new FunctionDeclaration(isLocal, identifier, arguments, returnDataTypeReference, returnIsNullable, block, context);
+        return new FunctionDeclaration(isLocal, identifier, arguments, returnDataTypeReference, block, context);
     }
 
     public override object VisitFunctionParameters(FunctionParametersCtx context)
     {
-        List<ParameterDeclartion> arguments = [];
+        List<ParameterDeclaration> arguments = [];
         
         foreach (var argumentContext in context.functionParameter())
-            arguments.Add((ParameterDeclartion)Visit(argumentContext)!);
+            arguments.Add((ParameterDeclaration)Visit(argumentContext)!);
         
         return arguments;
     }
@@ -64,10 +62,21 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
     public override object VisitFunctionParameter(FunctionParameterCtx context)
     {
         var name = context.name.Text!;
-        var dataTypeReference = (VariableReference)Visit(context.type)!;
-        var isNullable = context.nullable != null;
+        var dataTypeReference = (TypeReference)Visit(context.type)!;
         
-        return new ParameterDeclartion(name, dataTypeReference, isNullable, context);
+        return new ParameterDeclaration(name, dataTypeReference, context);
+    }
+
+    public override object VisitFunctionReturnTypes(CraterParser.FunctionReturnTypesContext context)
+    {
+        if (context.VOID() != null)
+            return new List<TypeReference>();
+        
+        var returnTypes = new List<TypeReference>();
+        foreach (var returnDeclaration in context.dataType())
+            returnTypes.Add((TypeReference)Visit(returnDeclaration)!);
+        
+        return returnTypes;
     }
 
     public override object VisitIfStatement(IfStatementCtx context)
@@ -108,6 +117,40 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
             arguments = (List<Expression>)Visit(context.functionArguments())!;
         
         return new FunctionCallStatement(primaryExpression, arguments, context);
+    }
+
+    public override object VisitExpressionType(CraterParser.ExpressionTypeContext context)
+    {
+        var expression = (Expression)Visit(context.expression())!;
+        var nullable = context.nullable != null;
+        
+        return new ExpressionTypeReference(expression, nullable, context);
+    }
+
+    public override object? VisitFunctionLiteral(CraterParser.FunctionLiteralContext context)
+    {
+        var nullable = context.nullable != null;
+        return new FunctionTypeReference(nullable, context);
+    }
+
+    public override object VisitFuncLiteral(CraterParser.FuncLiteralContext context)
+    {
+        var parameters = new List<TypeReference>();
+        foreach (var parameter in context.dataType())
+            parameters.Add((TypeReference)Visit(parameter)!);
+
+        var returns = (List<TypeReference>)Visit(context.functionReturnTypes())!;
+        return new FuncTypeReference(parameters, returns, false, context);
+    }
+
+    public override object VisitNullableFuncLiteral(CraterParser.NullableFuncLiteralContext context)
+    {
+        var parameters = new List<TypeReference>();
+        foreach (var parameter in context.dataType())
+            parameters.Add((TypeReference)Visit(parameter)!);
+        
+        var returns = (List<TypeReference>)Visit(context.functionReturnTypes())!;
+        return new FuncTypeReference(parameters, returns, true, context);
     }
     
     public override object VisitPrimaryExpression(PrimaryExpressionCtx context)

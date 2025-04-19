@@ -1,9 +1,9 @@
 ﻿namespace Core.SemanticAnalyzer.DataTypes;
 
-public class MetaType() : DataType(BaseType)
+public class BaseType() : DataType(null)
 {
-    public override string GetName() => "type";
-    
+    public override string GetName() => "base";
+
     public override Result TryArithmeticOperation(Value left, Value right, string op)
     {
         return new Result(OperationResult.NotImplemented);

@@ -5,6 +5,7 @@ using Core.SemanticAnalyzer;
 using Core.SyntaxTreeConverter;
 using Core.SyntaxTreeConverter.Expressions;
 using Core.SyntaxTreeConverter.Statements;
+using Environment = System.Environment;
 using Expression = Core.SyntaxTreeConverter.Expression;
 
 namespace Transpiler;
@@ -13,6 +14,7 @@ public class Transpiler(string input)
 {
     private int _spacing = 0;
     private readonly StringBuilder _builder = new();
+    private readonly string _nl = Environment.NewLine;
     
     public TranslationResult Transpile()
     {
@@ -78,7 +80,7 @@ public class Transpiler(string input)
             TranspileExpression(variableDeclaration.Initializer);
         }
         
-        Append('\n');
+        Append(_nl);
     }
 
     private void TranspileFunctionDeclaration(FunctionDeclaration functionDeclaration)
@@ -90,14 +92,14 @@ public class Transpiler(string input)
 
         Append("function " + functionDeclaration.Identifier + "(");
         Append(string.Join(", ", functionDeclaration.Parameters.Select(p => p.Name)));
-        Append(")\n");
+        Append(")" + _nl);
         
         _spacing += 4;
         TranspileBlock(functionDeclaration.Block);
         _spacing -= 4;
         
         AppendSpacing();
-        Append("end\n");
+        Append("end" + _nl);
     }
 
     private void TranspileIfStatement(IfStatement ifStatement)
@@ -105,7 +107,7 @@ public class Transpiler(string input)
         AppendSpacing();
         Append("if ");
         TranspileExpression(ifStatement.Condition);
-        Append(" then\n");
+        Append(" then" + _nl);
         
         _spacing += 4;
         TranspileBlock(ifStatement.Block);
@@ -117,7 +119,7 @@ public class Transpiler(string input)
         if (ifStatement.ElseStatement != null)
             TranspileElseStatement(ifStatement.ElseStatement);
         
-        Append("end\n");
+        Append("end" + _nl);
     }
 
     private void TranspileElseIfStatement(ElseIfStatement ifStatement)
@@ -125,7 +127,7 @@ public class Transpiler(string input)
         AppendSpacing();
         Append("elseif ");
         TranspileExpression(ifStatement.Condition);
-        Append(" then\n");
+        Append(" then" + _nl);
         
         _spacing += 4;
         TranspileBlock(ifStatement.Block);
@@ -135,7 +137,7 @@ public class Transpiler(string input)
     private void TranspileElseStatement(ElseStatement elseStatement)
     {
         AppendSpacing();
-        Append("else\n");
+        Append("else" + _nl);
         
         _spacing += 4;
         TranspileBlock(elseStatement.Block);
@@ -260,7 +262,11 @@ public class Transpiler(string input)
         Append(')');
     }
 
-    private void AppendSpacing() => _builder.Append(new string(' ', _spacing));
+    private void AppendSpacing()
+    {
+        if (_spacing == 0) return;
+        _builder.Append(new string(' ', _spacing));
+    }
     private void Append(string str) => _builder.Append(str);
     private void Append(char ch) => _builder.Append(ch);
 }

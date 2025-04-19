@@ -18,13 +18,15 @@ statement:
     | functionCallStatement
 ;
 
-variableDeclaration: LOCAL? name=IDENTIFIER COLON type=expression nullable=QMARK? (ASSIGN initializer=expression)?;
+variableDeclaration: LOCAL? name=IDENTIFIER COLON type=dataType (ASSIGN initializer=expression)?;
 
-functionDeclaration: LOCAL? FUNCTION name=IDENTIFIER LPAREN functionParameters RPAREN COLON returnType=expression returnNullable=QMARK? block END;
+functionDeclaration: LOCAL? FUNCTION name=IDENTIFIER LPAREN functionParameters RPAREN COLON returnType=functionReturnTypes block END;
 
 functionParameters: functionParameter (COMMA functionParameter)*;
 
-functionParameter: name=IDENTIFIER COLON type=expression nullable=QMARK?;
+functionParameter: name=IDENTIFIER COLON type=dataType;
+
+functionReturnTypes: VOID | dataType (COMMA dataType)*;
 
 ifStatement: IF condition=expression THEN block elseIfStatement* elseStatement? END;
 
@@ -35,6 +37,13 @@ elseStatement: ELSE block;
 functionCallStatement: primaryExpression LPAREN functionArguments? RPAREN;
 
 functionArguments: expression (COMMA expression)*; 
+
+dataType:
+    FUNCTION nullable=QMARK?                                                                            # FunctionLiteral
+    | FUNC LPAREN (dataType (COMMA dataType)*)? RPAREN COLON functionReturnTypes                        # FuncLiteral
+    | LPAREN FUNC LPAREN (dataType (COMMA dataType)*)? RPAREN COLON functionReturnTypes RPAREN QMARK    # NullableFuncLiteral
+    | expression nullable=QMARK?                                                                        # ExpressionType
+;
 
 expression:
     primaryExpression                                                                               # BaseExpression

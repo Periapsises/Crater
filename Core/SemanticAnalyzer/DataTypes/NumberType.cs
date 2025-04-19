@@ -1,110 +1,112 @@
 ﻿namespace Core.SemanticAnalyzer.DataTypes;
 
-public class NumberType : DataType
+public class NumberType() : DataType(BaseType)
 {
     public override string GetName() => "number";
 
-    public override Result TryArithmeticOperation(Symbol left, Symbol right, string op)
+    public override Result TryArithmeticOperation(Value left, Value right, string op)
     {
         if (right.DataType == StringType)
         {
             // TODO: Show a warning for potential conversion of invalid number formats
-            if (right.Value.Kind == ValueKind.String)
+            if (right.Kind == ValueKind.String)
             {
                 try
                 {
-                    var numberValue = double.Parse(right.Value.GetString());
-                    right = new Symbol(new Value(ValueKind.Number, numberValue), this, false);
+                    var numberValue = double.Parse(right.GetString());
+                    right = Value.From(numberValue);
                 }
                 catch (FormatException) { }
             }
             else
             {
-                right = new Symbol(new Value(ValueKind.Unknown, null), this, false);
+                right = Value.Unknown(NumberType);
             }
         }
         
-        if (left.Value.Kind == ValueKind.Number && right.Value.Kind == ValueKind.Number)
+        if (left.Kind == ValueKind.Number && right.Kind == ValueKind.Number)
         {
             var number = op switch
             {
-                "__add" => left.Value.GetNumber() + right.Value.GetNumber(),
-                "__sub" => left.Value.GetNumber() - right.Value.GetNumber(),
-                "__mul" => left.Value.GetNumber() * right.Value.GetNumber(),
-                "__div" => left.Value.GetNumber() / right.Value.GetNumber(),
-                "__mod" => left.Value.GetNumber() % right.Value.GetNumber(),
-                "__exp" => Math.Pow(left.Value.GetNumber(), right.Value.GetNumber()),
+                "__add" => left.GetNumber() + right.GetNumber(),
+                "__sub" => left.GetNumber() - right.GetNumber(),
+                "__mul" => left.GetNumber() * right.GetNumber(),
+                "__div" => left.GetNumber() / right.GetNumber(),
+                "__mod" => left.GetNumber() % right.GetNumber(),
+                "__exp" => Math.Pow(left.GetNumber(), right.GetNumber()),
                 _ => throw new NotImplementedException($"Invalid arithmetic operator {op}")
             };
             
-            return new Result(OperationResult.Success, new Symbol(new Value(ValueKind.Number, number), this, false));
+            return new Result(OperationResult.Success, Value.From(number));
         }
 
         if (right.DataType == NumberType)
-        {
-            return new Result(OperationResult.Success, new Symbol(new Value(ValueKind.Unknown, null), this, false));
-        }
+            return new Result(OperationResult.Success, Value.Unknown(NumberType));
 
         return new Result(OperationResult.NotImplemented);
     }
 
-    public override Result TryLogicOperation(Symbol left, Symbol right, string op)
+    public override Result TryLogicOperation(Value left, Value right, string op)
     {
-        if (left.Value.Kind == ValueKind.Number && right.Value.Kind == ValueKind.Number)
+        if (left.Kind == ValueKind.Number && right.Kind == ValueKind.Number)
         {
             var value = op switch
             {
-                "__eq" => left.Value.GetNumber() == right.Value.GetNumber(),
-                "__lt" => left.Value.GetNumber() < right.Value.GetNumber(),
-                "__le" => left.Value.GetNumber() <= right.Value.GetNumber(),
+                "__eq" => left.GetNumber() == right.GetNumber(),
+                "__lt" => left.GetNumber() < right.GetNumber(),
+                "__le" => left.GetNumber() <= right.GetNumber(),
                 _ => throw new NotImplementedException($"Invalid logic operator {op}")
             };
             
-            return new Result(OperationResult.Success, new Symbol(new Value(ValueKind.Boolean, value), BooleanType, false));
+            return new Result(OperationResult.Success, Value.From(value));
         }
 
         if (right.DataType == NumberType)
         {
-            return new Result(OperationResult.Success,
-                new Symbol(new Value(ValueKind.Unknown, null), BooleanType, false));
+            return new Result(OperationResult.Success, Value.Unknown(BooleanType));
         }
 
         return new Result(OperationResult.NotImplemented);
     }
 
-    public override Result TryUnaryOperation(Symbol self, string op)
+    public override Result TryUnaryOperation(Value self, string op)
     {
-        if (self.Value.Kind == ValueKind.Number)
+        if (self.Kind == ValueKind.Number)
         {
             var number = op switch
             {
-                "__unm" => -self.Value.GetNumber(),
+                "__unm" => -self.GetNumber(),
                 _ => throw new NotImplementedException($"Invalid operator {op}")
             };
 
-            return new Result(OperationResult.Success, new Symbol(new Value(ValueKind.Number, number), this, false));
+            return new Result(OperationResult.Success, Value.From(number));
         }
 
         if (self.DataType == NumberType)
         {
-            return new Result(OperationResult.Success, new Symbol(new Value(ValueKind.Unknown, null), this, false));
+            return new Result(OperationResult.Success, Value.Unknown(NumberType));
         }
         
         return new Result(OperationResult.NotImplemented);
     }
 
-    public override Result TryToString(Symbol self)
+    public override Result TryToString(Value self)
     {
-        if (self.Value.Kind == ValueKind.Number)
+        if (self.Kind == ValueKind.Number)
         {
-            var stringRepresentation = self.Value.GetNumber().ToString();
-            return new Result(OperationResult.Success, new Symbol(new Value(ValueKind.String, stringRepresentation), StringType, false));
+            var stringRepresentation = self.GetNumber().ToString();
+            return new Result(OperationResult.Success, Value.From(stringRepresentation));
         }
         
-        return new Result(OperationResult.Success, new Symbol(new Value(ValueKind.Unknown, null), StringType, false));
+        return new Result(OperationResult.Success, Value.Unknown(StringType));
     }
 
-    public override Result TryIndex(Symbol self, Symbol index)
+    public override Result TryIndex(Value self, Value index)
+    {
+        return new Result(OperationResult.NotImplemented);
+    }
+
+    public override Result TryCall(Value self, List<Value> arguments)
     {
         return new Result(OperationResult.NotImplemented);
     }

@@ -75,6 +75,12 @@ public interface ICraterParserVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitFunctionParameter([NotNull] CraterParser.FunctionParameterContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CraterParser.functionReturnTypes"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitFunctionReturnTypes([NotNull] CraterParser.FunctionReturnTypesContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CraterParser.ifStatement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -104,6 +110,34 @@ public interface ICraterParserVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitFunctionArguments([NotNull] CraterParser.FunctionArgumentsContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>FunctionLiteral</c>
+	/// labeled alternative in <see cref="CraterParser.dataType"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitFunctionLiteral([NotNull] CraterParser.FunctionLiteralContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>FuncLiteral</c>
+	/// labeled alternative in <see cref="CraterParser.dataType"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitFuncLiteral([NotNull] CraterParser.FuncLiteralContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>NullableFuncLiteral</c>
+	/// labeled alternative in <see cref="CraterParser.dataType"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitNullableFuncLiteral([NotNull] CraterParser.NullableFuncLiteralContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>ExpressionType</c>
+	/// labeled alternative in <see cref="CraterParser.dataType"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitExpressionType([NotNull] CraterParser.ExpressionTypeContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>LogicalOperation</c>
 	/// labeled alternative in <see cref="CraterParser.expression"/>.

@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace Core.SemanticAnalyzer;
+﻿namespace Core.SemanticAnalyzer;
 
 public class Symbol(Value value, DataType dataType, bool nullable)
 {
@@ -8,45 +6,41 @@ public class Symbol(Value value, DataType dataType, bool nullable)
     public static readonly Symbol InvalidDataType = new(Value.InvalidType, DataType.MetaType, false);
     
     public Value Value = value;
-    public DataType DataType = dataType;
-    public bool Nullable = nullable;
+    public readonly DataType DataType = dataType;
+    public readonly bool Nullable = nullable;
 
-    public Result ArithmeticOperation(Symbol other, string op)
+    public Result ArithmeticOperation(Value other, string op)
     {
-        return DataType.TryArithmeticOperation(this, other, op);
+        return DataType.TryArithmeticOperation(Value, other, op);
     }
 
-    public Result LogicOperation(Symbol other, string op)
+    public Result LogicOperation(Value other, string op)
     {
-        return DataType.TryLogicOperation(this, other, op);
+        return DataType.TryLogicOperation(Value, other, op);
     }
     
     public Result UnaryOperation(string op)
     {
-        return DataType.TryUnaryOperation(this, op);
+        return DataType.TryUnaryOperation(Value, op);
     }
 
     public new Result ToString()
     {
-        return DataType.TryToString(this);
+        return DataType.TryToString(Value);
     }
     
-    public void Assign(Symbol symbol)
+    public void Assign(Value value)
     {
-        Value = symbol.Value;
-        DataType = symbol.DataType;
-        Nullable = symbol.Nullable;
+        Value = value;
     }
 
-    public Result Index(Symbol indexingSymbol)
+    public Result Index(Value indexingValue)
     {
-        return DataType.TryIndex(this, indexingSymbol);
+        return DataType.TryIndex(Value, indexingValue);
     }
 
-    public Result Call(List<PossibleSymbols> arguments)
+    public Result Call(List<Value> arguments)
     {
-        return new Result(OperationResult.NotImplemented);
+        return DataType.TryCall(Value, arguments);
     }
-    
-    public static implicit operator PossibleSymbols(Symbol symbol) => [symbol];
 }

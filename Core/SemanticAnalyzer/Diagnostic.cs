@@ -1,4 +1,5 @@
-﻿using Antlr4.Runtime;
+﻿using System.Diagnostics.CodeAnalysis;
+using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using Core.SyntaxTreeConverter;
 using Core.SyntaxTreeConverter.Expressions;
@@ -30,7 +31,7 @@ public abstract class Diagnostic(Severity severity)
     {
         if (Line == 0 && Column == 0) return "";
 
-        return $" at line \u001b[4;93m{Line}\u001b[0m, column \u001b[4;93m{Column}\u001b[0m";
+        return $" at line \e[4;93m{Line}\e[0m, column \e[4;93m{Column}\e[0m";
     }
 
     protected string GetCodeLocation()
@@ -44,7 +45,7 @@ public abstract class Diagnostic(Severity severity)
         
         var spacing = new string(' ', Column + Line.ToString().Length + 1 - numCharsRemoved);
         var highlight = new string('^', _highlightLength);
-        return $"\u001b[90m{Line}\u001b[0m {code}\n{spacing}\u001b[91m{highlight}\u001b[0m";
+        return $"\e[90m{Line}\e[0m {code}\n{spacing}\e[91m{highlight}\e[0m";
     }
 
     private readonly HashSet<string> _keywords = ["local", "if", "elseif", "else", "then", "end"];
@@ -80,15 +81,15 @@ public abstract class Diagnostic(Severity severity)
         foreach (var token in tokensInLine)
         {
             if (_keywords.Contains(token.Text))
-                result += "\u001b[34m";
+                result += "\e[34m";
             else if (token.Text == "true" || token.Text == "false")
-                result += "\u001b[35m";
+                result += "\e[35m";
             else if (token.Text.StartsWith('"') && token.Text.EndsWith('"'))
-                result += "\u001b[32m";
+                result += "\e[32m";
             else if (double.TryParse(token.Text, out _))
-                result += "\u001b[35m";
+                result += "\e[35m";
             else
-                result += "\u001b[0m";
+                result += "\e[0m";
             result += token.Text;
         }
         
@@ -129,25 +130,25 @@ public abstract class Diagnostic(Severity severity)
         return this;
     }
 
-    protected const string Reset = "\x1b[0m";
-    protected const string Black = "\x1b[30m";
-    protected const string Red = "\x1b[31m";
-    protected const string Green = "\x1b[32m";
-    protected const string Yellow = "\x1b[33m";
-    protected const string Blue = "\x1b[34m";
-    protected const string Magenta = "\x1b[35m";
-    protected const string Cyan = "\x1b[36m";
-    protected const string White = "\x1b[37m";
-    protected const string Gray = "\x1b[90m";
-    protected const string BrightRed = "\x1b[91m";
-    protected const string BrightGreen = "\x1b[92m";
-    protected const string BrightYellow = "\x1b[93m";
-    protected const string BrightBlue = "\x1b[94m";
-    protected const string BrightMagenta = "\x1b[95m";
-    protected const string BrightCyan = "\x1b[96m";
-    protected const string BrightWhite = "\x1b[97m";
+    protected const string Reset = "\e[0m";
+    protected const string Black = "\e[30m";
+    protected const string Red = "\e[31m";
+    protected const string Green = "\e[32m";
+    protected const string Yellow = "\e[33m";
+    protected const string Blue = "\e[34m";
+    protected const string Magenta = "\e[35m";
+    protected const string Cyan = "\e[36m";
+    protected const string White = "\e[37m";
+    protected const string Gray = "\e[90m";
+    protected const string BrightRed = "\e[91m";
+    protected const string BrightGreen = "\e[92m";
+    protected const string BrightYellow = "\e[93m";
+    protected const string BrightBlue = "\e[94m";
+    protected const string BrightMagenta = "\e[95m";
+    protected const string BrightCyan = "\e[96m";
+    protected const string BrightWhite = "\e[97m";
     
-    protected string Format(string message, params object[] args)
+    protected static string Format([StringSyntax("CompositeFormat"), NotNull] string message, [NotNull] params object?[] args)
     {
         var formattedArguments = new List<object>();
 

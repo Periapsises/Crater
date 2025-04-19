@@ -102,6 +102,16 @@ public interface ICraterParserListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitFunctionParameter([NotNull] CraterParser.FunctionParameterContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CraterParser.functionReturnTypes"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterFunctionReturnTypes([NotNull] CraterParser.FunctionReturnTypesContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CraterParser.functionReturnTypes"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitFunctionReturnTypes([NotNull] CraterParser.FunctionReturnTypesContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CraterParser.ifStatement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -151,6 +161,54 @@ public interface ICraterParserListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitFunctionArguments([NotNull] CraterParser.FunctionArgumentsContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>FunctionLiteral</c>
+	/// labeled alternative in <see cref="CraterParser.dataType"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterFunctionLiteral([NotNull] CraterParser.FunctionLiteralContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>FunctionLiteral</c>
+	/// labeled alternative in <see cref="CraterParser.dataType"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitFunctionLiteral([NotNull] CraterParser.FunctionLiteralContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>FuncLiteral</c>
+	/// labeled alternative in <see cref="CraterParser.dataType"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterFuncLiteral([NotNull] CraterParser.FuncLiteralContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>FuncLiteral</c>
+	/// labeled alternative in <see cref="CraterParser.dataType"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitFuncLiteral([NotNull] CraterParser.FuncLiteralContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>NullableFuncLiteral</c>
+	/// labeled alternative in <see cref="CraterParser.dataType"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterNullableFuncLiteral([NotNull] CraterParser.NullableFuncLiteralContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>NullableFuncLiteral</c>
+	/// labeled alternative in <see cref="CraterParser.dataType"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitNullableFuncLiteral([NotNull] CraterParser.NullableFuncLiteralContext context);
+	/// <summary>
+	/// Enter a parse tree produced by the <c>ExpressionType</c>
+	/// labeled alternative in <see cref="CraterParser.dataType"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterExpressionType([NotNull] CraterParser.ExpressionTypeContext context);
+	/// <summary>
+	/// Exit a parse tree produced by the <c>ExpressionType</c>
+	/// labeled alternative in <see cref="CraterParser.dataType"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitExpressionType([NotNull] CraterParser.ExpressionTypeContext context);
 	/// <summary>
 	/// Enter a parse tree produced by the <c>LogicalOperation</c>
 	/// labeled alternative in <see cref="CraterParser.expression"/>.

@@ -1,6 +1,4 @@
-﻿using Core.Antlr;
-
-namespace Core.SyntaxTreeConverter.Expressions;
+﻿namespace Core.SyntaxTreeConverter.Expressions;
 
 public class BooleanLiteral(string literal, LiteralCtx context) : Expression(context.GetText())
 {

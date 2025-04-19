@@ -5,6 +5,7 @@ using Core.SyntaxTreeConverter;
 using Core.SyntaxTreeConverter.Expressions;
 using Core.SyntaxTreeConverter.Statements;
 using Expression = Core.SyntaxTreeConverter.Expression;
+using FunctionType = Core.SemanticAnalyzer.DataTypes.FunctionType;
 using InvalidType = Core.SemanticAnalyzer.Diagnostics.InvalidType;
 
 namespace Core.SemanticAnalyzer;
@@ -56,17 +57,30 @@ public class SemanticAnalyzer
         using var _ = new ScopedContext(variableDeclaration.Context);
         
         var scope = variableDeclaration.Local ? Environment.GetLocalScope() : Environment.GetGlobalScope();
-        var dataType = GetDataTypeFromExpression(variableDeclaration.DataTypeReference);
+        var dataType = GetDataTypeFromReference(variableDeclaration.DataTypeReference);
 
-        var defaultSymbol = new Symbol(Value.NullValue, dataType, variableDeclaration.Nullable);
+        var defaultSymbol = new Symbol(Value.NullValue, dataType, variableDeclaration.DataTypeReference.Nullable);
 
         if (variableDeclaration.Initializer != null)
         {
-            var assignedSymbols = AnalyzeExpression(variableDeclaration.Initializer);
+            var possibleValues = AnalyzeExpression(variableDeclaration.Initializer);
+            var assignedValue = possibleValues.Resolve();
+            if (assignedValue == null)
+            {
+                DiagnosticReporter.Report(new UnresolvableValue(possibleValues).WithContext(variableDeclaration.Context.initializer));
+                assignedValue = Value.InvalidValue;
+            }
 
-            defaultSymbol.Assign(ResolveSymbols(assignedSymbols, defaultSymbol, variableDeclaration.Identifier));
+            if (!assignedValue.DataType.IsCompatible(dataType))
+            {
+                DiagnosticReporter.Report(new TypeMismatch(assignedValue.DataType, dataType)
+                    .WithContext(variableDeclaration.Context.initializer));
+                assignedValue = Value.InvalidValue;
+            }
+            
+            defaultSymbol.Assign(assignedValue);
         }
-        else if (!variableDeclaration.Nullable)
+        else if (!variableDeclaration.DataTypeReference.Nullable)
         {
             DiagnosticReporter.Report(new UninitializedNonNullable(variableDeclaration.Identifier)
                 .WithContext(variableDeclaration.Context.IDENTIFIER()));
@@ -86,14 +100,19 @@ public class SemanticAnalyzer
         using var _ = new ScopedContext(functionDeclaration.Context);
         
         var scope = functionDeclaration.Local ? Environment.GetLocalScope() : Environment.GetGlobalScope();
-        var returnType = GetDataTypeFromExpression(functionDeclaration.ReturnTypeReference);
+        
+        var returnTypes = new List<TypeUsage>();
+        foreach (var returnDeclaration in functionDeclaration.Returns)
+        {
+            var returnType = GetDataTypeFromReference(returnDeclaration);
+            returnTypes.Add(new TypeUsage(returnType, returnDeclaration.Nullable));
+        }
 
-        List<DataType> parameters = [];
-
+        var parameters = new List<TypeUsage>();
         foreach (var parameter in functionDeclaration.Parameters)
         {
-            var parameterType = GetDataTypeFromExpression(parameter.DataTypeReference);
-            parameters.Add(parameterType);
+            var parameterType = GetDataTypeFromReference(parameter.DataTypeReference);
+            parameters.Add(new TypeUsage(parameterType, parameter.DataTypeReference.Nullable));
         }
 
         if (scope.HasSymbol(functionDeclaration.Identifier))
@@ -102,8 +121,8 @@ public class SemanticAnalyzer
                 .WithContext(functionDeclaration.Context.IDENTIFIER()));
         }
 
-        var functionType = new FunctionType(parameters, [returnType]);
-        var functionSymbol = new Symbol(new Value(ValueKind.Function, null), functionType, false);
+        var functionValue = Value.From(new Function(parameters, returnTypes));
+        var functionSymbol = new Symbol(functionValue, functionValue.DataType, false);
 
         scope.Declare(functionDeclaration.Identifier, functionSymbol);
 
@@ -111,8 +130,7 @@ public class SemanticAnalyzer
 
         for (var i = 0; i < functionDeclaration.Parameters.Count; i++)
         {
-            var parameterSymbol = new Symbol(new Value(ValueKind.Unknown, null), parameters[i],
-                functionDeclaration.Parameters[i].Nullable);
+            var parameterSymbol = new Symbol(Value.Unknown(parameters[i].DataType, parameters[i].Nullable), parameters[i].DataType, functionDeclaration.Parameters[i].DataTypeReference.Nullable);
             functionScope.Declare(functionDeclaration.Parameters[i].Name, parameterSymbol);
         }
 
@@ -171,35 +189,57 @@ public class SemanticAnalyzer
     private void AnalyzeFunctionCallStatement(FunctionCallStatement functionCallStatement)
     {
         using var _ = new ScopedContext(functionCallStatement.Context);
-        
-        var symbols = AnalyzeExpression(functionCallStatement.PrimaryExpression);
-        var arguments = new List<PossibleSymbols>();
-        foreach (var argument in functionCallStatement.Arguments)
-            arguments.Add(AnalyzeExpression(argument));
-        
-        foreach (var symbol in symbols)
+
+        var possibleValues = AnalyzeExpression(functionCallStatement.PrimaryExpression);
+        var function = possibleValues.Resolve();
+        if (function == null)
         {
-            var result = symbol.Call(arguments);
-            switch (result.OperationResult)
+            DiagnosticReporter.Report(new UnresolvableValue(possibleValues).WithContext(functionCallStatement.Context.primaryExpression()));
+            function = Value.InvalidValue;
+        }
+        else if (!function.DataType.IsCompatible(FunctionType.FunctionBase))
+        {
+            DiagnosticReporter.Report(new TypeMismatch(function.DataType, FunctionType.FunctionBase).WithContext(functionCallStatement.Context));
+            function = Value.InvalidValue;
+        }
+        
+        var arguments = new List<Value>();
+        for (var i = 0; i < functionCallStatement.Arguments.Count; i++)
+        {
+            var argument = functionCallStatement.Arguments[i];
+            
+            var possibleArgumentValues = AnalyzeExpression(argument);
+            var argumentValue = possibleArgumentValues.Resolve();
+            if (argumentValue == null)
             {
-                case OperationResult.Success:
-                    continue;
-                case OperationResult.InvalidArgument:
-                    break;
+                DiagnosticReporter.Report(new UnresolvableValue(possibleArgumentValues)
+                    .WithContext(functionCallStatement.Context.functionArguments().expression()[i]));
+                argumentValue = Value.InvalidValue;
             }
+            
+            arguments.Add(argumentValue);
+        }
+
+        var result = function.DataType.TryCall(function, arguments);
+        switch (result.OperationResult)
+        {
+            case OperationResult.Success:
+                break;
+            case OperationResult.InvalidArgument:
+                break;
         }
     }
     
-    private PossibleSymbols AnalyzeExpression(Expression expression)
+    private PossibleValues AnalyzeExpression(Expression expression)
     {
         switch (expression)
         {
             case NumberLiteral numberLiteral:
-                return new Symbol(new Value(ValueKind.Number, numberLiteral.Value), DataType.NumberType, false);
+                return Value.From(numberLiteral.Value);
             case StringLiteral stringLiteral:
-                return new Symbol(new Value(ValueKind.String, stringLiteral.Value), DataType.StringType, false);
+                return Value.From(stringLiteral.Value);
             case BooleanLiteral booleanLiteral:
-                return new Symbol(new Value(ValueKind.Boolean, booleanLiteral.Value), DataType.BooleanType, false);
+                return Value.From(booleanLiteral.Value);
             case ParenthesizedExpression parenthesizedExpression:
                 return AnalyzeExpression(parenthesizedExpression.Expression);
             case LogicalOperation logicalOperation:
@@ -221,7 +261,7 @@ public class SemanticAnalyzer
         }
     }
 
-    private PossibleSymbols AnalyzePrimaryExpression(PrimaryExpression primaryExpression)
+    private PossibleValues AnalyzePrimaryExpression(PrimaryExpression primaryExpression)
     {
         using var _ = new ScopedContext(primaryExpression.Context);
         
@@ -247,31 +287,41 @@ public class SemanticAnalyzer
         return symbols;
     }
 
-    private PossibleSymbols AnalyzeFunctionCall(PossibleSymbols possibleSymbols, FunctionCall functionCall)
+    private PossibleValues AnalyzeFunctionCall(PossibleValues possibleValues, FunctionCall functionCall)
     {
         using var _ = new ScopedContext(functionCall.Context);
         
-        var arguments = new List<PossibleSymbols>();
+        var arguments = new List<Value>();
         foreach (var argument in functionCall.Arguments)
-            arguments.Add(AnalyzeExpression(argument));
+        {
+            var possibleArguments = AnalyzeExpression(argument);
+            var argumentValue = possibleArguments.Resolve();
+            if (argumentValue == null)
+            {
+                DiagnosticReporter.Report(new UnresolvableValue(possibleArguments)
+                    .WithContext(functionCall.Context.functionArguments().expression()[0]));
+                argumentValue = Value.InvalidValue;
+            }
+                
+            arguments.Add(argumentValue);
+        }
+
+        var resultingSymbols = new PossibleValues();
         
-        var resultingSymbols = new PossibleSymbols();
-        
-        foreach (var symbol in possibleSymbols)
+        foreach (var symbol in possibleValues)
         {
             var result = symbol.Call(arguments);
-            switch (result.OperationResult)
+            if (result.OperationResult == OperationResult.Success)
             {
-                case OperationResult.Success:
-                    resultingSymbols.Add(result.Symbol!);
-                    break;
+                resultingSymbols.Add(result.Value!);
+                break;
             }
         }
         
         return resultingSymbols;
     }
 
-    private PossibleSymbols AnalyzeUnaryOperation(UnaryOperation unaryOperation)
+    private PossibleValues AnalyzeUnaryOperation(UnaryOperation unaryOperation)
     {
         using var _ = new ScopedContext(unaryOperation.Context);
         
@@ -286,33 +336,32 @@ public class SemanticAnalyzer
         }
     }
 
-    private PossibleSymbols AnalyzeUnaryOperation(PossibleSymbols symbols, string op, string meta, IToken token)
+    private PossibleValues AnalyzeUnaryOperation(PossibleValues values, string op, string meta, IToken token)
     {
-        var resultingSymbols = new PossibleSymbols();
+        var resultingValues = new PossibleValues();
         var hasErroredForTypes = new HashSet<DataType>();
 
-        foreach (var symbol in symbols)
+        foreach (var value in values)
         {
-            var result = symbol.UnaryOperation(meta);
-            switch (result.OperationResult)
+            var result = value.UnaryOperation(meta);
+            if (result.OperationResult == OperationResult.InvalidArgument)
             {
-                case OperationResult.Success:
-                    resultingSymbols.Add(result.Symbol!);
-                    continue;
+                resultingValues.Add(result.Value!);
+                continue;
             }
 
-            if (hasErroredForTypes.Contains(symbol.DataType))
+            if (hasErroredForTypes.Contains(value.DataType))
                 continue;
 
-            DiagnosticReporter.Report(new InvalidUnaryOperator(symbol.DataType, op)
+            DiagnosticReporter.Report(new InvalidUnaryOperator(value.DataType, op)
                 .WithContext(token));
-            hasErroredForTypes.Add(symbol.DataType);
+            hasErroredForTypes.Add(value.DataType);
         }
 
-        return resultingSymbols;
+        return resultingValues;
     }
 
-    private PossibleSymbols AnalyzeBinaryOperation(BinaryOperation binaryOperation)
+    private PossibleValues AnalyzeBinaryOperation(BinaryOperation binaryOperation)
     {
         using var _ = new ScopedContext(binaryOperation.Context);
         
@@ -326,7 +375,7 @@ public class SemanticAnalyzer
         throw new NotImplementedException($"Unknown binary operator {binaryOperation.Operator}");
     }
 
-    private PossibleSymbols AnalyzeLogicalOperation(LogicalOperation logicalOperation)
+    private PossibleValues AnalyzeLogicalOperation(LogicalOperation logicalOperation)
     {
         using var _ = new ScopedContext(logicalOperation.Context);
         
@@ -341,54 +390,46 @@ public class SemanticAnalyzer
             .SendReport();
     }
 
-    public PossibleSymbols AnalyzeAndOperation(AndOperation andOperation)
+    public PossibleValues AnalyzeAndOperation(AndOperation andOperation)
     {
         using var _ = new ScopedContext(andOperation.Context);
         
-        var leftSymbols = AnalyzeExpression(andOperation.Left);
-        var rightSymbols = AnalyzeExpression(andOperation.Right);
+        var leftValues = AnalyzeExpression(andOperation.Left);
+        var rightValues = AnalyzeExpression(andOperation.Right);
         
         var leftCanBeTruthy = false;
         var leftCanBeFalsy = false;
 
-        var resultingSymbols = new PossibleSymbols();
+        var resultingSymbols = new PossibleValues();
 
-        foreach (var symbol in leftSymbols)
+        foreach (var value in leftValues)
         {
             // If we know the actual value of the symbol, and it is a boolean then we can determine if we need to add the symbol.
-            if (symbol.Value.Kind == ValueKind.Boolean)
+            if (value.Kind == ValueKind.Boolean)
             {
-                var isTruthy = symbol.Value.GetBoolean();
+                var isTruthy = value.GetBoolean();
                 leftCanBeTruthy |= isTruthy;
                 leftCanBeFalsy |= !isTruthy;
 
                 if (!isTruthy)
-                    resultingSymbols.Add(symbol);
+                    resultingSymbols.Add(value);
             }
-            else if (symbol.Value.Kind == ValueKind.Null)
+            else if (value.Kind == ValueKind.Null)
             {
                 leftCanBeFalsy = true;
-                resultingSymbols.Add(symbol);
+                resultingSymbols.Add(value);
             }
             // If the symbol is an unknown boolean, an and operation causes only "falsy" values to pass further.
             // This means if we have a non-nil boolean, we can determine it will be added only if it is `false`.
-            else if (symbol.DataType == DataType.BooleanType)
+            else if (value.DataType == DataType.BooleanType)
             {
                 leftCanBeTruthy = true;
                 leftCanBeFalsy = true;
-                resultingSymbols.Add(new Symbol(Value.FalseValue, symbol.DataType, false));
+                resultingSymbols.Add(Value.From(false));
             }
             else
             {
                 leftCanBeTruthy = true;
-            }
-
-            // If the symbol is nullable, then one of the possibilities is a `nil` value.
-            if (symbol.Nullable && symbol.Value.Kind != ValueKind.Null)
-            {
-                leftCanBeTruthy = true;
-                leftCanBeFalsy = true;
-                resultingSymbols.Add(new Symbol(Value.NullValue, symbol.DataType, true));
             }
         }
 
@@ -403,40 +444,41 @@ public class SemanticAnalyzer
         if (!leftCanBeFalsy)
         {
             DiagnosticReporter.Report(new AndAlwaysTrue().WithContext(andOperation.Context.expression()[0]));
-            return rightSymbols;
+            return rightValues;
         }
 
-        resultingSymbols.AddRange(rightSymbols);
+        resultingSymbols.AddRange(rightValues);
 
         return resultingSymbols;
     }
 
-    public PossibleSymbols AnalyzeOrOperation(OrOperation orOperation)
+    public PossibleValues AnalyzeOrOperation(OrOperation orOperation)
     {
         using var _ = new ScopedContext(orOperation.Context);
         
-        var leftSymbols = AnalyzeExpression(orOperation.Left);
-        var rightSymbols = AnalyzeExpression(orOperation.Right);
+        var leftValues = AnalyzeExpression(orOperation.Left);
+        var rightValues = AnalyzeExpression(orOperation.Right);
         
         var leftCanBeTruthy = false;
         var leftCanBeFalsy = false;
 
-        var resultingSymbols = new PossibleSymbols();
+        var resultingValues = new PossibleValues();
 
-        foreach (var symbol in leftSymbols)
+        foreach (var value in leftValues)
         {
-            if (symbol.Value.Kind == ValueKind.Boolean)
+            if (value.Kind == ValueKind.Boolean)
             {
-                var isTruthy = symbol.Value.GetBoolean();
+                var isTruthy = value.GetBoolean();
                 leftCanBeTruthy |= isTruthy;
                 leftCanBeFalsy |= !isTruthy;
 
                 if (isTruthy)
-                    resultingSymbols.Add(symbol);
+                    resultingValues.Add(value);
             }
-            else if (symbol.Value.Kind == ValueKind.Null)
+            else if (value.Kind == ValueKind.Null)
             {
                 leftCanBeFalsy = true;
+                resultingValues.Add(Value.Unknown(value.DataType));
             }
             else
             {
@@ -444,20 +486,14 @@ public class SemanticAnalyzer
 
                 // If the symbol is an unknown boolean, an or operation causes only "truthy" values to pass further.
                 // This means if we have a non-nil boolean, we can determine it will be added only if it is `true`.
-                if (symbol.DataType == DataType.BooleanType)
+                if (value.DataType == DataType.BooleanType)
                 {
                     leftCanBeFalsy = true;
-                    resultingSymbols.Add(new Symbol(Value.TrueValue, symbol.DataType, false));
-                }
-                // If the symbol is nullable, add a non-nullable version because 'or' will filter out `nil` from the left operand.
-                else if (symbol.Nullable)
-                {
-                    leftCanBeFalsy = true;
-                    resultingSymbols.Add(new Symbol(symbol.Value, symbol.DataType, false));
+                    resultingValues.Add(Value.From(true));
                 }
                 else
                 {
-                    resultingSymbols.Add(symbol);
+                    resultingValues.Add(value);
                 }
             }
         }
@@ -468,15 +504,15 @@ public class SemanticAnalyzer
         if (!leftCanBeFalsy)
         {
             DiagnosticReporter.Report(new OrAlwaysTrue().WithContext(orOperation.Context.expression()[0]));
-            return resultingSymbols;
+            return resultingValues;
         }
 
-        resultingSymbols.AddRange(rightSymbols);
+        resultingValues.AddRange(rightValues);
 
-        return resultingSymbols;
+        return resultingValues;
     }
 
-    private Symbol AnalyzeVariableReference(VariableReference variableReference)
+    private Value AnalyzeVariableReference(VariableReference variableReference)
     {
         using var _ = new ScopedContext(variableReference.Context);
         
@@ -484,93 +520,56 @@ public class SemanticAnalyzer
         {
             DiagnosticReporter.Report(new VariableNotFound(variableReference)
                 .WithContext(variableReference.Context.IDENTIFIER()));
-            return new Symbol(Value.InvalidValue, DataType.InvalidType, false);
+            return Value.InvalidValue;
         }
 
-        return symbol;
+        return symbol.Value;
     }
 
-    private PossibleSymbols AnalyzeDotIndex(PossibleSymbols symbols, DotIndex dotIndex)
+    private PossibleValues AnalyzeDotIndex(PossibleValues values, DotIndex dotIndex)
     {
         using var _ = new ScopedContext(dotIndex.Context);
         
-        var indices = new Symbol(Value.From(dotIndex.Index), DataType.StringType, false);
+        var indices = Value.From(dotIndex.Index);
 
-        return AnalyzeIndex(symbols, [indices])
+        return AnalyzeIndex(values, [indices])
             .WithContext(dotIndex.Context)
             .SendReport();
     }
 
-    private PossibleSymbols AnalyzeBracketIndex(PossibleSymbols symbols, BracketIndex bracketIndex)
+    private PossibleValues AnalyzeBracketIndex(PossibleValues values, BracketIndex bracketIndex)
     {
         using var _ = new ScopedContext(bracketIndex.Context);
         
         var indices = AnalyzeExpression(bracketIndex.Index);
         
-        return AnalyzeIndex(symbols, indices)
+        return AnalyzeIndex(values, indices)
             .WithContext(bracketIndex.Context)
             .SendReport();
     }
 
-    private DiagnosticReport<PossibleSymbols> AnalyzeIndex(PossibleSymbols symbols, PossibleSymbols indices)
+    private DiagnosticReport<PossibleValues> AnalyzeIndex(PossibleValues values, PossibleValues indices)
     {
-        var resultingSymbols = new PossibleSymbols();
-        var reporter = new DiagnosticReport<PossibleSymbols>();
+        var resultingValues = new PossibleValues();
+        var reporter = new DiagnosticReport<PossibleValues>();
         
-        foreach (var indexedSymbol in symbols)
+        foreach (var indexedValue in values)
         {
-            foreach (var indexingSymbol in indices)
+            foreach (var indexingValue in indices)
             {
-                var result = indexedSymbol.Index(indexingSymbol);
-                switch (result.OperationResult)
+                var result = indexedValue.Index(indexingValue);
+                if (result.OperationResult == OperationResult.Success)
                 {
-                    case OperationResult.Success:
-                        resultingSymbols.Add(result.Symbol!);
-                        continue;
+                    resultingValues.Add(result.Value!);
+                    continue;
                 }
                 
-                reporter.Report(new InvalidIndex(indexedSymbol.DataType, indexingSymbol.DataType));
+                reporter.Report(new InvalidIndex(indexedValue.DataType, indexingValue.DataType));
             }
         }
 
-        reporter.Data = resultingSymbols;
+        reporter.Data = resultingValues;
         return reporter;
-    }
-    
-    private Symbol ResolveSymbols(PossibleSymbols possibleSymbols, Symbol target, string variable)
-    {
-        var resultingSymbols = new PossibleSymbols();
-
-        var hasErroredForType = new HashSet<DataType> { DataType.InvalidType };
-
-        var hasErroredForNullable = false;
-
-        foreach (var symbol in possibleSymbols)
-        {
-            var hasError = false;
-            if (!hasErroredForType.Contains(symbol.DataType) && !symbol.DataType.IsCompatible(target.DataType))
-            {
-                DiagnosticReporter.Report(new TypeMismatch(symbol.DataType, target.DataType));
-                hasErroredForType.Add(symbol.DataType);
-                hasError = true;
-            }
-
-            if (!hasErroredForNullable && symbol.Nullable && !target.Nullable)
-            {
-                DiagnosticReporter.Report(new PossibleNullAssignment(variable));
-                hasErroredForNullable = true;
-                hasError = true;
-            }
-
-            if (!hasError)
-                resultingSymbols.Add(symbol);
-        }
-
-        // TODO: There's a lot more to be done to ensure the compiler keeps enough information such as checking for same values
-        if (resultingSymbols.Count == 1)
-            return resultingSymbols.Single();
-
-        return new Symbol(new Value(ValueKind.Unknown, null), target.DataType, target.Nullable);
     }
 
     private struct OperatorInformation(string @operator, string metamethod, bool swapOperands = false, bool negateResult = false)
@@ -602,120 +601,151 @@ public class SemanticAnalyzer
         { ">=", new OperatorInformation(">=", "__le", true, false) }
     };
 
-    private DiagnosticReport<PossibleSymbols> PerformArithmeticOperation(PossibleSymbols leftSymbols,
-        PossibleSymbols rightSymbols, OperatorInformation opInfo)
+    private DiagnosticReport<PossibleValues> PerformArithmeticOperation(PossibleValues leftValues,
+        PossibleValues rightValues, OperatorInformation opInfo)
     {
-        var diagnostics = new DiagnosticReport<PossibleSymbols>();
+        var diagnostics = new DiagnosticReport<PossibleValues>();
 
-        var resultingSymbols = new PossibleSymbols();
+        var resultingValues = new PossibleValues();
         var hasErroredForTypes = new HashSet<(DataType, DataType)>();
 
-        foreach (var leftSymbol in leftSymbols)
+        foreach (var leftValue in leftValues)
         {
-            foreach (var rightSymbol in rightSymbols)
+            foreach (var rightValue in rightValues)
             {
-                var result = leftSymbol.ArithmeticOperation(rightSymbol, opInfo.Metamethod);
-                switch (result.OperationResult)
+                var result = leftValue.ArithmeticOperation(rightValue, opInfo.Metamethod);
+                if (result.OperationResult == OperationResult.Success)
                 {
-                    case OperationResult.Success:
-                        resultingSymbols.Add(result.Symbol!);
-                        continue;
+                    resultingValues.Add(result.Value!);
+                    continue;
                 }
 
-                if (hasErroredForTypes.Contains((leftSymbol.DataType, rightSymbol.DataType)))
+                if (hasErroredForTypes.Contains((leftValue.DataType, rightValue.DataType)))
                     continue;
 
                 diagnostics.Report(
-                    new InvalidBinaryOperator(leftSymbol.DataType, rightSymbol.DataType, opInfo.Operator));
-                hasErroredForTypes.Add((leftSymbol.DataType, rightSymbol.DataType));
+                    new InvalidBinaryOperator(leftValue.DataType, rightValue.DataType, opInfo.Operator));
+                hasErroredForTypes.Add((leftValue.DataType, rightValue.DataType));
             }
         }
 
-        diagnostics.Data = resultingSymbols;
+        diagnostics.Data = resultingValues;
         return diagnostics;
     }
     
-    private DiagnosticReport<PossibleSymbols> PerformLogicOperation(PossibleSymbols leftSymbols,
-        PossibleSymbols rightSymbols, OperatorInformation opInfo)
+    private DiagnosticReport<PossibleValues> PerformLogicOperation(PossibleValues leftValues,
+        PossibleValues rightValues, OperatorInformation opInfo)
     {
-        var diagnostics = new DiagnosticReport<PossibleSymbols>();
+        var diagnostics = new DiagnosticReport<PossibleValues>();
 
         if (opInfo.SwapOperands)
-            (leftSymbols, rightSymbols) = (rightSymbols, leftSymbols);
+            (leftValues, rightValues) = (rightValues, leftValues);
 
-        var resultingSymbols = new PossibleSymbols();
+        var resultingValues = new PossibleValues();
         var hasErroredForTypes = new HashSet<(DataType, DataType)>();
 
-        foreach (var leftSymbol in leftSymbols)
+        foreach (var leftValue in leftValues)
         {
-            foreach (var rightSymbol in rightSymbols)
+            foreach (var rightValue in rightValues)
             {
-                var result = leftSymbol.LogicOperation(rightSymbol, opInfo.Metamethod);
-                switch (result.OperationResult)
+                var result = leftValue.LogicOperation(rightValue, opInfo.Metamethod);
+                if (result.OperationResult == OperationResult.Success)
                 {
-                    case OperationResult.Success:
-                        resultingSymbols.Add(result.Symbol!);
-                        continue;
+                    resultingValues.Add(result.Value!);
+                    continue;
                 }
 
-                if (hasErroredForTypes.Contains((leftSymbol.DataType, rightSymbol.DataType)))
+                if (hasErroredForTypes.Contains((leftValue.DataType, rightValue.DataType)))
                     continue;
 
                 diagnostics.Report(
-                    new InvalidBinaryOperator(leftSymbol.DataType, rightSymbol.DataType, opInfo.Operator));
-                hasErroredForTypes.Add((leftSymbol.DataType, rightSymbol.DataType));
+                    new InvalidBinaryOperator(leftValue.DataType, rightValue.DataType, opInfo.Operator));
+                hasErroredForTypes.Add((leftValue.DataType, rightValue.DataType));
             }
         }
 
         if (opInfo.NegateResult)
         {
-            var negatedSymbols = new PossibleSymbols();
+            var negatedValues = new PossibleValues();
 
-            foreach (var symbol in resultingSymbols)
+            foreach (var value in resultingValues)
             {
-                if (symbol.Value.Kind == ValueKind.Boolean)
+                if (value.Kind == ValueKind.Boolean)
                 {
-                    var negatedValue = !symbol.Value.GetBoolean();
-                    negatedSymbols.Add(new Symbol(new Value(ValueKind.Boolean, negatedValue), DataType.BooleanType,
-                        false));
+                    var negatedValue = !value.GetBoolean();
+                    negatedValues.Add(Value.From(negatedValue));
                 }
-                else if (symbol.Value.Kind == ValueKind.Null)
+                else if (value.Kind == ValueKind.Null)
                 {
-                    negatedSymbols.Add(new Symbol(new Value(ValueKind.Boolean, true), DataType.BooleanType, false));
+                    negatedValues.Add(Value.From(true));
                 }
-                else if (symbol.DataType == DataType.BooleanType || symbol.Nullable)
+                else if (value.DataType == DataType.BooleanType)
                 {
-                    negatedSymbols.Add(new Symbol(new Value(ValueKind.Unknown, null), DataType.BooleanType, false));
+                    negatedValues.Add(Value.Unknown(DataType.BooleanType));
                 }
                 else
                 {
                     // Any other object in Lua that is subjected to the `not` operator will be false
-                    negatedSymbols.Add(new Symbol(new Value(ValueKind.Boolean, false), DataType.BooleanType, false));
+                    negatedValues.Add(Value.From(false));
                 }
             }
 
-            resultingSymbols = negatedSymbols;
+            resultingValues = negatedValues;
         }
 
-        diagnostics.Data = resultingSymbols;
+        diagnostics.Data = resultingValues;
         return diagnostics;
+    }
+    
+    private DataType GetDataTypeFromReference(TypeReference typeReference)
+    {
+        switch (typeReference)
+        {
+            case ExpressionTypeReference expressionType:
+                return GetDataTypeFromExpression(expressionType.Expression);
+            case FunctionTypeReference functionType:
+                return FunctionType.FunctionBase;
+            case FuncTypeReference funcType:
+                return GetDataTypeFromFuncReference(funcType);
+            default:
+                throw new NotImplementedException($"Unhandled type reference: {typeReference}");
+        }
     }
 
     private DataType GetDataTypeFromExpression(Expression expression)
     {
-        var possibleSymbols = AnalyzeExpression(expression);
-        if (possibleSymbols.Count != 1)
+        var possibleValues = AnalyzeExpression(expression);
+        if (possibleValues.Count != 1)
         {
             DiagnosticReporter.Report(new InvalidType(expression));
             return DataType.InvalidType;
         }
 
-        if (possibleSymbols[0].DataType != DataType.MetaType)
+        if (possibleValues[0].DataType != DataType.MetaType)
         {
             DiagnosticReporter.Report(new InvalidType(expression));
             return DataType.InvalidType;
         }
+
+        return possibleValues[0].GetDataType();
+    }
+
+    private DataType GetDataTypeFromFuncReference(FuncTypeReference funcReference)
+    {
+        var parameterTypes = new List<TypeUsage>();
+        foreach (var paramReference in funcReference.Parameters)
+        {
+            var dataType = GetDataTypeFromReference(paramReference);
+            parameterTypes.Add(new TypeUsage(dataType, paramReference.Nullable));
+        }
+
+        var returnTypes = new List<TypeUsage>();
+        foreach (var returnReference in funcReference.Returns)
+        {
+            var dataType = GetDataTypeFromReference(returnReference);
+            returnTypes.Add(new TypeUsage(dataType, returnReference.Nullable));
+        }
         
-        return possibleSymbols[0].Value.GetDataType();
+        return new FunctionType(parameterTypes, returnTypes);
     }
 }

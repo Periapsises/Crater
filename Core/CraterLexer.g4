@@ -31,6 +31,8 @@ UNTIL    : 'until';
 CLASS  : 'class';
 STATIC : 'static';
 NEW    : 'new';
+VOID   : 'void';
+FUNC   : 'func';
 
 // Literals
 NUMBER      : Integer Decimal?;
