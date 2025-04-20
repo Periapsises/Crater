@@ -404,9 +404,6 @@ public partial class CraterParser : Parser {
 		public FunctionReturnTypesContext returnType;
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode FUNCTION() { return GetToken(CraterParser.FUNCTION, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode LPAREN() { return GetToken(CraterParser.LPAREN, 0); }
-		[System.Diagnostics.DebuggerNonUserCode] public FunctionParametersContext functionParameters() {
-			return GetRuleContext<FunctionParametersContext>(0);
-		}
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode RPAREN() { return GetToken(CraterParser.RPAREN, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode COLON() { return GetToken(CraterParser.COLON, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public BlockContext block() {
@@ -418,6 +415,9 @@ public partial class CraterParser : Parser {
 			return GetRuleContext<FunctionReturnTypesContext>(0);
 		}
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode LOCAL() { return GetToken(CraterParser.LOCAL, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public FunctionParametersContext functionParameters() {
+			return GetRuleContext<FunctionParametersContext>(0);
+		}
 		public FunctionDeclarationContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
@@ -465,17 +465,25 @@ public partial class CraterParser : Parser {
 			_localctx.name = Match(IDENTIFIER);
 			State = 68;
 			Match(LPAREN);
-			State = 69;
-			functionParameters();
 			State = 70;
-			Match(RPAREN);
-			State = 71;
-			Match(COLON);
+			ErrorHandler.Sync(this);
+			_la = TokenStream.LA(1);
+			if (_la==IDENTIFIER) {
+				{
+				State = 69;
+				functionParameters();
+				}
+			}
+
 			State = 72;
-			_localctx.returnType = functionReturnTypes();
+			Match(RPAREN);
 			State = 73;
-			block();
+			Match(COLON);
 			State = 74;
+			_localctx.returnType = functionReturnTypes();
+			State = 75;
+			block();
+			State = 76;
 			Match(END);
 			}
 		}
@@ -532,21 +540,21 @@ public partial class CraterParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 76;
+			State = 78;
 			functionParameter();
-			State = 81;
+			State = 83;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				State = 77;
+				State = 79;
 				Match(COMMA);
-				State = 78;
+				State = 80;
 				functionParameter();
 				}
 				}
-				State = 83;
+				State = 85;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 			}
@@ -601,11 +609,11 @@ public partial class CraterParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 84;
-			_localctx.name = Match(IDENTIFIER);
-			State = 85;
-			Match(COLON);
 			State = 86;
+			_localctx.name = Match(IDENTIFIER);
+			State = 87;
+			Match(COLON);
+			State = 88;
 			_localctx.type = dataType();
 			}
 		}
@@ -661,13 +669,13 @@ public partial class CraterParser : Parser {
 		EnterRule(_localctx, 14, RULE_functionReturnTypes);
 		try {
 			int _alt;
-			State = 97;
+			State = 99;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
 			case VOID:
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 88;
+				State = 90;
 				Match(VOID);
 				}
 				break;
@@ -684,25 +692,25 @@ public partial class CraterParser : Parser {
 			case LPAREN:
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 89;
+				State = 91;
 				dataType();
-				State = 94;
+				State = 96;
 				ErrorHandler.Sync(this);
-				_alt = Interpreter.AdaptivePredict(TokenStream,6,Context);
+				_alt = Interpreter.AdaptivePredict(TokenStream,7,Context);
 				while ( _alt!=2 && _alt!=global::Antlr4.Runtime.Atn.ATN.INVALID_ALT_NUMBER ) {
 					if ( _alt==1 ) {
 						{
 						{
-						State = 90;
+						State = 92;
 						Match(COMMA);
-						State = 91;
+						State = 93;
 						dataType();
 						}
 						} 
 					}
-					State = 96;
+					State = 98;
 					ErrorHandler.Sync(this);
-					_alt = Interpreter.AdaptivePredict(TokenStream,6,Context);
+					_alt = Interpreter.AdaptivePredict(TokenStream,7,Context);
 				}
 				}
 				break;
@@ -772,39 +780,39 @@ public partial class CraterParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 99;
-			Match(IF);
-			State = 100;
-			_localctx.condition = expression(0);
 			State = 101;
-			Match(THEN);
+			Match(IF);
 			State = 102;
+			_localctx.condition = expression(0);
+			State = 103;
+			Match(THEN);
+			State = 104;
 			block();
-			State = 106;
+			State = 108;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			while (_la==ELSEIF) {
 				{
 				{
-				State = 103;
+				State = 105;
 				elseIfStatement();
 				}
 				}
-				State = 108;
+				State = 110;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 			}
-			State = 110;
+			State = 112;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			if (_la==ELSE) {
 				{
-				State = 109;
+				State = 111;
 				elseStatement();
 				}
 			}
 
-			State = 112;
+			State = 114;
 			Match(END);
 			}
 		}
@@ -859,13 +867,13 @@ public partial class CraterParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 114;
-			Match(ELSEIF);
-			State = 115;
-			_localctx.condition = expression(0);
 			State = 116;
-			Match(THEN);
+			Match(ELSEIF);
 			State = 117;
+			_localctx.condition = expression(0);
+			State = 118;
+			Match(THEN);
+			State = 119;
 			block();
 			}
 		}
@@ -915,9 +923,9 @@ public partial class CraterParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 119;
+			State = 121;
 			Match(ELSE);
-			State = 120;
+			State = 122;
 			block();
 			}
 		}
@@ -972,21 +980,21 @@ public partial class CraterParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 122;
+			State = 124;
 			primaryExpression();
-			State = 123;
-			Match(LPAREN);
 			State = 125;
+			Match(LPAREN);
+			State = 127;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 35460315348992L) != 0)) {
 				{
-				State = 124;
+				State = 126;
 				functionArguments();
 				}
 			}
 
-			State = 127;
+			State = 129;
 			Match(RPAREN);
 			}
 		}
@@ -1043,21 +1051,21 @@ public partial class CraterParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 129;
+			State = 131;
 			expression(0);
-			State = 134;
+			State = 136;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				State = 130;
+				State = 132;
 				Match(COMMA);
-				State = 131;
+				State = 133;
 				expression(0);
 				}
 				}
-				State = 136;
+				State = 138;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 			}
@@ -1218,21 +1226,21 @@ public partial class CraterParser : Parser {
 		EnterRule(_localctx, 26, RULE_dataType);
 		int _la;
 		try {
-			State = 179;
+			State = 181;
 			ErrorHandler.Sync(this);
-			switch ( Interpreter.AdaptivePredict(TokenStream,18,Context) ) {
+			switch ( Interpreter.AdaptivePredict(TokenStream,19,Context) ) {
 			case 1:
 				_localctx = new FunctionLiteralContext(_localctx);
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 137;
-				Match(FUNCTION);
 				State = 139;
+				Match(FUNCTION);
+				State = 141;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 				if (_la==QMARK) {
 					{
-					State = 138;
+					State = 140;
 					((FunctionLiteralContext)_localctx).nullable = Match(QMARK);
 					}
 				}
@@ -1243,41 +1251,41 @@ public partial class CraterParser : Parser {
 				_localctx = new FuncLiteralContext(_localctx);
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 141;
+				State = 143;
 				Match(FUNC);
-				State = 142;
+				State = 144;
 				Match(LPAREN);
-				State = 151;
+				State = 153;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 35460319543298L) != 0)) {
 					{
-					State = 143;
+					State = 145;
 					dataType();
-					State = 148;
+					State = 150;
 					ErrorHandler.Sync(this);
 					_la = TokenStream.LA(1);
 					while (_la==COMMA) {
 						{
 						{
-						State = 144;
+						State = 146;
 						Match(COMMA);
-						State = 145;
+						State = 147;
 						dataType();
 						}
 						}
-						State = 150;
+						State = 152;
 						ErrorHandler.Sync(this);
 						_la = TokenStream.LA(1);
 					}
 					}
 				}
 
-				State = 153;
-				Match(RPAREN);
-				State = 154;
-				Match(COLON);
 				State = 155;
+				Match(RPAREN);
+				State = 156;
+				Match(COLON);
+				State = 157;
 				functionReturnTypes();
 				}
 				break;
@@ -1285,47 +1293,47 @@ public partial class CraterParser : Parser {
 				_localctx = new NullableFuncLiteralContext(_localctx);
 				EnterOuterAlt(_localctx, 3);
 				{
-				State = 156;
-				Match(LPAREN);
-				State = 157;
-				Match(FUNC);
 				State = 158;
 				Match(LPAREN);
-				State = 167;
+				State = 159;
+				Match(FUNC);
+				State = 160;
+				Match(LPAREN);
+				State = 169;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 35460319543298L) != 0)) {
 					{
-					State = 159;
+					State = 161;
 					dataType();
-					State = 164;
+					State = 166;
 					ErrorHandler.Sync(this);
 					_la = TokenStream.LA(1);
 					while (_la==COMMA) {
 						{
 						{
-						State = 160;
+						State = 162;
 						Match(COMMA);
-						State = 161;
+						State = 163;
 						dataType();
 						}
 						}
-						State = 166;
+						State = 168;
 						ErrorHandler.Sync(this);
 						_la = TokenStream.LA(1);
 					}
 					}
 				}
 
-				State = 169;
-				Match(RPAREN);
-				State = 170;
-				Match(COLON);
 				State = 171;
-				functionReturnTypes();
-				State = 172;
 				Match(RPAREN);
+				State = 172;
+				Match(COLON);
 				State = 173;
+				functionReturnTypes();
+				State = 174;
+				Match(RPAREN);
+				State = 175;
 				Match(QMARK);
 				}
 				break;
@@ -1333,14 +1341,14 @@ public partial class CraterParser : Parser {
 				_localctx = new ExpressionTypeContext(_localctx);
 				EnterOuterAlt(_localctx, 4);
 				{
-				State = 175;
-				expression(0);
 				State = 177;
+				expression(0);
+				State = 179;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 				if (_la==QMARK) {
 					{
-					State = 176;
+					State = 178;
 					((ExpressionTypeContext)_localctx).nullable = Match(QMARK);
 					}
 				}
@@ -1650,7 +1658,7 @@ public partial class CraterParser : Parser {
 			int _alt;
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 186;
+			State = 188;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
 			case IDENTIFIER:
@@ -1660,7 +1668,7 @@ public partial class CraterParser : Parser {
 				Context = _localctx;
 				_prevctx = _localctx;
 
-				State = 182;
+				State = 184;
 				primaryExpression();
 				}
 				break;
@@ -1669,9 +1677,9 @@ public partial class CraterParser : Parser {
 				_localctx = new UnaryOperationContext(_localctx);
 				Context = _localctx;
 				_prevctx = _localctx;
-				State = 183;
+				State = 185;
 				Match(MINUS);
-				State = 184;
+				State = 186;
 				expression(9);
 				}
 				break;
@@ -1685,7 +1693,7 @@ public partial class CraterParser : Parser {
 				_localctx = new LiteralExpressionContext(_localctx);
 				Context = _localctx;
 				_prevctx = _localctx;
-				State = 185;
+				State = 187;
 				literal();
 				}
 				break;
@@ -1693,27 +1701,27 @@ public partial class CraterParser : Parser {
 				throw new NoViableAltException(this);
 			}
 			Context.Stop = TokenStream.LT(-1);
-			State = 211;
+			State = 213;
 			ErrorHandler.Sync(this);
-			_alt = Interpreter.AdaptivePredict(TokenStream,21,Context);
+			_alt = Interpreter.AdaptivePredict(TokenStream,22,Context);
 			while ( _alt!=2 && _alt!=global::Antlr4.Runtime.Atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					if ( ParseListeners!=null )
 						TriggerExitRuleEvent();
 					_prevctx = _localctx;
 					{
-					State = 209;
+					State = 211;
 					ErrorHandler.Sync(this);
-					switch ( Interpreter.AdaptivePredict(TokenStream,20,Context) ) {
+					switch ( Interpreter.AdaptivePredict(TokenStream,21,Context) ) {
 					case 1:
 						{
 						_localctx = new ExponentOperationContext(new ExpressionContext(_parentctx, _parentState));
 						PushNewRecursionContext(_localctx, _startState, RULE_expression);
-						State = 188;
-						if (!(Precpred(Context, 8))) throw new FailedPredicateException(this, "Precpred(Context, 8)");
-						State = 189;
-						Match(EXP);
 						State = 190;
+						if (!(Precpred(Context, 8))) throw new FailedPredicateException(this, "Precpred(Context, 8)");
+						State = 191;
+						Match(EXP);
+						State = 192;
 						expression(9);
 						}
 						break;
@@ -1721,9 +1729,9 @@ public partial class CraterParser : Parser {
 						{
 						_localctx = new MultiplicativeOperationContext(new ExpressionContext(_parentctx, _parentState));
 						PushNewRecursionContext(_localctx, _startState, RULE_expression);
-						State = 191;
+						State = 193;
 						if (!(Precpred(Context, 7))) throw new FailedPredicateException(this, "Precpred(Context, 7)");
-						State = 192;
+						State = 194;
 						((MultiplicativeOperationContext)_localctx).op = TokenStream.LT(1);
 						_la = TokenStream.LA(1);
 						if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 3848290697216L) != 0)) ) {
@@ -1733,7 +1741,7 @@ public partial class CraterParser : Parser {
 							ErrorHandler.ReportMatch(this);
 						    Consume();
 						}
-						State = 193;
+						State = 195;
 						expression(8);
 						}
 						break;
@@ -1741,9 +1749,9 @@ public partial class CraterParser : Parser {
 						{
 						_localctx = new AdditiveOperationContext(new ExpressionContext(_parentctx, _parentState));
 						PushNewRecursionContext(_localctx, _startState, RULE_expression);
-						State = 194;
+						State = 196;
 						if (!(Precpred(Context, 6))) throw new FailedPredicateException(this, "Precpred(Context, 6)");
-						State = 195;
+						State = 197;
 						((AdditiveOperationContext)_localctx).op = TokenStream.LT(1);
 						_la = TokenStream.LA(1);
 						if ( !(_la==PLUS || _la==MINUS) ) {
@@ -1753,7 +1761,7 @@ public partial class CraterParser : Parser {
 							ErrorHandler.ReportMatch(this);
 						    Consume();
 						}
-						State = 196;
+						State = 198;
 						expression(7);
 						}
 						break;
@@ -1761,11 +1769,11 @@ public partial class CraterParser : Parser {
 						{
 						_localctx = new ConcatenationOperationContext(new ExpressionContext(_parentctx, _parentState));
 						PushNewRecursionContext(_localctx, _startState, RULE_expression);
-						State = 197;
-						if (!(Precpred(Context, 5))) throw new FailedPredicateException(this, "Precpred(Context, 5)");
-						State = 198;
-						Match(CONCAT);
 						State = 199;
+						if (!(Precpred(Context, 5))) throw new FailedPredicateException(this, "Precpred(Context, 5)");
+						State = 200;
+						Match(CONCAT);
+						State = 201;
 						expression(6);
 						}
 						break;
@@ -1773,9 +1781,9 @@ public partial class CraterParser : Parser {
 						{
 						_localctx = new LogicalOperationContext(new ExpressionContext(_parentctx, _parentState));
 						PushNewRecursionContext(_localctx, _startState, RULE_expression);
-						State = 200;
+						State = 202;
 						if (!(Precpred(Context, 4))) throw new FailedPredicateException(this, "Precpred(Context, 4)");
-						State = 201;
+						State = 203;
 						((LogicalOperationContext)_localctx).op = TokenStream.LT(1);
 						_la = TokenStream.LA(1);
 						if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 135291469824L) != 0)) ) {
@@ -1785,7 +1793,7 @@ public partial class CraterParser : Parser {
 							ErrorHandler.ReportMatch(this);
 						    Consume();
 						}
-						State = 202;
+						State = 204;
 						expression(5);
 						}
 						break;
@@ -1793,11 +1801,11 @@ public partial class CraterParser : Parser {
 						{
 						_localctx = new AndOperationContext(new ExpressionContext(_parentctx, _parentState));
 						PushNewRecursionContext(_localctx, _startState, RULE_expression);
-						State = 203;
-						if (!(Precpred(Context, 3))) throw new FailedPredicateException(this, "Precpred(Context, 3)");
-						State = 204;
-						Match(AND);
 						State = 205;
+						if (!(Precpred(Context, 3))) throw new FailedPredicateException(this, "Precpred(Context, 3)");
+						State = 206;
+						Match(AND);
+						State = 207;
 						expression(4);
 						}
 						break;
@@ -1805,20 +1813,20 @@ public partial class CraterParser : Parser {
 						{
 						_localctx = new OrOperationContext(new ExpressionContext(_parentctx, _parentState));
 						PushNewRecursionContext(_localctx, _startState, RULE_expression);
-						State = 206;
-						if (!(Precpred(Context, 2))) throw new FailedPredicateException(this, "Precpred(Context, 2)");
-						State = 207;
-						Match(OR);
 						State = 208;
+						if (!(Precpred(Context, 2))) throw new FailedPredicateException(this, "Precpred(Context, 2)");
+						State = 209;
+						Match(OR);
+						State = 210;
 						expression(3);
 						}
 						break;
 					}
 					} 
 				}
-				State = 213;
+				State = 215;
 				ErrorHandler.Sync(this);
-				_alt = Interpreter.AdaptivePredict(TokenStream,21,Context);
+				_alt = Interpreter.AdaptivePredict(TokenStream,22,Context);
 			}
 			}
 		}
@@ -1874,23 +1882,23 @@ public partial class CraterParser : Parser {
 			int _alt;
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 214;
+			State = 216;
 			prefixExpression();
-			State = 218;
+			State = 220;
 			ErrorHandler.Sync(this);
-			_alt = Interpreter.AdaptivePredict(TokenStream,22,Context);
+			_alt = Interpreter.AdaptivePredict(TokenStream,23,Context);
 			while ( _alt!=2 && _alt!=global::Antlr4.Runtime.Atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					State = 215;
+					State = 217;
 					postfixExpression();
 					}
 					} 
 				}
-				State = 220;
+				State = 222;
 				ErrorHandler.Sync(this);
-				_alt = Interpreter.AdaptivePredict(TokenStream,22,Context);
+				_alt = Interpreter.AdaptivePredict(TokenStream,23,Context);
 			}
 			}
 		}
@@ -1967,18 +1975,18 @@ public partial class CraterParser : Parser {
 		PrefixExpressionContext _localctx = new PrefixExpressionContext(Context, State);
 		EnterRule(_localctx, 32, RULE_prefixExpression);
 		try {
-			State = 226;
+			State = 228;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
 			case LPAREN:
 				_localctx = new ParenthesizedExpressionContext(_localctx);
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 221;
-				Match(LPAREN);
-				State = 222;
-				expression(0);
 				State = 223;
+				Match(LPAREN);
+				State = 224;
+				expression(0);
+				State = 225;
 				Match(RPAREN);
 				}
 				break;
@@ -1986,7 +1994,7 @@ public partial class CraterParser : Parser {
 				_localctx = new VariableReferenceContext(_localctx);
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 225;
+				State = 227;
 				Match(IDENTIFIER);
 				}
 				break;
@@ -2093,16 +2101,16 @@ public partial class CraterParser : Parser {
 		EnterRule(_localctx, 34, RULE_postfixExpression);
 		int _la;
 		try {
-			State = 239;
+			State = 241;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
 			case DOT:
 				_localctx = new DotIndexingContext(_localctx);
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 228;
+				State = 230;
 				Match(DOT);
-				State = 229;
+				State = 231;
 				Match(IDENTIFIER);
 				}
 				break;
@@ -2110,11 +2118,11 @@ public partial class CraterParser : Parser {
 				_localctx = new BracketIndexingContext(_localctx);
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 230;
-				Match(LSQRBRACKET);
-				State = 231;
-				expression(0);
 				State = 232;
+				Match(LSQRBRACKET);
+				State = 233;
+				expression(0);
+				State = 234;
 				Match(RSQRBRACKET);
 				}
 				break;
@@ -2122,19 +2130,19 @@ public partial class CraterParser : Parser {
 				_localctx = new FunctionCallContext(_localctx);
 				EnterOuterAlt(_localctx, 3);
 				{
-				State = 234;
-				Match(LPAREN);
 				State = 236;
+				Match(LPAREN);
+				State = 238;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 35460315348992L) != 0)) {
 					{
-					State = 235;
+					State = 237;
 					functionArguments();
 					}
 				}
 
-				State = 238;
+				State = 240;
 				Match(RPAREN);
 				}
 				break;
@@ -2190,7 +2198,7 @@ public partial class CraterParser : Parser {
 		EnterRule(_localctx, 36, RULE_literal);
 		int _la;
 		try {
-			State = 244;
+			State = 246;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
 			case NUMBER:
@@ -2199,7 +2207,7 @@ public partial class CraterParser : Parser {
 			case BINARY:
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 241;
+				State = 243;
 				_localctx.number = TokenStream.LT(1);
 				_la = TokenStream.LA(1);
 				if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 125829120L) != 0)) ) {
@@ -2214,14 +2222,14 @@ public partial class CraterParser : Parser {
 			case STRING:
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 242;
+				State = 244;
 				Match(STRING);
 				}
 				break;
 			case BOOLEAN:
 				EnterOuterAlt(_localctx, 3);
 				{
-				State = 243;
+				State = 245;
 				Match(BOOLEAN);
 				}
 				break;
@@ -2260,87 +2268,88 @@ public partial class CraterParser : Parser {
 	}
 
 	private static int[] _serializedATN = {
-		4,1,55,247,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,
+		4,1,55,249,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,
 		7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,2,13,7,13,2,14,7,14,
 		2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,1,0,1,0,1,0,1,1,5,1,43,8,1,10,
 		1,12,1,46,9,1,1,2,1,2,1,2,1,2,3,2,52,8,2,1,3,3,3,55,8,3,1,3,1,3,1,3,1,
-		3,1,3,3,3,62,8,3,1,4,3,4,65,8,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,
-		4,1,5,1,5,1,5,5,5,80,8,5,10,5,12,5,83,9,5,1,6,1,6,1,6,1,6,1,7,1,7,1,7,
-		1,7,5,7,93,8,7,10,7,12,7,96,9,7,3,7,98,8,7,1,8,1,8,1,8,1,8,1,8,5,8,105,
-		8,8,10,8,12,8,108,9,8,1,8,3,8,111,8,8,1,8,1,8,1,9,1,9,1,9,1,9,1,9,1,10,
-		1,10,1,10,1,11,1,11,1,11,3,11,126,8,11,1,11,1,11,1,12,1,12,1,12,5,12,133,
-		8,12,10,12,12,12,136,9,12,1,13,1,13,3,13,140,8,13,1,13,1,13,1,13,1,13,
-		1,13,5,13,147,8,13,10,13,12,13,150,9,13,3,13,152,8,13,1,13,1,13,1,13,1,
-		13,1,13,1,13,1,13,1,13,1,13,5,13,163,8,13,10,13,12,13,166,9,13,3,13,168,
-		8,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,3,13,178,8,13,3,13,180,8,
-		13,1,14,1,14,1,14,1,14,1,14,3,14,187,8,14,1,14,1,14,1,14,1,14,1,14,1,14,
+		3,1,3,3,3,62,8,3,1,4,3,4,65,8,4,1,4,1,4,1,4,1,4,3,4,71,8,4,1,4,1,4,1,4,
+		1,4,1,4,1,4,1,5,1,5,1,5,5,5,82,8,5,10,5,12,5,85,9,5,1,6,1,6,1,6,1,6,1,
+		7,1,7,1,7,1,7,5,7,95,8,7,10,7,12,7,98,9,7,3,7,100,8,7,1,8,1,8,1,8,1,8,
+		1,8,5,8,107,8,8,10,8,12,8,110,9,8,1,8,3,8,113,8,8,1,8,1,8,1,9,1,9,1,9,
+		1,9,1,9,1,10,1,10,1,10,1,11,1,11,1,11,3,11,128,8,11,1,11,1,11,1,12,1,12,
+		1,12,5,12,135,8,12,10,12,12,12,138,9,12,1,13,1,13,3,13,142,8,13,1,13,1,
+		13,1,13,1,13,1,13,5,13,149,8,13,10,13,12,13,152,9,13,3,13,154,8,13,1,13,
+		1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,5,13,165,8,13,10,13,12,13,168,
+		9,13,3,13,170,8,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,3,13,180,8,
+		13,3,13,182,8,13,1,14,1,14,1,14,1,14,1,14,3,14,189,8,14,1,14,1,14,1,14,
 		1,14,1,14,1,14,1,14,1,14,1,14,1,14,1,14,1,14,1,14,1,14,1,14,1,14,1,14,
-		1,14,5,14,210,8,14,10,14,12,14,213,9,14,1,15,1,15,5,15,217,8,15,10,15,
-		12,15,220,9,15,1,16,1,16,1,16,1,16,1,16,3,16,227,8,16,1,17,1,17,1,17,1,
-		17,1,17,1,17,1,17,1,17,3,17,237,8,17,1,17,3,17,240,8,17,1,18,1,18,1,18,
-		3,18,245,8,18,1,18,0,1,28,19,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,
-		32,34,36,0,4,1,0,39,41,1,0,37,38,1,0,31,36,1,0,23,26,266,0,38,1,0,0,0,
-		2,44,1,0,0,0,4,51,1,0,0,0,6,54,1,0,0,0,8,64,1,0,0,0,10,76,1,0,0,0,12,84,
-		1,0,0,0,14,97,1,0,0,0,16,99,1,0,0,0,18,114,1,0,0,0,20,119,1,0,0,0,22,122,
-		1,0,0,0,24,129,1,0,0,0,26,179,1,0,0,0,28,186,1,0,0,0,30,214,1,0,0,0,32,
-		226,1,0,0,0,34,239,1,0,0,0,36,244,1,0,0,0,38,39,3,2,1,0,39,40,5,0,0,1,
-		40,1,1,0,0,0,41,43,3,4,2,0,42,41,1,0,0,0,43,46,1,0,0,0,44,42,1,0,0,0,44,
-		45,1,0,0,0,45,3,1,0,0,0,46,44,1,0,0,0,47,52,3,6,3,0,48,52,3,8,4,0,49,52,
-		3,16,8,0,50,52,3,22,11,0,51,47,1,0,0,0,51,48,1,0,0,0,51,49,1,0,0,0,51,
-		50,1,0,0,0,52,5,1,0,0,0,53,55,5,2,0,0,54,53,1,0,0,0,54,55,1,0,0,0,55,56,
-		1,0,0,0,56,57,5,29,0,0,57,58,5,51,0,0,58,61,3,26,13,0,59,60,5,30,0,0,60,
-		62,3,28,14,0,61,59,1,0,0,0,61,62,1,0,0,0,62,7,1,0,0,0,63,65,5,2,0,0,64,
-		63,1,0,0,0,64,65,1,0,0,0,65,66,1,0,0,0,66,67,5,1,0,0,67,68,5,29,0,0,68,
-		69,5,45,0,0,69,70,3,10,5,0,70,71,5,46,0,0,71,72,5,51,0,0,72,73,3,14,7,
-		0,73,74,3,2,1,0,74,75,5,4,0,0,75,9,1,0,0,0,76,81,3,12,6,0,77,78,5,52,0,
-		0,78,80,3,12,6,0,79,77,1,0,0,0,80,83,1,0,0,0,81,79,1,0,0,0,81,82,1,0,0,
-		0,82,11,1,0,0,0,83,81,1,0,0,0,84,85,5,29,0,0,85,86,5,51,0,0,86,87,3,26,
-		13,0,87,13,1,0,0,0,88,98,5,21,0,0,89,94,3,26,13,0,90,91,5,52,0,0,91,93,
-		3,26,13,0,92,90,1,0,0,0,93,96,1,0,0,0,94,92,1,0,0,0,94,95,1,0,0,0,95,98,
-		1,0,0,0,96,94,1,0,0,0,97,88,1,0,0,0,97,89,1,0,0,0,98,15,1,0,0,0,99,100,
-		5,8,0,0,100,101,3,28,14,0,101,102,5,11,0,0,102,106,3,2,1,0,103,105,3,18,
-		9,0,104,103,1,0,0,0,105,108,1,0,0,0,106,104,1,0,0,0,106,107,1,0,0,0,107,
-		110,1,0,0,0,108,106,1,0,0,0,109,111,3,20,10,0,110,109,1,0,0,0,110,111,
-		1,0,0,0,111,112,1,0,0,0,112,113,5,4,0,0,113,17,1,0,0,0,114,115,5,9,0,0,
-		115,116,3,28,14,0,116,117,5,11,0,0,117,118,3,2,1,0,118,19,1,0,0,0,119,
-		120,5,10,0,0,120,121,3,2,1,0,121,21,1,0,0,0,122,123,3,30,15,0,123,125,
-		5,45,0,0,124,126,3,24,12,0,125,124,1,0,0,0,125,126,1,0,0,0,126,127,1,0,
-		0,0,127,128,5,46,0,0,128,23,1,0,0,0,129,134,3,28,14,0,130,131,5,52,0,0,
-		131,133,3,28,14,0,132,130,1,0,0,0,133,136,1,0,0,0,134,132,1,0,0,0,134,
-		135,1,0,0,0,135,25,1,0,0,0,136,134,1,0,0,0,137,139,5,1,0,0,138,140,5,43,
-		0,0,139,138,1,0,0,0,139,140,1,0,0,0,140,180,1,0,0,0,141,142,5,22,0,0,142,
-		151,5,45,0,0,143,148,3,26,13,0,144,145,5,52,0,0,145,147,3,26,13,0,146,
-		144,1,0,0,0,147,150,1,0,0,0,148,146,1,0,0,0,148,149,1,0,0,0,149,152,1,
-		0,0,0,150,148,1,0,0,0,151,143,1,0,0,0,151,152,1,0,0,0,152,153,1,0,0,0,
-		153,154,5,46,0,0,154,155,5,51,0,0,155,180,3,14,7,0,156,157,5,45,0,0,157,
-		158,5,22,0,0,158,167,5,45,0,0,159,164,3,26,13,0,160,161,5,52,0,0,161,163,
-		3,26,13,0,162,160,1,0,0,0,163,166,1,0,0,0,164,162,1,0,0,0,164,165,1,0,
-		0,0,165,168,1,0,0,0,166,164,1,0,0,0,167,159,1,0,0,0,167,168,1,0,0,0,168,
-		169,1,0,0,0,169,170,5,46,0,0,170,171,5,51,0,0,171,172,3,14,7,0,172,173,
-		5,46,0,0,173,174,5,43,0,0,174,180,1,0,0,0,175,177,3,28,14,0,176,178,5,
-		43,0,0,177,176,1,0,0,0,177,178,1,0,0,0,178,180,1,0,0,0,179,137,1,0,0,0,
-		179,141,1,0,0,0,179,156,1,0,0,0,179,175,1,0,0,0,180,27,1,0,0,0,181,182,
-		6,14,-1,0,182,187,3,30,15,0,183,184,5,38,0,0,184,187,3,28,14,9,185,187,
-		3,36,18,0,186,181,1,0,0,0,186,183,1,0,0,0,186,185,1,0,0,0,187,211,1,0,
-		0,0,188,189,10,8,0,0,189,190,5,42,0,0,190,210,3,28,14,9,191,192,10,7,0,
-		0,192,193,7,0,0,0,193,210,3,28,14,8,194,195,10,6,0,0,195,196,7,1,0,0,196,
-		210,3,28,14,7,197,198,10,5,0,0,198,199,5,44,0,0,199,210,3,28,14,6,200,
-		201,10,4,0,0,201,202,7,2,0,0,202,210,3,28,14,5,203,204,10,3,0,0,204,205,
-		5,6,0,0,205,210,3,28,14,4,206,207,10,2,0,0,207,208,5,7,0,0,208,210,3,28,
-		14,3,209,188,1,0,0,0,209,191,1,0,0,0,209,194,1,0,0,0,209,197,1,0,0,0,209,
-		200,1,0,0,0,209,203,1,0,0,0,209,206,1,0,0,0,210,213,1,0,0,0,211,209,1,
-		0,0,0,211,212,1,0,0,0,212,29,1,0,0,0,213,211,1,0,0,0,214,218,3,32,16,0,
-		215,217,3,34,17,0,216,215,1,0,0,0,217,220,1,0,0,0,218,216,1,0,0,0,218,
-		219,1,0,0,0,219,31,1,0,0,0,220,218,1,0,0,0,221,222,5,45,0,0,222,223,3,
-		28,14,0,223,224,5,46,0,0,224,227,1,0,0,0,225,227,5,29,0,0,226,221,1,0,
-		0,0,226,225,1,0,0,0,227,33,1,0,0,0,228,229,5,53,0,0,229,240,5,29,0,0,230,
-		231,5,49,0,0,231,232,3,28,14,0,232,233,5,50,0,0,233,240,1,0,0,0,234,236,
-		5,45,0,0,235,237,3,24,12,0,236,235,1,0,0,0,236,237,1,0,0,0,237,238,1,0,
-		0,0,238,240,5,46,0,0,239,228,1,0,0,0,239,230,1,0,0,0,239,234,1,0,0,0,240,
-		35,1,0,0,0,241,245,7,3,0,0,242,245,5,27,0,0,243,245,5,28,0,0,244,241,1,
-		0,0,0,244,242,1,0,0,0,244,243,1,0,0,0,245,37,1,0,0,0,27,44,51,54,61,64,
-		81,94,97,106,110,125,134,139,148,151,164,167,177,179,186,209,211,218,226,
-		236,239,244
+		1,14,1,14,1,14,1,14,5,14,212,8,14,10,14,12,14,215,9,14,1,15,1,15,5,15,
+		219,8,15,10,15,12,15,222,9,15,1,16,1,16,1,16,1,16,1,16,3,16,229,8,16,1,
+		17,1,17,1,17,1,17,1,17,1,17,1,17,1,17,3,17,239,8,17,1,17,3,17,242,8,17,
+		1,18,1,18,1,18,3,18,247,8,18,1,18,0,1,28,19,0,2,4,6,8,10,12,14,16,18,20,
+		22,24,26,28,30,32,34,36,0,4,1,0,39,41,1,0,37,38,1,0,31,36,1,0,23,26,269,
+		0,38,1,0,0,0,2,44,1,0,0,0,4,51,1,0,0,0,6,54,1,0,0,0,8,64,1,0,0,0,10,78,
+		1,0,0,0,12,86,1,0,0,0,14,99,1,0,0,0,16,101,1,0,0,0,18,116,1,0,0,0,20,121,
+		1,0,0,0,22,124,1,0,0,0,24,131,1,0,0,0,26,181,1,0,0,0,28,188,1,0,0,0,30,
+		216,1,0,0,0,32,228,1,0,0,0,34,241,1,0,0,0,36,246,1,0,0,0,38,39,3,2,1,0,
+		39,40,5,0,0,1,40,1,1,0,0,0,41,43,3,4,2,0,42,41,1,0,0,0,43,46,1,0,0,0,44,
+		42,1,0,0,0,44,45,1,0,0,0,45,3,1,0,0,0,46,44,1,0,0,0,47,52,3,6,3,0,48,52,
+		3,8,4,0,49,52,3,16,8,0,50,52,3,22,11,0,51,47,1,0,0,0,51,48,1,0,0,0,51,
+		49,1,0,0,0,51,50,1,0,0,0,52,5,1,0,0,0,53,55,5,2,0,0,54,53,1,0,0,0,54,55,
+		1,0,0,0,55,56,1,0,0,0,56,57,5,29,0,0,57,58,5,51,0,0,58,61,3,26,13,0,59,
+		60,5,30,0,0,60,62,3,28,14,0,61,59,1,0,0,0,61,62,1,0,0,0,62,7,1,0,0,0,63,
+		65,5,2,0,0,64,63,1,0,0,0,64,65,1,0,0,0,65,66,1,0,0,0,66,67,5,1,0,0,67,
+		68,5,29,0,0,68,70,5,45,0,0,69,71,3,10,5,0,70,69,1,0,0,0,70,71,1,0,0,0,
+		71,72,1,0,0,0,72,73,5,46,0,0,73,74,5,51,0,0,74,75,3,14,7,0,75,76,3,2,1,
+		0,76,77,5,4,0,0,77,9,1,0,0,0,78,83,3,12,6,0,79,80,5,52,0,0,80,82,3,12,
+		6,0,81,79,1,0,0,0,82,85,1,0,0,0,83,81,1,0,0,0,83,84,1,0,0,0,84,11,1,0,
+		0,0,85,83,1,0,0,0,86,87,5,29,0,0,87,88,5,51,0,0,88,89,3,26,13,0,89,13,
+		1,0,0,0,90,100,5,21,0,0,91,96,3,26,13,0,92,93,5,52,0,0,93,95,3,26,13,0,
+		94,92,1,0,0,0,95,98,1,0,0,0,96,94,1,0,0,0,96,97,1,0,0,0,97,100,1,0,0,0,
+		98,96,1,0,0,0,99,90,1,0,0,0,99,91,1,0,0,0,100,15,1,0,0,0,101,102,5,8,0,
+		0,102,103,3,28,14,0,103,104,5,11,0,0,104,108,3,2,1,0,105,107,3,18,9,0,
+		106,105,1,0,0,0,107,110,1,0,0,0,108,106,1,0,0,0,108,109,1,0,0,0,109,112,
+		1,0,0,0,110,108,1,0,0,0,111,113,3,20,10,0,112,111,1,0,0,0,112,113,1,0,
+		0,0,113,114,1,0,0,0,114,115,5,4,0,0,115,17,1,0,0,0,116,117,5,9,0,0,117,
+		118,3,28,14,0,118,119,5,11,0,0,119,120,3,2,1,0,120,19,1,0,0,0,121,122,
+		5,10,0,0,122,123,3,2,1,0,123,21,1,0,0,0,124,125,3,30,15,0,125,127,5,45,
+		0,0,126,128,3,24,12,0,127,126,1,0,0,0,127,128,1,0,0,0,128,129,1,0,0,0,
+		129,130,5,46,0,0,130,23,1,0,0,0,131,136,3,28,14,0,132,133,5,52,0,0,133,
+		135,3,28,14,0,134,132,1,0,0,0,135,138,1,0,0,0,136,134,1,0,0,0,136,137,
+		1,0,0,0,137,25,1,0,0,0,138,136,1,0,0,0,139,141,5,1,0,0,140,142,5,43,0,
+		0,141,140,1,0,0,0,141,142,1,0,0,0,142,182,1,0,0,0,143,144,5,22,0,0,144,
+		153,5,45,0,0,145,150,3,26,13,0,146,147,5,52,0,0,147,149,3,26,13,0,148,
+		146,1,0,0,0,149,152,1,0,0,0,150,148,1,0,0,0,150,151,1,0,0,0,151,154,1,
+		0,0,0,152,150,1,0,0,0,153,145,1,0,0,0,153,154,1,0,0,0,154,155,1,0,0,0,
+		155,156,5,46,0,0,156,157,5,51,0,0,157,182,3,14,7,0,158,159,5,45,0,0,159,
+		160,5,22,0,0,160,169,5,45,0,0,161,166,3,26,13,0,162,163,5,52,0,0,163,165,
+		3,26,13,0,164,162,1,0,0,0,165,168,1,0,0,0,166,164,1,0,0,0,166,167,1,0,
+		0,0,167,170,1,0,0,0,168,166,1,0,0,0,169,161,1,0,0,0,169,170,1,0,0,0,170,
+		171,1,0,0,0,171,172,5,46,0,0,172,173,5,51,0,0,173,174,3,14,7,0,174,175,
+		5,46,0,0,175,176,5,43,0,0,176,182,1,0,0,0,177,179,3,28,14,0,178,180,5,
+		43,0,0,179,178,1,0,0,0,179,180,1,0,0,0,180,182,1,0,0,0,181,139,1,0,0,0,
+		181,143,1,0,0,0,181,158,1,0,0,0,181,177,1,0,0,0,182,27,1,0,0,0,183,184,
+		6,14,-1,0,184,189,3,30,15,0,185,186,5,38,0,0,186,189,3,28,14,9,187,189,
+		3,36,18,0,188,183,1,0,0,0,188,185,1,0,0,0,188,187,1,0,0,0,189,213,1,0,
+		0,0,190,191,10,8,0,0,191,192,5,42,0,0,192,212,3,28,14,9,193,194,10,7,0,
+		0,194,195,7,0,0,0,195,212,3,28,14,8,196,197,10,6,0,0,197,198,7,1,0,0,198,
+		212,3,28,14,7,199,200,10,5,0,0,200,201,5,44,0,0,201,212,3,28,14,6,202,
+		203,10,4,0,0,203,204,7,2,0,0,204,212,3,28,14,5,205,206,10,3,0,0,206,207,
+		5,6,0,0,207,212,3,28,14,4,208,209,10,2,0,0,209,210,5,7,0,0,210,212,3,28,
+		14,3,211,190,1,0,0,0,211,193,1,0,0,0,211,196,1,0,0,0,211,199,1,0,0,0,211,
+		202,1,0,0,0,211,205,1,0,0,0,211,208,1,0,0,0,212,215,1,0,0,0,213,211,1,
+		0,0,0,213,214,1,0,0,0,214,29,1,0,0,0,215,213,1,0,0,0,216,220,3,32,16,0,
+		217,219,3,34,17,0,218,217,1,0,0,0,219,222,1,0,0,0,220,218,1,0,0,0,220,
+		221,1,0,0,0,221,31,1,0,0,0,222,220,1,0,0,0,223,224,5,45,0,0,224,225,3,
+		28,14,0,225,226,5,46,0,0,226,229,1,0,0,0,227,229,5,29,0,0,228,223,1,0,
+		0,0,228,227,1,0,0,0,229,33,1,0,0,0,230,231,5,53,0,0,231,242,5,29,0,0,232,
+		233,5,49,0,0,233,234,3,28,14,0,234,235,5,50,0,0,235,242,1,0,0,0,236,238,
+		5,45,0,0,237,239,3,24,12,0,238,237,1,0,0,0,238,239,1,0,0,0,239,240,1,0,
+		0,0,240,242,5,46,0,0,241,230,1,0,0,0,241,232,1,0,0,0,241,236,1,0,0,0,242,
+		35,1,0,0,0,243,247,7,3,0,0,244,247,5,27,0,0,245,247,5,28,0,0,246,243,1,
+		0,0,0,246,244,1,0,0,0,246,245,1,0,0,0,247,37,1,0,0,0,28,44,51,54,61,64,
+		70,83,96,99,108,112,127,136,141,150,153,166,169,179,181,188,211,213,220,
+		228,238,241,246
 	};
 
 	public static readonly ATN _ATN =

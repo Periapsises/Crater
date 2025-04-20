@@ -8,15 +8,15 @@ using Core.SyntaxTreeConverter.Statements;
 using Environment = System.Environment;
 using Expression = Core.SyntaxTreeConverter.Expression;
 
-namespace Transpiler;
+namespace Compiler;
 
-public class Transpiler(string input)
+public class Compiler(string input)
 {
     private int _spacing = 0;
     private readonly StringBuilder _builder = new();
     private readonly string _nl = Environment.NewLine;
     
-    public TranslationResult Transpile()
+    public string Compile()
     {
         var inputStream = new AntlrInputStream(input);
         var craterLexer = new CraterLexer(inputStream);
@@ -31,33 +31,33 @@ public class Transpiler(string input)
         var semanticAnalyzer = new SemanticAnalyzer();
         semanticAnalyzer.AnalyzeModule(module);
         
-        TranspileModule(module);
+        CompileModule(module);
         
-        return new TranslationResult(_builder.ToString());
+        return _builder.ToString();
     }
 
-    private void TranspileModule(Module module)
+    private void CompileModule(Module module)
     {
-        TranspileBlock(module.Block);
+        CompileBlock(module.Block);
     }
 
-    private void TranspileBlock(Block block)
+    private void CompileBlock(Block block)
     {
         foreach (var statement in block.Statements)
         {
             switch (statement)
             {
                 case VariableDeclaration variableDeclaration:
-                    TranspileVariableDeclaration(variableDeclaration);
+                    CompileVariableDeclaration(variableDeclaration);
                     break;
                 case FunctionDeclaration functionDeclaration:
-                    TranspileFunctionDeclaration(functionDeclaration);
+                    CompileFunctionDeclaration(functionDeclaration);
                     break;
                 case IfStatement ifStatement:
-                    TranspileIfStatement(ifStatement);
+                    CompileIfStatement(ifStatement);
                     break;
                 case FunctionCallStatement functionCallStatement:
-                    TranspileFunctionCallStatement(functionCallStatement);
+                    CompileFunctionCallStatement(functionCallStatement);
                     break;
                 default:
                     throw new NotImplementedException($"Unsupported statement type {statement.GetType()}");
@@ -65,7 +65,7 @@ public class Transpiler(string input)
         }
     }
 
-    private void TranspileVariableDeclaration(VariableDeclaration variableDeclaration)
+    private void CompileVariableDeclaration(VariableDeclaration variableDeclaration)
     {
         AppendSpacing();
         
@@ -77,13 +77,13 @@ public class Transpiler(string input)
         if (variableDeclaration.Initializer != null)
         {
             Append(" = ");
-            TranspileExpression(variableDeclaration.Initializer);
+            CompileExpression(variableDeclaration.Initializer);
         }
         
         Append(_nl);
     }
 
-    private void TranspileFunctionDeclaration(FunctionDeclaration functionDeclaration)
+    private void CompileFunctionDeclaration(FunctionDeclaration functionDeclaration)
     {
         AppendSpacing();
         
@@ -95,59 +95,59 @@ public class Transpiler(string input)
         Append(")" + _nl);
         
         _spacing += 4;
-        TranspileBlock(functionDeclaration.Block);
+        CompileBlock(functionDeclaration.Block);
         _spacing -= 4;
         
         AppendSpacing();
         Append("end" + _nl);
     }
 
-    private void TranspileIfStatement(IfStatement ifStatement)
+    private void CompileIfStatement(IfStatement ifStatement)
     {
         AppendSpacing();
         Append("if ");
-        TranspileExpression(ifStatement.Condition);
+        CompileExpression(ifStatement.Condition);
         Append(" then" + _nl);
         
         _spacing += 4;
-        TranspileBlock(ifStatement.Block);
+        CompileBlock(ifStatement.Block);
         _spacing -= 4;
         
         foreach (var elseIfStatement in ifStatement.ElseIfStatements)
-            TranspileElseIfStatement(elseIfStatement);
+            CompileElseIfStatement(elseIfStatement);
         
         if (ifStatement.ElseStatement != null)
-            TranspileElseStatement(ifStatement.ElseStatement);
+            CompileElseStatement(ifStatement.ElseStatement);
         
         Append("end" + _nl);
     }
 
-    private void TranspileElseIfStatement(ElseIfStatement ifStatement)
+    private void CompileElseIfStatement(ElseIfStatement ifStatement)
     {
         AppendSpacing();
         Append("elseif ");
-        TranspileExpression(ifStatement.Condition);
+        CompileExpression(ifStatement.Condition);
         Append(" then" + _nl);
         
         _spacing += 4;
-        TranspileBlock(ifStatement.Block);
+        CompileBlock(ifStatement.Block);
         _spacing -= 4;
     }
 
-    private void TranspileElseStatement(ElseStatement elseStatement)
+    private void CompileElseStatement(ElseStatement elseStatement)
     {
         AppendSpacing();
         Append("else" + _nl);
         
         _spacing += 4;
-        TranspileBlock(elseStatement.Block);
+        CompileBlock(elseStatement.Block);
         _spacing -= 4;
     }
 
-    private void TranspileFunctionCallStatement(FunctionCallStatement functionCallStatement)
+    private void CompileFunctionCallStatement(FunctionCallStatement functionCallStatement)
     {
         AppendSpacing();
-        TranspileExpression(functionCallStatement.PrimaryExpression);
+        CompileExpression(functionCallStatement.PrimaryExpression);
         Append('(');
 
         if (functionCallStatement.Arguments.Count > 0)
@@ -156,7 +156,7 @@ public class Transpiler(string input)
 
             for (var i = 0; i < functionCallStatement.Arguments.Count; i++)
             {
-                TranspileExpression(functionCallStatement.Arguments[i]);
+                CompileExpression(functionCallStatement.Arguments[i]);
                 if (i < functionCallStatement.Arguments.Count - 1)
                     Append(", ");
             }
@@ -167,7 +167,7 @@ public class Transpiler(string input)
         Append(')');
     }
     
-    private void TranspileExpression(Expression expression)
+    private void CompileExpression(Expression expression)
     {
         switch (expression)
         {
@@ -184,64 +184,64 @@ public class Transpiler(string input)
                 break;
             case ParenthesizedExpression parenthesizedExpression:
                 Append("( ");
-                TranspileExpression(parenthesizedExpression.Expression);
+                CompileExpression(parenthesizedExpression.Expression);
                 Append(" )");
                 break;
             case BinaryOperation binaryOperation:
-                TranspileExpression(binaryOperation.Left);
+                CompileExpression(binaryOperation.Left);
                 Append($" {binaryOperation.Operator} ");
-                TranspileExpression(binaryOperation.Right);
+                CompileExpression(binaryOperation.Right);
                 break;
             case LogicalOperation logicalOperation:
-                TranspileExpression(logicalOperation.Left);
+                CompileExpression(logicalOperation.Left);
                 Append($" {logicalOperation.Operator} ");
-                TranspileExpression(logicalOperation.Right);
+                CompileExpression(logicalOperation.Right);
                 break;
             case AndOperation andOperation:
-                TranspileExpression(andOperation.Left);
+                CompileExpression(andOperation.Left);
                 Append($" {andOperation.Operator} ");
-                TranspileExpression(andOperation.Right);
+                CompileExpression(andOperation.Right);
                 break;
             case OrOperation orOperation:
-                TranspileExpression(orOperation.Left);
+                CompileExpression(orOperation.Left);
                 Append($" {orOperation.Operator} ");
-                TranspileExpression(orOperation.Right);
+                CompileExpression(orOperation.Right);
                 break;
             case UnaryOperation unaryOperation:
                 Append($"{unaryOperation.Operator}");
                 if (unaryOperation.Operator != "-") Append(' ');
-                TranspileExpression(unaryOperation.Expression);
+                CompileExpression(unaryOperation.Expression);
                 break;
             case VariableReference variableReference:
                 Append(variableReference.Name);
                 break;
             case PrimaryExpression primaryExpression:
-                TranspilePrimaryExpression(primaryExpression);
+                CompilePrimaryExpression(primaryExpression);
                 break;
             case DotIndex dotIndex:
                 Append($".{dotIndex.Index}");
                 break;
             case BracketIndex bracketIndex:
                 Append('[');
-                TranspileExpression(bracketIndex.Index);
+                CompileExpression(bracketIndex.Index);
                 Append(']');
                 break;
             case FunctionCall functionCall:
-                TranspileFunctionCallExpression(functionCall);
+                CompileFunctionCallExpression(functionCall);
                 break;
             default:
                 throw new NotImplementedException($"Unsupported expression type {expression.GetType()}");
         }
     }
     
-    private void TranspilePrimaryExpression(PrimaryExpression primaryExpression)
+    private void CompilePrimaryExpression(PrimaryExpression primaryExpression)
     {
-        TranspileExpression(primaryExpression.PrefixExpression);
+        CompileExpression(primaryExpression.PrefixExpression);
         foreach (var postfixExpression in primaryExpression.PostfixExpressions)
-            TranspileExpression(postfixExpression);
+            CompileExpression(postfixExpression);
     }
 
-    private void TranspileFunctionCallExpression(FunctionCall functionCall)
+    private void CompileFunctionCallExpression(FunctionCall functionCall)
     {
         Append('(');
 
@@ -251,7 +251,7 @@ public class Transpiler(string input)
 
             for (var i = 0; i < functionCall.Arguments.Count; i++)
             {
-                TranspileExpression(functionCall.Arguments[i]);
+                CompileExpression(functionCall.Arguments[i]);
                 if (i < functionCall.Arguments.Count - 1)
                     Append(", ");
             }
@@ -269,9 +269,4 @@ public class Transpiler(string input)
     }
     private void Append(string str) => _builder.Append(str);
     private void Append(char ch) => _builder.Append(ch);
-}
-
-public class TranslationResult(string translatedCode)
-{
-    public readonly string TranslatedCode = translatedCode;
 }

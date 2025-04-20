@@ -20,7 +20,7 @@ statement:
 
 variableDeclaration: LOCAL? name=IDENTIFIER COLON type=dataType (ASSIGN initializer=expression)?;
 
-functionDeclaration: LOCAL? FUNCTION name=IDENTIFIER LPAREN functionParameters RPAREN COLON returnType=functionReturnTypes block END;
+functionDeclaration: LOCAL? FUNCTION name=IDENTIFIER LPAREN functionParameters? RPAREN COLON returnType=functionReturnTypes block END;
 
 functionParameters: functionParameter (COMMA functionParameter)*;
 
@@ -38,11 +38,13 @@ functionCallStatement: primaryExpression LPAREN functionArguments? RPAREN;
 
 functionArguments: expression (COMMA expression)*; 
 
+genericParameters: LESS dataType (COMMA dataType)* GREATER;
+
 dataType:
-    FUNCTION nullable=QMARK?                                                                            # FunctionLiteral
+    FUNCTION genericParameters? nullable=QMARK?                                                         # FunctionLiteral
     | FUNC LPAREN (dataType (COMMA dataType)*)? RPAREN COLON functionReturnTypes                        # FuncLiteral
     | LPAREN FUNC LPAREN (dataType (COMMA dataType)*)? RPAREN COLON functionReturnTypes RPAREN QMARK    # NullableFuncLiteral
-    | expression nullable=QMARK?                                                                        # ExpressionType
+    | expression genericParameters? nullable=QMARK?                                                     # ExpressionType
 ;
 
 expression:

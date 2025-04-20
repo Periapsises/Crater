@@ -42,7 +42,12 @@ public class SyntaxTreeConverter : CraterParserBaseVisitor<object?>
     {
         var isLocal = context.LOCAL() != null;
         var identifier = context.name.Text!;
-        var arguments = (List<ParameterDeclaration>)Visit(context.functionParameters())!;
+        List<ParameterDeclaration> arguments;
+        if (context.functionParameters() != null)
+            arguments = (List<ParameterDeclaration>)Visit(context.functionParameters())!;
+        else
+            arguments = [];
+        
         var returnDataTypeReference = (List<TypeReference>)Visit(context.returnType)!;
         var block = (Block)Visit(context.block())!;
         

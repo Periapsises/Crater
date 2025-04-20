@@ -2,9 +2,9 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{EF2B8BE5-26F6-4421-BD42-59AF110A5BC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transpiler", "Transpiler\Transpiler.csproj", "{E3D395E1-6E1E-48A0-8956-038DA524E056}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Compiler", "Compiler\Compiler.csproj", "{E3D395E1-6E1E-48A0-8956-038DA524E056}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CLI", "CLI\CLI.csproj", "{551403B5-E45D-4461-AD14-3819494B6E0E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CraterC", "CraterC\CraterC.csproj", "{551403B5-E45D-4461-AD14-3819494B6E0E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
