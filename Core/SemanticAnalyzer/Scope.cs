@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Core.SyntaxTreeConverter;
 
 namespace Core.SemanticAnalyzer;
 
@@ -16,15 +15,15 @@ public class Scope(Scope? parent = null)
     {
         return _symbols.ContainsKey(name);
     }
-    
+
     public bool TryGetSymbol(string name, [NotNullWhen(true)] out Symbol? symbol)
     {
         if (_symbols.TryGetValue(name, out symbol))
             return true;
-        
+
         if (parent != null)
             return parent.TryGetSymbol(name, out symbol);
-        
+
         return false;
     }
 }

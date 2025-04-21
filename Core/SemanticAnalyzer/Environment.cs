@@ -1,21 +1,22 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Core.SyntaxTreeConverter;
 using Core.SyntaxTreeConverter.Expressions;
 
 namespace Core.SemanticAnalyzer;
 
 public class Environment
 {
-    public static Environment? Instance { get; private set; }
-
     private readonly Scope _globalScope = new();
-    private Scope? _localScope;
 
-    private readonly Stack<Scope> _previousScopes = [];
-    
     private readonly Dictionary<string, Scope> _moduleScopes = [];
 
-    private Environment() { }
+    private readonly Stack<Scope> _previousScopes = [];
+    private Scope? _localScope;
+
+    private Environment()
+    {
+    }
+
+    public static Environment? Instance { get; private set; }
 
     public static void SetupEnvironment()
     {
@@ -25,7 +26,7 @@ public class Environment
     public static void EnterModuleScope(string moduleName)
     {
         if (Instance is null) throw new NullReferenceException();
-        
+
         if (Instance._moduleScopes.TryGetValue(moduleName, out var scope))
         {
             Instance._localScope = scope;
@@ -39,7 +40,7 @@ public class Environment
     public static void ExitModuleScope()
     {
         if (Instance is null) throw new NullReferenceException();
-        
+
         Instance._localScope = null;
     }
 
@@ -71,7 +72,7 @@ public class Environment
     {
         if (Instance is null) throw new NullReferenceException();
         if (Instance._localScope is null) throw new NullReferenceException();
-        
+
         Instance._previousScopes.Push(Instance._localScope);
         Instance._localScope = scope;
     }
@@ -86,7 +87,7 @@ public class Environment
             Instance._localScope = scope;
             return;
         }
-        
+
         throw new NullReferenceException();
     }
 
@@ -101,7 +102,7 @@ public class Environment
     public static void DeclareGlobal(string name, Symbol symbol)
     {
         if (Instance is null) throw new NullReferenceException();
-        
+
         Instance._globalScope.Declare(name, symbol);
     }
 
@@ -109,7 +110,7 @@ public class Environment
     {
         if (Instance is null) throw new NullReferenceException();
         if (Instance._localScope is null) throw new NullReferenceException();
-        
+
         return Instance._localScope.TryGetSymbol(variableReference.Name, out symbol);
     }
 }

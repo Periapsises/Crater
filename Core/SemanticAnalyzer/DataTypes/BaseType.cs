@@ -2,7 +2,10 @@
 
 public class BaseType() : DataType(null)
 {
-    public override string GetName() => "base";
+    public override string GetName()
+    {
+        return "base";
+    }
 
     public override Result TryArithmeticOperation(Value left, Value right, string op)
     {

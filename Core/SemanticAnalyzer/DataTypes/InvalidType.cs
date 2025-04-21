@@ -2,8 +2,11 @@
 
 public class InvalidType() : DataType(BaseType)
 {
-    public override string GetName() => "INVALID_TYPE";
-    
+    public override string GetName()
+    {
+        return "INVALID_TYPE";
+    }
+
     public override Result TryArithmeticOperation(Value left, Value right, string op)
     {
         return new Result(OperationResult.Success, Value.InvalidValue);

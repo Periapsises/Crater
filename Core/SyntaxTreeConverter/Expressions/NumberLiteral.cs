@@ -1,18 +1,17 @@
 ﻿using System.Globalization;
-using Core.Antlr;
 
 namespace Core.SyntaxTreeConverter.Expressions;
 
-public class NumberLiteral: Expression
+public class NumberLiteral : Expression
 {
+    public readonly LiteralCtx Context;
     public readonly string StringRepresentation;
     public readonly double Value;
-    public readonly LiteralCtx Context;
 
     public NumberLiteral(LiteralCtx context) : base(context.GetText())
     {
         StringRepresentation = context.number.Text;
-        
+
         if (context.NUMBER() != null)
             Value = double.Parse(context.NUMBER().GetText()!);
         if (context.EXPONENTIAL() != null)
@@ -24,7 +23,7 @@ public class NumberLiteral: Expression
             Value = long.Parse(context.BINARY().GetText()!.Substring(2), NumberStyles.BinaryNumber);
             StringRepresentation = Value.ToString();
         }
-        
+
         Context = context;
     }
 }

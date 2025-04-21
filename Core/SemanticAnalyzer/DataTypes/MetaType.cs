@@ -2,8 +2,11 @@
 
 public class MetaType() : DataType(BaseType)
 {
-    public override string GetName() => "type";
-    
+    public override string GetName()
+    {
+        return "type";
+    }
+
     public override Result TryArithmeticOperation(Value left, Value right, string op)
     {
         return new Result(OperationResult.NotImplemented);

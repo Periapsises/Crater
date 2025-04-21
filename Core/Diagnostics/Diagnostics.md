@@ -1,6 +1,7 @@
 ﻿# Crater Diagnostics
 
-Diagnostics are the error and warning messages the compiler will generate if it encounters problematic behavior in the source code.
+Diagnostics are the error and warning messages the compiler will generate if it encounters problematic behavior in the
+source code.
 
 ## Diagnostic Categories
 
@@ -20,10 +21,10 @@ The first number represents the category in which the diagnostic belongs.
 
 ### Type Errors
 
-**[CRA200]** Type Mismatch  
+**[CRA200]** Type Mismatch
 > The types of two values do not match where they are expected to be the same.
 
-**[CRA201]** Undefined Type  
+**[CRA201]** Undefined Type
 > A variable or function expects a type that is not defined or recognized.
 
 **[CRA202]** Nullable Type Mismatch
@@ -59,6 +60,15 @@ The first number represents the category in which the diagnostic belongs.
 ### Name Resolution
 
 ### Semantic Warnings
+
+**[CRA400]** Unreachable Code
+> Part of the code is unreachable due to an early return.
+
+**[CRA401]** Condition is always the same
+> A condition always evaluates to the same value at runtime.
+
+**[CRA402]** Variable Shadowing
+> A variable declaration shadows an existing binding.
 
 ### Linter Warnings
 

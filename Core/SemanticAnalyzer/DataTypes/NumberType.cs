@@ -2,7 +2,10 @@
 
 public class NumberType() : DataType(BaseType)
 {
-    public override string GetName() => "number";
+    public override string GetName()
+    {
+        return "number";
+    }
 
     public override Result TryArithmeticOperation(Value left, Value right, string op)
     {
@@ -10,20 +13,18 @@ public class NumberType() : DataType(BaseType)
         {
             // TODO: Show a warning for potential conversion of invalid number formats
             if (right.Kind == ValueKind.String)
-            {
                 try
                 {
                     var numberValue = double.Parse(right.GetString());
                     right = Value.From(numberValue);
                 }
-                catch (FormatException) { }
-            }
+                catch (FormatException)
+                {
+                }
             else
-            {
                 right = Value.Unknown(NumberType);
-            }
         }
-        
+
         if (left.Kind == ValueKind.Number && right.Kind == ValueKind.Number)
         {
             var number = op switch
@@ -36,7 +37,7 @@ public class NumberType() : DataType(BaseType)
                 "__exp" => Math.Pow(left.GetNumber(), right.GetNumber()),
                 _ => throw new NotImplementedException($"Invalid arithmetic operator {op}")
             };
-            
+
             return new Result(OperationResult.Success, Value.From(number));
         }
 
@@ -57,14 +58,11 @@ public class NumberType() : DataType(BaseType)
                 "__le" => left.GetNumber() <= right.GetNumber(),
                 _ => throw new NotImplementedException($"Invalid logic operator {op}")
             };
-            
+
             return new Result(OperationResult.Success, Value.From(value));
         }
 
-        if (right.DataType == NumberType)
-        {
-            return new Result(OperationResult.Success, Value.Unknown(BooleanType));
-        }
+        if (right.DataType == NumberType) return new Result(OperationResult.Success, Value.Unknown(BooleanType));
 
         return new Result(OperationResult.NotImplemented);
     }
@@ -82,11 +80,8 @@ public class NumberType() : DataType(BaseType)
             return new Result(OperationResult.Success, Value.From(number));
         }
 
-        if (self.DataType == NumberType)
-        {
-            return new Result(OperationResult.Success, Value.Unknown(NumberType));
-        }
-        
+        if (self.DataType == NumberType) return new Result(OperationResult.Success, Value.Unknown(NumberType));
+
         return new Result(OperationResult.NotImplemented);
     }
 
@@ -97,7 +92,7 @@ public class NumberType() : DataType(BaseType)
             var stringRepresentation = self.GetNumber().ToString();
             return new Result(OperationResult.Success, Value.From(stringRepresentation));
         }
-        
+
         return new Result(OperationResult.Success, Value.Unknown(StringType));
     }
 

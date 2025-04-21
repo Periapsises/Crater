@@ -1,13 +1,10 @@
-﻿using Core.SemanticAnalyzer.Diagnostics;
-
-namespace Core.SemanticAnalyzer.DataTypes;
+﻿namespace Core.SemanticAnalyzer.DataTypes;
 
 public class FunctionType(List<TypeUsage> parameterTypes, List<TypeUsage> returnTypes) : DataType(BaseType)
 {
+    public static readonly DataType FunctionBase = new FunctionType([], []);
     private readonly List<TypeUsage> _parameterTypes = parameterTypes;
     private readonly List<TypeUsage> _returnTypes = returnTypes;
-    
-    public static readonly DataType FunctionBase = new FunctionType([], []);
 
     public override string GetName()
     {
@@ -16,10 +13,10 @@ public class FunctionType(List<TypeUsage> parameterTypes, List<TypeUsage> return
 
         if (_returnTypes.Count == 0)
             returns = "void";
-        
+
         return $"func({args}): {returns}";
     }
-    
+
     public override Result TryArithmeticOperation(Value left, Value right, string op)
     {
         return new Result(OperationResult.NotImplemented);
@@ -55,43 +52,42 @@ public class FunctionType(List<TypeUsage> parameterTypes, List<TypeUsage> return
 
         var hasErroringArguments = false;
         for (var i = 0; i < _parameterTypes.Count; i++)
-        {
             if (!arguments[i].DataType.IsCompatible(_parameterTypes[i].DataType))
             {
-                DiagnosticReporter.Report(new InvalidArgumentType(arguments[i].DataType, _parameterTypes[i].DataType, i));
+                DiagnosticReporter.Report(
+                    new InvalidArgumentType(arguments[i].DataType, _parameterTypes[i].DataType, i));
                 hasErroringArguments = true;
             }
-        }
-        
+
         if (hasErroringArguments)
             return new Result(OperationResult.Failure);
-        
+
         return new Result(OperationResult.Success);
     }
 
     public override bool IsCompatible(DataType other)
     {
         if (other == FunctionBase) return true;
-        
+
         if (other is FunctionType function)
         {
             if (function._parameterTypes.Count != _parameterTypes.Count) return false;
             if (function._returnTypes.Count != _returnTypes.Count) return false;
-            
+
             for (var i = 0; i < _parameterTypes.Count; i++)
                 if (!function._parameterTypes[i].DataType.IsCompatible(_parameterTypes[i].DataType))
                     return false;
-            
+
             for (var i = 0; i < _returnTypes.Count; i++)
                 if (!_returnTypes[i].DataType.IsCompatible(function._returnTypes[i].DataType))
                     return false;
-            
+
             return true;
         }
 
         return false;
     }
-    
+
     private bool SameSignatureAs(FunctionType function)
     {
         if (function._parameterTypes.Count != _parameterTypes.Count) return false;
@@ -101,7 +97,7 @@ public class FunctionType(List<TypeUsage> parameterTypes, List<TypeUsage> return
             if (function._parameterTypes[i].Nullable != _parameterTypes[i].Nullable) return false;
             if (function._parameterTypes[i].DataType != _parameterTypes[i].DataType) return false;
         }
-        
+
         return true;
     }
 
@@ -114,7 +110,7 @@ public class FunctionType(List<TypeUsage> parameterTypes, List<TypeUsage> return
             if (function._returnTypes[i].Nullable != _returnTypes[i].Nullable) return false;
             if (function._returnTypes[i].DataType != _returnTypes[i].DataType) return false;
         }
-        
+
         return true;
     }
 

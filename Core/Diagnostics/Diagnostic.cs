@@ -12,9 +12,9 @@ public enum Severity
 
 public abstract class Diagnostic(string code, string message, Severity severity)
 {
-    public readonly Severity Severity = severity;
     public readonly string Code = code;
     public readonly string Message = message;
+    public readonly Severity Severity = severity;
 
     public int Line { get; private set; } = -1;
     public int Column { get; private set; } = -1;
@@ -24,15 +24,22 @@ public abstract class Diagnostic(string code, string message, Severity severity)
     public override string ToString()
     {
         var message = string.Format(Message, args.Cast<object?>().ToArray());
-        
+
         if (Line == -1 || Column == -1)
             return $"[{Code}] {message} at unknown location.";
-        
+
         return $"[{Code}] {message} at line {Line} column {Column}.";
     }
 
-    public Diagnostic UseLocation(ParserRuleContext context) => UseLocation(context.Start);
-    public Diagnostic UseLocation(ITerminalNode terminal) => UseLocation(terminal.Symbol);
+    public Diagnostic UseLocation(ParserRuleContext context)
+    {
+        return UseLocation(context.Start);
+    }
+
+    public Diagnostic UseLocation(ITerminalNode terminal)
+    {
+        return UseLocation(terminal.Symbol);
+    }
 
     public Diagnostic UseLocation(IToken token)
     {
@@ -51,6 +58,9 @@ public class Diagnostic<T>(Diagnostic? diagnostic, T value)
         if (diagnostic != null)
             reporter.Report(diagnostic);
     }
-    
-    public static implicit operator T(Diagnostic<T> diagnostic) => diagnostic._value;
+
+    public static implicit operator T(Diagnostic<T> diagnostic)
+    {
+        return diagnostic._value;
+    }
 }

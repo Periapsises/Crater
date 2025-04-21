@@ -4,8 +4,8 @@ namespace Core.SemanticAnalyzer;
 
 public static class Context
 {
-    public static ParserRuleContext? CurrentContext { get; private set; }
     private static readonly Stack<ParserRuleContext?> _contextStack = [];
+    public static ParserRuleContext? CurrentContext { get; private set; }
 
     public static void PushContext(ParserRuleContext context)
     {
@@ -17,7 +17,7 @@ public static class Context
     {
         if (_contextStack.Count == 0)
             throw new InvalidOperationException("Context stack is empty");
-        
+
         CurrentContext = _contextStack.Pop();
     }
 
@@ -25,16 +25,24 @@ public static class Context
     {
         if (CurrentContext == null)
             throw new InvalidOperationException("Current context is null");
-        
+
         if (CurrentContext is T currentContext)
             return currentContext;
-        
-        throw new InvalidCastException($"Current context is of type {CurrentContext.GetType().Name}, expexted {typeof(T).Name}");
+
+        throw new InvalidCastException(
+            $"Current context is of type {CurrentContext.GetType().Name}, expexted {typeof(T).Name}");
     }
 }
 
 public sealed class ScopedContext : IDisposable
 {
-    public ScopedContext(ParserRuleContext context) => Context.PushContext(context);
-    public void Dispose() => Context.PopContext();
+    public ScopedContext(ParserRuleContext context)
+    {
+        Context.PushContext(context);
+    }
+
+    public void Dispose()
+    {
+        Context.PopContext();
+    }
 }

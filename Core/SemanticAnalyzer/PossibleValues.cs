@@ -29,7 +29,7 @@ public class PossibleValues : List<Value>
             if (value.DataType == DataType.BooleanType)
                 return false;
         }
-        
+
         return true;
     }
 
@@ -45,11 +45,11 @@ public class PossibleValues : List<Value>
 
             if (value.Kind != ValueKind.Null)
                 return false;
-            
+
             if (value.DataType == DataType.BooleanType)
                 return false;
         }
-        
+
         return true;
     }
 
@@ -57,19 +57,19 @@ public class PossibleValues : List<Value>
     {
         if (Count == 0)
             return null;
-        
+
         if (Count == 1)
             return this[0];
 
         var commonDataType = this[0].DataType;
         for (var i = 1; i < Count; i++)
         {
-            var dataType =  this[i].DataType;
+            var dataType = this[i].DataType;
             var newCommonDataType = dataType.FindCommonType(commonDataType);
-            
+
             if (newCommonDataType == null)
                 return null;
-            
+
             commonDataType = newCommonDataType;
         }
 

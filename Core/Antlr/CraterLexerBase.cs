@@ -4,8 +4,8 @@ namespace Core.Antlr;
 
 public abstract class CraterLexerBase : Lexer
 {
-    private int _startLine;
     private int _startColumn;
+    private int _startLine;
 
     protected CraterLexerBase(ICharStream input)
         : base(input)
@@ -78,9 +78,9 @@ public abstract class CraterLexerBase : Lexer
         if (input.LA(1) != character)
             ErrorListenerDispatch.SyntaxError(ErrorOutput, this, 0, _startLine, _startColumn,
                 "mismatched comment bracket", null);
-        
+
         input.Consume();
-        
+
         return count;
     }
 }

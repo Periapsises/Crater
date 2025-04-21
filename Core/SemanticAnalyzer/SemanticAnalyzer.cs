@@ -11,6 +11,27 @@ namespace Core.SemanticAnalyzer;
 
 public class SemanticAnalyzer(IDiagnosticReporter reporter)
 {
+    private static readonly Dictionary<string, OperatorInformation> _arithmeticOperators = new()
+    {
+        { "+", new OperatorInformation("+", "__add") },
+        { "-", new OperatorInformation("-", "__sub") },
+        { "*", new OperatorInformation("*", "__mul") },
+        { "/", new OperatorInformation("/", "__div") },
+        { "%", new OperatorInformation("%", "__mod") },
+        { "^", new OperatorInformation("^", "__pow") },
+        { "..", new OperatorInformation("..", "__concat") }
+    };
+
+    private static readonly Dictionary<string, OperatorInformation> _logicOperators = new()
+    {
+        { "==", new OperatorInformation("==", "__eq") },
+        { "~=", new OperatorInformation("~=", "__eq", false, true) },
+        { "<", new OperatorInformation("<", "__lt") },
+        { ">", new OperatorInformation(">", "__lt", true) },
+        { "<=", new OperatorInformation("<=", "__le") },
+        { ">=", new OperatorInformation(">=", "__le", true) }
+    };
+
     public void AnalyzeModule(Module module)
     {
         Environment.SetupEnvironment();
@@ -19,18 +40,17 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
         Environment.DeclareGlobal("number", new Symbol(Value.From(DataType.NumberType), DataType.MetaType, false));
         Environment.DeclareGlobal("string", new Symbol(Value.From(DataType.StringType), DataType.MetaType, false));
         Environment.DeclareGlobal("bool", new Symbol(Value.From(DataType.BooleanType), DataType.MetaType, false));
-        
+
         AnalyzeBlock(module.Block);
-        
+
         Environment.ExitModuleScope();
     }
 
     private void AnalyzeBlock(Block block)
     {
         using var _ = new ScopedContext(block.Context);
-        
+
         foreach (var statement in block.Statements)
-        {
             switch (statement)
             {
                 case VariableDeclaration variableDeclaration:
@@ -48,13 +68,12 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
                 default:
                     throw new NotImplementedException($"Unknown statement type {statement.GetType()}");
             }
-        }
     }
 
     private void AnalyzeVariableDeclaration(VariableDeclaration variableDeclaration)
     {
         using var _ = new ScopedContext(variableDeclaration.Context);
-        
+
         var scope = variableDeclaration.Local ? Environment.GetLocalScope() : Environment.GetGlobalScope();
         var dataType = GetDataTypeFromReference(variableDeclaration.DataTypeReference);
 
@@ -66,7 +85,8 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
             var assignedValue = possibleValues.Resolve();
             if (assignedValue == null)
             {
-                reporter.Report(new UnresolvableValue(possibleValues).WithContext(variableDeclaration.Context.initializer));
+                reporter.Report(new TypeResolutionFailure(variableDeclaration.Initializer)
+                    .UseLocation(variableDeclaration.Context.initializer));
                 assignedValue = Value.InvalidValue;
             }
 
@@ -76,20 +96,18 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
                     .UseLocation(variableDeclaration.Context.initializer));
                 assignedValue = Value.InvalidValue;
             }
-            
+
             defaultSymbol.Assign(assignedValue);
         }
         else if (!variableDeclaration.DataTypeReference.Nullable)
         {
-            reporter.Report(new UninitializedNonNullable(variableDeclaration.Identifier)
-                .WithContext(variableDeclaration.Context.IDENTIFIER()));
+            reporter.Report(new NullableTypeMismatch(dataType)
+                .UseLocation(variableDeclaration.Context.type));
         }
 
         if (scope.HasSymbol(variableDeclaration.Identifier))
-        {
             reporter.Report(new VariableShadowing(variableDeclaration.Identifier)
                 .WithContext(variableDeclaration.Context.IDENTIFIER()));
-        }
 
         scope.Declare(variableDeclaration.Identifier, defaultSymbol);
     }
@@ -97,9 +115,9 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
     private void AnalyzeFunctionDeclaration(FunctionDeclaration functionDeclaration)
     {
         using var _ = new ScopedContext(functionDeclaration.Context);
-        
+
         var scope = functionDeclaration.Local ? Environment.GetLocalScope() : Environment.GetGlobalScope();
-        
+
         var returnTypes = new List<TypeUsage>();
         foreach (var returnDeclaration in functionDeclaration.Returns)
         {
@@ -115,10 +133,8 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
         }
 
         if (scope.HasSymbol(functionDeclaration.Identifier))
-        {
             reporter.Report(new VariableShadowing(functionDeclaration.Identifier)
                 .WithContext(functionDeclaration.Context.IDENTIFIER()));
-        }
 
         var functionValue = Value.From(new Function(parameters, returnTypes));
         var functionSymbol = new Symbol(functionValue, functionValue.DataType, false);
@@ -129,7 +145,8 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
 
         for (var i = 0; i < functionDeclaration.Parameters.Count; i++)
         {
-            var parameterSymbol = new Symbol(Value.Unknown(parameters[i].DataType, parameters[i].Nullable), parameters[i].DataType, functionDeclaration.Parameters[i].DataTypeReference.Nullable);
+            var parameterSymbol = new Symbol(Value.Unknown(parameters[i].DataType, parameters[i].Nullable),
+                parameters[i].DataType, functionDeclaration.Parameters[i].DataTypeReference.Nullable);
             functionScope.Declare(functionDeclaration.Parameters[i].Name, parameterSymbol);
         }
 
@@ -141,21 +158,21 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
     private void AnalyzeIfStatement(IfStatement ifStatement)
     {
         using var _ = new ScopedContext(ifStatement.Context);
-        
+
         var symbols = AnalyzeExpression(ifStatement.Condition);
         if (symbols.AlwaysTrue())
             reporter.Report(new ConditionAlwaysTrue().WithContext(ifStatement.Context.condition));
-        
+
         if (symbols.AlwaysFalse())
             reporter.Report(new ConditionAlwaysFalse().WithContext(ifStatement.Context.condition));
-        
+
         Environment.EnterScope(Environment.CreateSubScope());
         AnalyzeBlock(ifStatement.Block);
         Environment.ExitScope();
-        
+
         foreach (var elseIfStatement in ifStatement.ElseIfStatements)
             AnalyzeElseIfStatement(elseIfStatement);
-        
+
         if (ifStatement.ElseStatement != null)
             AnalyzeElseStatement(ifStatement.ElseStatement);
     }
@@ -163,14 +180,14 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
     private void AnalyzeElseIfStatement(ElseIfStatement elseIfStatement)
     {
         using var _ = new ScopedContext(elseIfStatement.Context);
-        
+
         var symbols = AnalyzeExpression(elseIfStatement.Condition);
         if (symbols.AlwaysTrue())
             reporter.Report(new ConditionAlwaysTrue().WithContext(elseIfStatement.Context.condition));
-        
+
         if (symbols.AlwaysFalse())
             reporter.Report(new ConditionAlwaysFalse().WithContext(elseIfStatement.Context.condition));
-        
+
         Environment.EnterScope(Environment.CreateSubScope());
         AnalyzeBlock(elseIfStatement.Block);
         Environment.ExitScope();
@@ -179,7 +196,7 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
     private void AnalyzeElseStatement(ElseStatement elseStatement)
     {
         using var _ = new ScopedContext(elseStatement.Context);
-        
+
         Environment.EnterScope(Environment.CreateSubScope());
         AnalyzeBlock(elseStatement.Block);
         Environment.ExitScope();
@@ -193,7 +210,8 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
         var function = possibleValues.Resolve();
         if (function == null)
         {
-            reporter.Report(new UnresolvableValue(possibleValues).WithContext(functionCallStatement.Context.primaryExpression()));
+            reporter.Report(new TypeResolutionFailure(functionCallStatement.PrimaryExpression)
+                .UseLocation(functionCallStatement.Context.primaryExpression()));
             function = Value.InvalidValue;
         }
         else if (!function.DataType.IsCompatible(FunctionType.FunctionBase))
@@ -202,21 +220,21 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
                 .UseLocation(functionCallStatement.Context));
             function = Value.InvalidValue;
         }
-        
+
         var arguments = new List<Value>();
         for (var i = 0; i < functionCallStatement.Arguments.Count; i++)
         {
             var argument = functionCallStatement.Arguments[i];
-            
+
             var possibleArgumentValues = AnalyzeExpression(argument);
             var argumentValue = possibleArgumentValues.Resolve();
             if (argumentValue == null)
             {
-                reporter.Report(new UnresolvableValue(possibleArgumentValues)
-                    .WithContext(functionCallStatement.Context.functionArguments().expression()[i]));
+                reporter.Report(new TypeResolutionFailure(functionCallStatement.Arguments[i])
+                    .UseLocation(functionCallStatement.Context.functionArguments().expression()[i]));
                 argumentValue = Value.InvalidValue;
             }
-            
+
             arguments.Add(argumentValue);
         }
 
@@ -229,7 +247,7 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
                 break;
         }
     }
-    
+
     private PossibleValues AnalyzeExpression(Expression expression)
     {
         switch (expression)
@@ -264,10 +282,9 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
     private PossibleValues AnalyzePrimaryExpression(PrimaryExpression primaryExpression)
     {
         using var _ = new ScopedContext(primaryExpression.Context);
-        
+
         var symbols = AnalyzeExpression(primaryExpression.PrefixExpression);
         foreach (var postfixExpression in primaryExpression.PostfixExpressions)
-        {
             switch (postfixExpression)
             {
                 case DotIndex dotIndex:
@@ -282,32 +299,32 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
                 default:
                     throw new NotImplementedException($"Unknown expression type {postfixExpression.GetType()}");
             }
-        }
-        
+
         return symbols;
     }
 
     private PossibleValues AnalyzeFunctionCall(PossibleValues possibleValues, FunctionCall functionCall)
     {
         using var _ = new ScopedContext(functionCall.Context);
-        
+
         var arguments = new List<Value>();
-        foreach (var argument in functionCall.Arguments)
+        for (var i = 0; i < functionCall.Arguments.Count; i++)
         {
+            var argument = functionCall.Arguments[i];
             var possibleArguments = AnalyzeExpression(argument);
             var argumentValue = possibleArguments.Resolve();
             if (argumentValue == null)
             {
-                reporter.Report(new UnresolvableValue(possibleArguments)
-                    .WithContext(functionCall.Context.functionArguments().expression()[0]));
+                reporter.Report(new TypeResolutionFailure(argument)
+                    .UseLocation(functionCall.Context.functionArguments().expression()[i]));
                 argumentValue = Value.InvalidValue;
             }
-                
+
             arguments.Add(argumentValue);
         }
 
         var resultingSymbols = new PossibleValues();
-        
+
         foreach (var symbol in possibleValues)
         {
             var result = symbol.Call(arguments);
@@ -317,14 +334,14 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
                 break;
             }
         }
-        
+
         return resultingSymbols;
     }
 
     private PossibleValues AnalyzeUnaryOperation(UnaryOperation unaryOperation)
     {
         using var _ = new ScopedContext(unaryOperation.Context);
-        
+
         var expression = AnalyzeExpression(unaryOperation.Expression);
 
         switch (unaryOperation.Operator)
@@ -364,21 +381,21 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
     private PossibleValues AnalyzeBinaryOperation(BinaryOperation binaryOperation)
     {
         using var _ = new ScopedContext(binaryOperation.Context);
-        
+
         var left = AnalyzeExpression(binaryOperation.Left);
         var right = AnalyzeExpression(binaryOperation.Right);
 
         if (_arithmeticOperators.TryGetValue(binaryOperation.Operator, out var operatorInfo))
             return PerformArithmeticOperation(left, right, operatorInfo)
                 .SendReport();
-        
+
         throw new NotImplementedException($"Unknown binary operator {binaryOperation.Operator}");
     }
 
     private PossibleValues AnalyzeLogicalOperation(LogicalOperation logicalOperation)
     {
         using var _ = new ScopedContext(logicalOperation.Context);
-        
+
         var left = AnalyzeExpression(logicalOperation.Left);
         var right = AnalyzeExpression(logicalOperation.Right);
 
@@ -393,17 +410,16 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
     public PossibleValues AnalyzeAndOperation(AndOperation andOperation)
     {
         using var _ = new ScopedContext(andOperation.Context);
-        
+
         var leftValues = AnalyzeExpression(andOperation.Left);
         var rightValues = AnalyzeExpression(andOperation.Right);
-        
+
         var leftCanBeTruthy = false;
         var leftCanBeFalsy = false;
 
         var resultingSymbols = new PossibleValues();
 
         foreach (var value in leftValues)
-        {
             // If we know the actual value of the symbol, and it is a boolean then we can determine if we need to add the symbol.
             if (value.Kind == ValueKind.Boolean)
             {
@@ -431,7 +447,6 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
             {
                 leftCanBeTruthy = true;
             }
-        }
 
         // If an 'and' operation's left symbols are only "falsy" then they are the only symbols passed further.
         if (!leftCanBeTruthy)
@@ -455,17 +470,16 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
     public PossibleValues AnalyzeOrOperation(OrOperation orOperation)
     {
         using var _ = new ScopedContext(orOperation.Context);
-        
+
         var leftValues = AnalyzeExpression(orOperation.Left);
         var rightValues = AnalyzeExpression(orOperation.Right);
-        
+
         var leftCanBeTruthy = false;
         var leftCanBeFalsy = false;
 
         var resultingValues = new PossibleValues();
 
         foreach (var value in leftValues)
-        {
             if (value.Kind == ValueKind.Boolean)
             {
                 var isTruthy = value.GetBoolean();
@@ -496,7 +510,6 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
                     resultingValues.Add(value);
                 }
             }
-        }
 
         if (!leftCanBeTruthy)
             reporter.Report(new OrAlwaysFalse().WithContext(orOperation.Context.expression()[0]));
@@ -515,7 +528,7 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
     private Value AnalyzeVariableReference(VariableReference variableReference)
     {
         using var _ = new ScopedContext(variableReference.Context);
-        
+
         if (!Environment.TryGetSymbol(variableReference, out var symbol))
         {
             reporter.Report(new VariableNotFound(variableReference)
@@ -529,7 +542,7 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
     private PossibleValues AnalyzeDotIndex(PossibleValues values, DotIndex dotIndex)
     {
         using var _ = new ScopedContext(dotIndex.Context);
-        
+
         var indices = Value.From(dotIndex.Index);
 
         return AnalyzeIndex(values, [indices])
@@ -540,64 +553,33 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
     private PossibleValues AnalyzeBracketIndex(PossibleValues values, BracketIndex bracketIndex)
     {
         using var _ = new ScopedContext(bracketIndex.Context);
-        
+
         var indices = AnalyzeExpression(bracketIndex.Index);
-        
+
         return AnalyzeIndex(values, indices)
             .WithContext(bracketIndex.Context)
             .SendReport();
     }
-    
+
     private Diagnostic<PossibleValues> AnalyzeIndex(PossibleValues values, PossibleValues indices)
     {
         var resultingValues = new PossibleValues();
-        
+
         foreach (var indexedValue in values)
+        foreach (var indexingValue in indices)
         {
-            foreach (var indexingValue in indices)
+            var result = indexedValue.Index(indexingValue);
+            if (result.OperationResult == OperationResult.Success)
             {
-                var result = indexedValue.Index(indexingValue);
-                if (result.OperationResult == OperationResult.Success)
-                {
-                    resultingValues.Add(result.Value!);
-                    continue;
-                }
-                
-                return new Diagnostic<PossibleValues>(new InvalidIndex())
+                resultingValues.Add(result.Value!);
+                continue;
             }
+
+            return new Diagnostic<PossibleValues>(new InvalidIndex())
         }
 
         return new Diagnostic<PossibleValues>(null, resultingValues);
     }
-
-    private struct OperatorInformation(string @operator, string metamethod, bool swapOperands = false, bool negateResult = false)
-    {
-        public readonly string Operator = @operator;
-        public readonly string Metamethod = metamethod;
-        public readonly bool SwapOperands = swapOperands;
-        public readonly bool NegateResult = negateResult;
-    }
-
-    private static readonly Dictionary<string, OperatorInformation> _arithmeticOperators = new()
-    {
-        { "+", new OperatorInformation("+", "__add") },
-        { "-", new OperatorInformation("-", "__sub") },
-        { "*", new OperatorInformation("*", "__mul") },
-        { "/", new OperatorInformation("/", "__div") },
-        { "%", new OperatorInformation("%", "__mod") },
-        { "^", new OperatorInformation("^", "__pow") },
-        { "..", new OperatorInformation("..", "__concat") },
-    };
-
-    private static readonly Dictionary<string, OperatorInformation> _logicOperators = new()
-    {
-        { "==", new OperatorInformation("==", "__eq", false, false) },
-        { "~=", new OperatorInformation("~=", "__eq", false, true) },
-        { "<", new OperatorInformation("<", "__lt", false, false) },
-        { ">", new OperatorInformation(">", "__lt", true, false) },
-        { "<=", new OperatorInformation("<=", "__le", false, false) },
-        { ">=", new OperatorInformation(">=", "__le", true, false) }
-    };
 
     private DiagnosticReport<PossibleValues> PerformArithmeticOperation(PossibleValues leftValues,
         PossibleValues rightValues, OperatorInformation opInfo)
@@ -608,29 +590,27 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
         var hasErroredForTypes = new HashSet<(DataType, DataType)>();
 
         foreach (var leftValue in leftValues)
+        foreach (var rightValue in rightValues)
         {
-            foreach (var rightValue in rightValues)
+            var result = leftValue.ArithmeticOperation(rightValue, opInfo.Metamethod);
+            if (result.OperationResult == OperationResult.Success)
             {
-                var result = leftValue.ArithmeticOperation(rightValue, opInfo.Metamethod);
-                if (result.OperationResult == OperationResult.Success)
-                {
-                    resultingValues.Add(result.Value!);
-                    continue;
-                }
-
-                if (hasErroredForTypes.Contains((leftValue.DataType, rightValue.DataType)))
-                    continue;
-
-                diagnostics.Report(
-                    new InvalidBinaryOperator(leftValue.DataType, rightValue.DataType, opInfo.Operator));
-                hasErroredForTypes.Add((leftValue.DataType, rightValue.DataType));
+                resultingValues.Add(result.Value!);
+                continue;
             }
+
+            if (hasErroredForTypes.Contains((leftValue.DataType, rightValue.DataType)))
+                continue;
+
+            diagnostics.Report(new UnsupportedBinaryOperation(opInfo.Operator, leftValue.DataType,
+                rightValue.DataType));
+            hasErroredForTypes.Add((leftValue.DataType, rightValue.DataType));
         }
 
         diagnostics.Data = resultingValues;
         return diagnostics;
     }
-    
+
     private DiagnosticReport<PossibleValues> PerformLogicOperation(PossibleValues leftValues,
         PossibleValues rightValues, OperatorInformation opInfo)
     {
@@ -643,23 +623,21 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
         var hasErroredForTypes = new HashSet<(DataType, DataType)>();
 
         foreach (var leftValue in leftValues)
+        foreach (var rightValue in rightValues)
         {
-            foreach (var rightValue in rightValues)
+            var result = leftValue.LogicOperation(rightValue, opInfo.Metamethod);
+            if (result.OperationResult == OperationResult.Success)
             {
-                var result = leftValue.LogicOperation(rightValue, opInfo.Metamethod);
-                if (result.OperationResult == OperationResult.Success)
-                {
-                    resultingValues.Add(result.Value!);
-                    continue;
-                }
-
-                if (hasErroredForTypes.Contains((leftValue.DataType, rightValue.DataType)))
-                    continue;
-
-                diagnostics.Report(
-                    new InvalidBinaryOperator(leftValue.DataType, rightValue.DataType, opInfo.Operator));
-                hasErroredForTypes.Add((leftValue.DataType, rightValue.DataType));
+                resultingValues.Add(result.Value!);
+                continue;
             }
+
+            if (hasErroredForTypes.Contains((leftValue.DataType, rightValue.DataType)))
+                continue;
+
+            diagnostics.Report(new UnsupportedBinaryOperation(opInfo.Operator, leftValue.DataType,
+                rightValue.DataType));
+            hasErroredForTypes.Add((leftValue.DataType, rightValue.DataType));
         }
 
         if (opInfo.NegateResult)
@@ -667,7 +645,6 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
             var negatedValues = new PossibleValues();
 
             foreach (var value in resultingValues)
-            {
                 if (value.Kind == ValueKind.Boolean)
                 {
                     var negatedValue = !value.GetBoolean();
@@ -686,7 +663,6 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
                     // Any other object in Lua that is subjected to the `not` operator will be false
                     negatedValues.Add(Value.From(false));
                 }
-            }
 
             resultingValues = negatedValues;
         }
@@ -694,7 +670,7 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
         diagnostics.Data = resultingValues;
         return diagnostics;
     }
-    
+
     private DataType GetDataTypeFromReference(TypeReference typeReference)
     {
         switch (typeReference)
@@ -743,7 +719,19 @@ public class SemanticAnalyzer(IDiagnosticReporter reporter)
             var dataType = GetDataTypeFromReference(returnReference);
             returnTypes.Add(new TypeUsage(dataType, returnReference.Nullable));
         }
-        
+
         return new FunctionType(parameterTypes, returnTypes);
+    }
+
+    private struct OperatorInformation(
+        string @operator,
+        string metamethod,
+        bool swapOperands = false,
+        bool negateResult = false)
+    {
+        public readonly string Operator = @operator;
+        public readonly string Metamethod = metamethod;
+        public readonly bool SwapOperands = swapOperands;
+        public readonly bool NegateResult = negateResult;
     }
 }

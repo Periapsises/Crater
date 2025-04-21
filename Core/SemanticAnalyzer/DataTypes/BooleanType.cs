@@ -2,7 +2,10 @@
 
 public class BooleanType() : DataType(BaseType)
 {
-    public override string GetName() => "bool";
+    public override string GetName()
+    {
+        return "bool";
+    }
 
     public override Result TryArithmeticOperation(Value left, Value right, string op)
     {
@@ -13,7 +16,7 @@ public class BooleanType() : DataType(BaseType)
     {
         if (op != "__eq")
             return new Result(OperationResult.NotImplemented);
-        
+
         if (left.Kind == ValueKind.Boolean && right.Kind == ValueKind.Boolean)
             return new Result(OperationResult.Success, Value.From(left.GetBoolean() == right.GetBoolean()));
 
@@ -29,7 +32,7 @@ public class BooleanType() : DataType(BaseType)
     {
         if (self.Kind == ValueKind.Boolean)
             return new Result(OperationResult.Success, Value.From(self.GetBoolean().ToString().ToLower()));
-        
+
         return new Result(OperationResult.Success, Value.Unknown(StringType));
     }
 

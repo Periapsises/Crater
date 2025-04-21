@@ -1,9 +1,6 @@
-﻿using Core.Antlr;
+﻿namespace Core.SyntaxTreeConverter;
 
-namespace Core.SyntaxTreeConverter;
-
-public class Block(List<Statement> statements, BlockCtx context)
+public class Block(List<Statement> statements)
 {
     public readonly List<Statement> Statements = statements;
-    public readonly BlockCtx Context = context;
 }

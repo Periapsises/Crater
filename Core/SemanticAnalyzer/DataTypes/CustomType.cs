@@ -2,8 +2,11 @@
 
 public class CustomType() : DataType(BaseType)
 {
-    public override string GetName() => "class";
-    
+    public override string GetName()
+    {
+        return "class";
+    }
+
     public override Result TryArithmeticOperation(Value left, Value right, string op)
     {
         return new Result(OperationResult.NotImplemented);
@@ -18,7 +21,7 @@ public class CustomType() : DataType(BaseType)
     {
         return new Result(OperationResult.NotImplemented);
     }
-    
+
     public override Result TryToString(Value self)
     {
         return new Result(OperationResult.NotImplemented);
