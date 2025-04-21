@@ -64,7 +64,7 @@ The first number represents the category in which the diagnostic belongs.
 **[CRA400]** Unreachable Code
 > Part of the code is unreachable due to an early return.
 
-**[CRA401]** Condition is always the same
+**[CRA401]** Unchanging Condition
 > A condition always evaluates to the same value at runtime.
 
 **[CRA402]** Variable Shadowing
