@@ -1,16 +1,15 @@
 ﻿using Antlr4.Runtime;
-using Core.SemanticAnalyzer.DataTypes;
-using Core.SemanticAnalyzer.Diagnostics;
+using Core.Diagnostics;
+using Core.Diagnostics.TypeErrors;
 using Core.SyntaxTreeConverter;
 using Core.SyntaxTreeConverter.Expressions;
 using Core.SyntaxTreeConverter.Statements;
 using Expression = Core.SyntaxTreeConverter.Expression;
 using FunctionType = Core.SemanticAnalyzer.DataTypes.FunctionType;
-using InvalidType = Core.SemanticAnalyzer.Diagnostics.InvalidType;
 
 namespace Core.SemanticAnalyzer;
 
-public class SemanticAnalyzer
+public class SemanticAnalyzer(IDiagnosticReporter reporter)
 {
     public void AnalyzeModule(Module module)
     {
@@ -67,14 +66,14 @@ public class SemanticAnalyzer
             var assignedValue = possibleValues.Resolve();
             if (assignedValue == null)
             {
-                DiagnosticReporter.Report(new UnresolvableValue(possibleValues).WithContext(variableDeclaration.Context.initializer));
+                reporter.Report(new UnresolvableValue(possibleValues).WithContext(variableDeclaration.Context.initializer));
                 assignedValue = Value.InvalidValue;
             }
 
             if (!assignedValue.DataType.IsCompatible(dataType))
             {
-                DiagnosticReporter.Report(new TypeMismatch(assignedValue.DataType, dataType)
-                    .WithContext(variableDeclaration.Context.initializer));
+                reporter.Report(new TypeMismatch(assignedValue.DataType, dataType)
+                    .UseLocation(variableDeclaration.Context.initializer));
                 assignedValue = Value.InvalidValue;
             }
             
@@ -82,13 +81,13 @@ public class SemanticAnalyzer
         }
         else if (!variableDeclaration.DataTypeReference.Nullable)
         {
-            DiagnosticReporter.Report(new UninitializedNonNullable(variableDeclaration.Identifier)
+            reporter.Report(new UninitializedNonNullable(variableDeclaration.Identifier)
                 .WithContext(variableDeclaration.Context.IDENTIFIER()));
         }
 
         if (scope.HasSymbol(variableDeclaration.Identifier))
         {
-            DiagnosticReporter.Report(new VariableShadowing(variableDeclaration.Identifier)
+            reporter.Report(new VariableShadowing(variableDeclaration.Identifier)
                 .WithContext(variableDeclaration.Context.IDENTIFIER()));
         }
 
@@ -117,7 +116,7 @@ public class SemanticAnalyzer
 
         if (scope.HasSymbol(functionDeclaration.Identifier))
         {
-            DiagnosticReporter.Report(new VariableShadowing(functionDeclaration.Identifier)
+            reporter.Report(new VariableShadowing(functionDeclaration.Identifier)
                 .WithContext(functionDeclaration.Context.IDENTIFIER()));
         }
 
@@ -145,10 +144,10 @@ public class SemanticAnalyzer
         
         var symbols = AnalyzeExpression(ifStatement.Condition);
         if (symbols.AlwaysTrue())
-            DiagnosticReporter.Report(new ConditionAlwaysTrue().WithContext(ifStatement.Context.condition));
+            reporter.Report(new ConditionAlwaysTrue().WithContext(ifStatement.Context.condition));
         
         if (symbols.AlwaysFalse())
-            DiagnosticReporter.Report(new ConditionAlwaysFalse().WithContext(ifStatement.Context.condition));
+            reporter.Report(new ConditionAlwaysFalse().WithContext(ifStatement.Context.condition));
         
         Environment.EnterScope(Environment.CreateSubScope());
         AnalyzeBlock(ifStatement.Block);
@@ -167,10 +166,10 @@ public class SemanticAnalyzer
         
         var symbols = AnalyzeExpression(elseIfStatement.Condition);
         if (symbols.AlwaysTrue())
-            DiagnosticReporter.Report(new ConditionAlwaysTrue().WithContext(elseIfStatement.Context.condition));
+            reporter.Report(new ConditionAlwaysTrue().WithContext(elseIfStatement.Context.condition));
         
         if (symbols.AlwaysFalse())
-            DiagnosticReporter.Report(new ConditionAlwaysFalse().WithContext(elseIfStatement.Context.condition));
+            reporter.Report(new ConditionAlwaysFalse().WithContext(elseIfStatement.Context.condition));
         
         Environment.EnterScope(Environment.CreateSubScope());
         AnalyzeBlock(elseIfStatement.Block);
@@ -194,12 +193,13 @@ public class SemanticAnalyzer
         var function = possibleValues.Resolve();
         if (function == null)
         {
-            DiagnosticReporter.Report(new UnresolvableValue(possibleValues).WithContext(functionCallStatement.Context.primaryExpression()));
+            reporter.Report(new UnresolvableValue(possibleValues).WithContext(functionCallStatement.Context.primaryExpression()));
             function = Value.InvalidValue;
         }
         else if (!function.DataType.IsCompatible(FunctionType.FunctionBase))
         {
-            DiagnosticReporter.Report(new TypeMismatch(function.DataType, FunctionType.FunctionBase).WithContext(functionCallStatement.Context));
+            reporter.Report(new TypeMismatch(function.DataType, FunctionType.FunctionBase)
+                .UseLocation(functionCallStatement.Context));
             function = Value.InvalidValue;
         }
         
@@ -212,7 +212,7 @@ public class SemanticAnalyzer
             var argumentValue = possibleArgumentValues.Resolve();
             if (argumentValue == null)
             {
-                DiagnosticReporter.Report(new UnresolvableValue(possibleArgumentValues)
+                reporter.Report(new UnresolvableValue(possibleArgumentValues)
                     .WithContext(functionCallStatement.Context.functionArguments().expression()[i]));
                 argumentValue = Value.InvalidValue;
             }
@@ -298,7 +298,7 @@ public class SemanticAnalyzer
             var argumentValue = possibleArguments.Resolve();
             if (argumentValue == null)
             {
-                DiagnosticReporter.Report(new UnresolvableValue(possibleArguments)
+                reporter.Report(new UnresolvableValue(possibleArguments)
                     .WithContext(functionCall.Context.functionArguments().expression()[0]));
                 argumentValue = Value.InvalidValue;
             }
@@ -353,8 +353,8 @@ public class SemanticAnalyzer
             if (hasErroredForTypes.Contains(value.DataType))
                 continue;
 
-            DiagnosticReporter.Report(new InvalidUnaryOperator(value.DataType, op)
-                .WithContext(token));
+            reporter.Report(new UnsupportedUnaryOperation(op, value.DataType)
+                .UseLocation(token));
             hasErroredForTypes.Add(value.DataType);
         }
 
@@ -436,14 +436,14 @@ public class SemanticAnalyzer
         // If an 'and' operation's left symbols are only "falsy" then they are the only symbols passed further.
         if (!leftCanBeTruthy)
         {
-            DiagnosticReporter.Report(new AndAlwaysFalse().WithContext(andOperation.Context.expression()[0]));
+            reporter.Report(new AndAlwaysFalse().WithContext(andOperation.Context.expression()[0]));
             return resultingSymbols;
         }
 
         // If an 'and' operation's left symbols are only "truthy" then only the right symbols are passed further.
         if (!leftCanBeFalsy)
         {
-            DiagnosticReporter.Report(new AndAlwaysTrue().WithContext(andOperation.Context.expression()[0]));
+            reporter.Report(new AndAlwaysTrue().WithContext(andOperation.Context.expression()[0]));
             return rightValues;
         }
 
@@ -499,11 +499,11 @@ public class SemanticAnalyzer
         }
 
         if (!leftCanBeTruthy)
-            DiagnosticReporter.Report(new OrAlwaysFalse().WithContext(orOperation.Context.expression()[0]));
+            reporter.Report(new OrAlwaysFalse().WithContext(orOperation.Context.expression()[0]));
 
         if (!leftCanBeFalsy)
         {
-            DiagnosticReporter.Report(new OrAlwaysTrue().WithContext(orOperation.Context.expression()[0]));
+            reporter.Report(new OrAlwaysTrue().WithContext(orOperation.Context.expression()[0]));
             return resultingValues;
         }
 
@@ -518,7 +518,7 @@ public class SemanticAnalyzer
         
         if (!Environment.TryGetSymbol(variableReference, out var symbol))
         {
-            DiagnosticReporter.Report(new VariableNotFound(variableReference)
+            reporter.Report(new VariableNotFound(variableReference)
                 .WithContext(variableReference.Context.IDENTIFIER()));
             return Value.InvalidValue;
         }
@@ -547,11 +547,10 @@ public class SemanticAnalyzer
             .WithContext(bracketIndex.Context)
             .SendReport();
     }
-
-    private DiagnosticReport<PossibleValues> AnalyzeIndex(PossibleValues values, PossibleValues indices)
+    
+    private Diagnostic<PossibleValues> AnalyzeIndex(PossibleValues values, PossibleValues indices)
     {
         var resultingValues = new PossibleValues();
-        var reporter = new DiagnosticReport<PossibleValues>();
         
         foreach (var indexedValue in values)
         {
@@ -564,12 +563,11 @@ public class SemanticAnalyzer
                     continue;
                 }
                 
-                reporter.Report(new InvalidIndex(indexedValue.DataType, indexingValue.DataType));
+                return new Diagnostic<PossibleValues>(new InvalidIndex())
             }
         }
 
-        reporter.Data = resultingValues;
-        return reporter;
+        return new Diagnostic<PossibleValues>(null, resultingValues);
     }
 
     private struct OperatorInformation(string @operator, string metamethod, bool swapOperands = false, bool negateResult = false)
@@ -717,13 +715,13 @@ public class SemanticAnalyzer
         var possibleValues = AnalyzeExpression(expression);
         if (possibleValues.Count != 1)
         {
-            DiagnosticReporter.Report(new InvalidType(expression));
+            reporter.Report(new InvalidType(expression));
             return DataType.InvalidType;
         }
 
         if (possibleValues[0].DataType != DataType.MetaType)
         {
-            DiagnosticReporter.Report(new InvalidType(expression));
+            reporter.Report(new InvalidType(expression));
             return DataType.InvalidType;
         }
 
